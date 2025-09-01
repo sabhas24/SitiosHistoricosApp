@@ -19,8 +19,7 @@ while True:
         num2 = float(input("Segundo número: "))
         
         if opcion == "1":
-            # TODO: Agregar suma
-            print("Suma pendiente")
+            print("El resultado es:", num1 + num2)
             
         elif opcion == "2":
             # TODO: Agregar resta
