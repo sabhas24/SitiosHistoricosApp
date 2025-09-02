@@ -22,8 +22,7 @@ while True:
             print("El resultado es:", num1 + num2)
             
         elif opcion == "2":
-            # TODO: Agregar resta
-            print("Resta pendiente")
+            print("El resultado es:", operaciones.restar(num1, num2))
             
         elif opcion == "3":
             # TODO: Agregar multiplicación
