@@ -26,7 +26,7 @@ while True:
             
         elif opcion == "3":
             # TODO: Agregar multiplicación
-            print("Multiplicación pendiente")
+            print("El resultado es:", operaciones.multiplicar(num1, num2))
             
         elif opcion == "4":
             # TODO: Agregar división
