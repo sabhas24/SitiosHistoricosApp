@@ -1,4 +1,4 @@
-
+from src import operaciones
 print("=== CALCULADORA ===")
 
 while True:
@@ -22,16 +22,15 @@ while True:
             print("El resultado es:", num1 + num2)
             
         elif opcion == "2":
-            # TODO: Agregar resta
-            print("Resta pendiente")
+            print("El resultado es:", operaciones.restar(num1, num2))
             
         elif opcion == "3":
             # TODO: Agregar multiplicación
-            print("Multiplicación pendiente")
+            print("El resultado es:", operaciones.multiplicar(num1, num2))
             
         elif opcion == "4":
             # TODO: Agregar división
-            print("División pendiente")
+            print("El resultado es:", operaciones.dividir(num1, num2))
     
     else:
         print("Opción no válida")
