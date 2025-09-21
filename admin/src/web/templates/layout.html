@@ -3,20 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Mi Sitio{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
-</head>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/topBar.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+    <linl rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
 <body>
-    <header>
-        <h1>Bienvenido a Mi Sitio </h1>
-       <h2>Mi Sitio</h2>
-    </header>
+  {% include 'topBar.html' %}
+  <div class="layout-container">
+  {% include 'sidebar.html' %}
+  
     <main>
         {% block content %}
-        
         {% endblock %}
     </main>
-    <footer>
-        <p>&copy; 2025 Mi Sitio</p>
-    </footer>
+    
+  </div>
+    {% include 'footer.html' %}
 </body>
 </html>
