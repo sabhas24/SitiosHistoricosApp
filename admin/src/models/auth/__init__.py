@@ -22,6 +22,22 @@ def user_update(id, **kwargs):
     db.session.commit()
     print(f" ✅ User updated: {user}")
     return user
+def user_detroy(id):
+    print(f" 📝Deleting user with ID: {id}")
+    user = db.session.get(user, id)
+    if not user:
+        print(f" ❌ User with ID {id} not found")
+        return False
+    db.session.delete(user)
+    db.session.commit()
+    print(f" ✅ User deleted")
+    return True
+def user_show(id):
+    user = db.session.get(user, id)
+    if not user:
+        print(f" ❌ User with ID {id} not found")
+        return None
+    return user
 
 def create_role(name):
     print(f" 📝Creating role: {name}")
