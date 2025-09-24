@@ -1,0 +1,49 @@
+from src.models.database import db
+from src.models.auth.user import user
+from src.models.auth.role import Role
+from src.models.auth.permission import Permission
+
+def user_new(**kwargs):
+    print(" 📝Creating a new user with the following details:")
+    new= user(**kwargs)
+    db.session.add(new)
+    db.session.commit()
+    print(f" ✅ User created with ID: {new.id}")
+    return new
+
+def user_index():
+    return db.session.query(user).all()
+
+def user_update(id, **kwargs):
+    print(f" 📝Updating user with ID: {id}, {kwargs}")
+    user = db.session.get(user, id)
+    for key, value in kwargs.items():
+        setattr(user, key, value)
+    db.session.commit()
+    print(f" ✅ User updated: {user}")
+    return user
+
+def create_role(name):
+    print(f" 📝Creating role: {name}")
+    role = Role(name=name)
+    db.session.add(role)
+    db.session.commit()
+    print(f" ✅ Role created with ID: {role.id} {role.name}")
+    return role
+
+def create_permission(name):
+    print(f" 📝Creating permission: {name}")
+    permission = Permission(name=name)
+    db.session.add(permission)
+    db.session.commit()
+    print(f" ✅ Permission created with ID: {permission.id}")
+    return permission
+
+def assign_permission_to_role(role_name, perm_name):
+    print(f" 📝Assigning permission '{perm_name}' to role '{role_name}'")
+    role = db.session.query(Role).filter_by(name=role_name).first()  # Cambia Role.query a db.session.query(Role)
+    perm = db.session.query(Permission).filter_by(name=perm_name).first()  # Cambia Permission.query a db.session.query(Permission)
+    if role and perm and perm not in role.permissions:
+        role.permissions.append(perm)
+        db.session.commit()
+        print(f" ✅ Permission '{perm_name}' assigned to role '{role_name}'")

@@ -6,18 +6,22 @@ class Config(object):
     TESTING = False
 
 class DevelopmentConfig(Config):
-    BD_USER="postgres"
-    BD_PASSWORD="admin"
-    BD_HOST="localhost"
-    BD_PORT="5432"
-    BD_NAME="grupo44"
-    BD_SCHEME="postgresql+psycopg2"
-    SQLALCHEMY_ENGINE = {"default": f"{BD_SCHEME}://{BD_USER}:{BD_PASSWORD}@{BD_HOST}:{BD_PORT}/{BD_NAME}"}
+    DEBUG = True
+    BD_USER = "postgres"
+    BD_PASSWORD = "admin"
+    BD_HOST = "localhost"
+    BD_PORT = "5432"
+    BD_NAME = "grupo44"
+    BD_SCHEME = "postgresql"
 
-    TESTING = True
+    
+    SQLALCHEMY_ENGINES = {
+        "default": f"{BD_SCHEME}://{BD_USER}:{BD_PASSWORD}@{BD_HOST}:{BD_PORT}/{BD_NAME}?client_encoding=utf8"
+    }
+
 
 class ProductionConfig(Config):
-    SQLALCHEMY_ENGINE={"default": environ.get("DATABASE_URL")}
+    SQLALCHEMY_ENGINES = {"default": environ.get("DATABASE_URL")}
     DEBUG = False
 
 config = {
