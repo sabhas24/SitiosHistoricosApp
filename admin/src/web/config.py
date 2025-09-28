@@ -1,11 +1,17 @@
 from os import environ
 
 
+
 class Config(object):
     DEBUG = False
     TESTING = False
 
 class DevelopmentConfig(Config):
+    SECRET_KEY = environ.get("SECRET_KEY", "c413c4db1b08e3ef4e296c8d9643d378")
+    SESSION_TYPE="filesystem"
+    SESSION_PERMANENT = False
+    SESSION_USE_SIGNER = True
+    
     DEBUG = True
     BD_USER = "postgres"
     BD_PASSWORD = "admin"

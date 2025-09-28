@@ -13,12 +13,12 @@ def user_new(**kwargs):
     db.session.commit()
     print(f" ✅ User created with ID: {new.id}")
     return new
-def user_check_password(username, password):
-    user_obj=db.session.query(user).filter_by(username=username).first()
+def user_check_password(email, password):
+    user_obj=db.session.query(user).filter_by(email=email).first()
     if user_obj and check_password_hash(user_obj.password, password):
-        print(f" ✅ Password for user '{username}' is correct.")
+        print(f" ✅ Password for user '{email}' is correct.")
         return True
-    print(f" ❌ Password for user '{username}' is incorrect or user does not exist.")
+    print(f" ❌ Password for user '{email}' is incorrect or user does not exist.")
     return False
 def user_index():
     return db.session.query(user).all()
