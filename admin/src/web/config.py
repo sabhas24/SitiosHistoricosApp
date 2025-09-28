@@ -3,14 +3,19 @@ from os import environ
 
 
 class Config(object):
+    SECRET_KEY = "c413c4db1b08e3ef4e296c8d9643d378"
+    SESSION_TYPE="filesystem"
+    SESSION_PERMANENT = False
+    SESSION_USE_SIGNER = True
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "poll_size": 10,
+        "pool_pre_ping": True,
+        "pool_recycle": 60
+    }
     DEBUG = False
     TESTING = False
 
 class DevelopmentConfig(Config):
-    SECRET_KEY = environ.get("SECRET_KEY", "c413c4db1b08e3ef4e296c8d9643d378")
-    SESSION_TYPE="filesystem"
-    SESSION_PERMANENT = False
-    SESSION_USE_SIGNER = True
     
     DEBUG = True
     BD_USER = "postgres"

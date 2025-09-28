@@ -1,6 +1,6 @@
 .main-content {
     width: 100%;
-    max-width: 80%;
+    max-width: 1200px;
     padding: 32px;
     background: #fff;
     display: flex   ;
@@ -8,18 +8,76 @@
     border-radius: 12px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.08);
     text-align: center;
+    margin: 0 auto;
 }
 
 .main-content h3 {
     display:flex;
     flex-direction: column;
     
+    color: #2f3542;
+    margin-bottom: 1.5rem;
     font-size: 2rem;
-    color: #222;
+    font-weight: 600;
 }
 
 .main-content p {
-    margin-bottom: 12px;
-    font-size: 1.1rem;
-    color: #444;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: #57606f;
+}
+
+/* Cards para contenido */
+.content-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    margin-bottom: 2rem;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+/* Botones */
+.btn {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, #a4b0be 0%, #747d8c 100%);
+}
+
+@media (max-width: 768px) {
+    .main-content h3 {
+        font-size: 1.5rem;
+    }
+    
+    .content-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .content-card {
+        padding: 1.5rem;
+    }
 }

@@ -3,7 +3,7 @@ from src.web.config import config as app_config
 from src.models import database
 from flask_session import Session 
 from src.web.controllers.auth import bp as auth_bp
-
+from src.web.handlers.auth import is_authenticated
 
 def create_app(env="development", static_folder="../../static"):
     app = Flask(__name__, static_folder=static_folder)
@@ -24,6 +24,8 @@ def create_app(env="development", static_folder="../../static"):
 
     # Registrar blueprints
     app.register_blueprint(auth_bp)
+
+    app.jinja_env.globals['is_authenticated'] = is_authenticated
 
     @app.cli.command("reset-db")
     def reset_db_command():

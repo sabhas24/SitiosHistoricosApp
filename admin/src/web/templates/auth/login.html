@@ -3,7 +3,8 @@
 {% block title %}Inicio{% endblock %}
 
 {% block content %}
-<div class="main-content">
+<div class="auth-wrapper">
+  <div class="form-container">
     <h3>Iniciar sesión</h3>
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
@@ -14,16 +15,17 @@
         </ul>
       {% endif %}
     {% endwith %}
-    <form method="POST" action="{{ url_for('auth.authenticate') }}">
+    <form method="POST" action="{{ url_for('auth.authenticate') }}" novalidate>
         <div class="form-group">
-            <label for="username">Usuario:</label>
-            <input type="text" id="username" name="username" required>
+            <label for="username">Usuario</label>
+            <input type="text" id="username" name="username" autocomplete="username" required>
         </div>
         <div class="form-group">
-            <label for="password">Contraseña:</label>
-            <input type="password" id="password" name="password" required>
+            <label for="password">Contraseña</label>
+            <input type="password" id="password" name="password" autocomplete="current-password" required>
         </div>
-        <button type="submit" >Iniciar sesino</button>
+        <button class="btn btn-primary" type="submit">Iniciar sesión</button>
     </form>
+  </div>
 </div>
 {% endblock %}

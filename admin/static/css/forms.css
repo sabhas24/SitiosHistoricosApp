@@ -1,0 +1,120 @@
+.auth-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 2rem 0;
+}
+
+.form-container {
+    width: 100%;
+    max-width: 360px;
+    margin: 0 1rem;
+    padding: 2rem 2rem 1.75rem;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+    border: 1px solid #eef1f5;
+}
+
+.form-container h3 {
+    text-align: center;
+    color: #2f3542;
+    margin-bottom: 2rem;
+    font-size: 1.8rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #2f3542;
+    font-weight: 500;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.7rem 0.85rem;
+    border: 1.5px solid #d8dde3;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    background: #fdfdfd;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102,126,234,0.25);
+    background: #fff;
+}
+
+.form-group input:invalid { border-color: #ff4757; }
+
+button.btn, .btn.btn-primary {
+    display: inline-block;
+    width: 100%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    padding: 0.85rem 1rem;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: .3px;
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+
+button.btn:hover, .btn.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(102, 126, 234, 0.4);
+}
+
+button.btn:active, .btn.btn-primary:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(102,126,234,0.35);
+}
+
+
+.flashes {
+    list-style: none;
+    margin-bottom: 1.5rem;
+}
+
+.flashes li {
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 5px;
+    font-weight: 200;
+    animation: flash-enter .35s ease;
+}
+
+.flashes li.error {
+    background-color: rgba(237, 67, 55, 0.8);
+    
+    color: white;
+}
+
+.flashes li.success {
+    background-color: #2ed573;
+    color: white;
+}
+
+.flashes li.info {
+    background-color: #3742fa;
+    color: white;
+}
+
+/* Barra de tiempo visual */
+/* Animaciones simples */
+@keyframes flash-enter { from { transform: translateY(-6px); opacity:0; } to { transform: translateY(0); opacity:1; } }
+@keyframes flash-exit { to { opacity:0; height:0; margin:0; padding:0; } }
+.flashes li.removing { animation: flash-exit .5s ease forwards; }
+
+@media (max-width: 768px) {
+    .auth-wrapper { padding: 1.5rem 0; }
+    .form-container { padding: 1.6rem 1.5rem 1.25rem; }
+}

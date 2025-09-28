@@ -1,17 +1,43 @@
 footer {
-    background-color: #222;
-    color: #fff;
-    padding: 20px 0;
-    text-align: center;
-    font-size: 16px;
+    background-color: #2f3542;
+    color: #a4b0be;
+    padding: 1.5rem 0;
+    margin-top: auto;
+    width: 100%;
+    position: relative; /* fuerza a no ser fijo si algún css viejo lo pisa */
+    inset: auto !important;
+}
+
+.main-footer .footer-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.footer-left, .footer-right { flex: 1; }
+.footer-left { text-align: left; }
+.footer-right { text-align: right; }
+
+@media (max-width: 700px) {
+  .footer-left, .footer-right { text-align: center; }
+  .main-footer .footer-content { flex-direction: column; }
+}
+
+footer p {
+    margin: 0;
+    font-size: 0.9rem;
 }
 
 footer a {
-    color: #ffd700;
+    color: #667eea;
     text-decoration: none;
-    margin: 0 10px;
 }
 
 footer a:hover {
-    text-decoration: underline;
+    color: #4834d4;
 }
