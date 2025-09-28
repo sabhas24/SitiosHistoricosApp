@@ -13,9 +13,9 @@ def run():
     
     # 2. Crear roles
     print("👥 Creating roles...")
-    admin_role = create_role("Administrador")
-    operator_role = create_role("Operador")
-    user_role = create_role("Usuario")
+    admin_role = create_role("usuario publico")
+    operator_role = create_role("editor")
+    user_role = create_role("administrador")
     
     # 3. Asignar permisos a roles
     print("🔗 Assigning permissions...")
