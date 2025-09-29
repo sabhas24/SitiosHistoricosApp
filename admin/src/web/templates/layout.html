@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Mi Sitio{% endblock %}</title>
+    <title>{% block title %}Dashboard Moderno{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/layout.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/topBar.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/footer.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
 </head>
 <body>
   {% include 'topBar.html' %}
@@ -28,44 +31,105 @@
   
   {% include 'footer.html' %}
   <script>
-    (function(){
+    // Sidebar functionality
+    document.addEventListener('DOMContentLoaded', function() {
       const sidebar = document.getElementById('sidebar');
       const toggle = document.getElementById('sidebarToggle');
-      if(!sidebar || !toggle) return;
+      const main = document.querySelector('main.with-sidebar');
+      
+      if (!sidebar || !toggle) return;
 
       const KEY = 'sidebar:minimized';
+      
+      // Crear overlay para móviles
+      let overlay = document.querySelector('.sidebar-overlay');
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.className = 'sidebar-overlay';
+        document.body.appendChild(overlay);
+      }
+      
+      // Función para aplicar el estado del sidebar
       const applyState = () => {
         const minimized = localStorage.getItem(KEY) === '1';
         sidebar.classList.toggle('minimized', minimized);
-        if(minimized) {
-          toggle.textContent = '»';
-          document.querySelector('main.with-sidebar')?.classList.add('sidebar-collapsed');
-        } else {
-          toggle.textContent = '«';
-          document.querySelector('main.with-sidebar')?.classList.remove('sidebar-collapsed');
+        
+        if (main) {
+          main.classList.toggle('sidebar-collapsed', minimized);
+        }
+        
+        // Cambiar icono del botón
+        const icon = toggle.querySelector('i');
+        if (icon) {
+          if (minimized) {
+            icon.className = 'fas fa-chevron-right';
+          } else {
+            icon.className = 'fas fa-bars';
+          }
         }
       };
+
+      // Función para mostrar/ocultar sidebar en móvil
+      const toggleMobileSidebar = (show) => {
+        sidebar.classList.toggle('active', show);
+        overlay.classList.toggle('active', show);
+        document.body.style.overflow = show ? 'hidden' : '';
+      };
+
+      // Aplicar estado inicial
       applyState();
 
-      toggle.addEventListener('click', () => {
+      // Manejar click en el botón toggle
+      toggle.addEventListener('click', (e) => {
+        e.preventDefault();
         
-        if(window.matchMedia('(max-width: 900px)').matches) {
-          sidebar.classList.toggle('active');
+        // En móviles, solo mostrar/ocultar
+        if (window.matchMedia('(max-width: 900px)').matches) {
+          const isActive = sidebar.classList.contains('active');
+          toggleMobileSidebar(!isActive);
           return;
         }
-        const minimized = sidebar.classList.toggle('minimized');
-        localStorage.setItem(KEY, minimized ? '1' : '0');
+        
+        // En desktop, minimizar/expandir
+        const isMinimized = sidebar.classList.contains('minimized');
+        localStorage.setItem(KEY, isMinimized ? '0' : '1');
         applyState();
       });
 
-      
+      // Cerrar sidebar al hacer click en el overlay
+      overlay.addEventListener('click', () => {
+        toggleMobileSidebar(false);
+      });
+
+      // Cerrar sidebar en móviles al hacer click fuera
       document.addEventListener('click', (e) => {
-        if(!window.matchMedia('(max-width: 900px)').matches) return;
-        if(!sidebar.contains(e.target) && e.target !== toggle) {
-          sidebar.classList.remove('active');
+        if (!window.matchMedia('(max-width: 900px)').matches) return;
+        
+        if (!sidebar.contains(e.target) && !toggle.contains(e.target) && !overlay.contains(e.target)) {
+          toggleMobileSidebar(false);
         }
       });
-    })();
+
+      // Manejar cambios de tamaño de ventana
+      window.addEventListener('resize', () => {
+        if (window.matchMedia('(max-width: 900px)').matches) {
+          sidebar.classList.remove('minimized');
+          if (main) {
+            main.classList.remove('sidebar-collapsed');
+          }
+        } else {
+          toggleMobileSidebar(false);
+          applyState();
+        }
+      });
+
+      // Cerrar con tecla Escape
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && window.matchMedia('(max-width: 900px)').matches) {
+          toggleMobileSidebar(false);
+        }
+      });
+    });
 
     
     (function(){
@@ -78,6 +142,94 @@
         li.addEventListener('click', () => { clearTimeout(timeout); li.classList.add('removing'); setTimeout(()=>li.remove(), 500); });
       });
     })();
+
+    // Función para mostrar mensaje de "próximamente"
+    function showComingSoon(feature) {
+      // Crear elemento de notificación
+      const notification = document.createElement('div');
+      notification.className = 'coming-soon-notification';
+      notification.innerHTML = `
+        <div class="notification-content">
+          <i class="fas fa-construction"></i>
+          <span><strong>${feature}</strong> estará disponible próximamente</span>
+          <button onclick="this.parentElement.parentElement.remove()" class="notification-close">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      `;
+      
+      // Agregar estilos si no existen
+      if (!document.getElementById('coming-soon-styles')) {
+        const styles = document.createElement('style');
+        styles.id = 'coming-soon-styles';
+        styles.textContent = `
+          .coming-soon-notification {
+            position: fixed;
+            top: 80px;
+            right: 1rem;
+            z-index: 1001;
+            background: linear-gradient(135deg, var(--warning-color), #f97316);
+            color: white;
+            padding: 1rem 1.25rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-lg);
+            animation: slideInRight 0.3s ease;
+            max-width: 350px;
+          }
+          
+          .notification-content {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+          }
+          
+          .notification-close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 0.25rem;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: auto;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+          }
+          
+          .notification-close:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.2);
+          }
+          
+          @keyframes slideInRight {
+            from {
+              transform: translateX(100%);
+              opacity: 0;
+            }
+            to {
+              transform: translateX(0);
+              opacity: 1;
+            }
+          }
+        `;
+        document.head.appendChild(styles);
+      }
+      
+      // Agregar al DOM
+      document.body.appendChild(notification);
+      
+      // Auto-remover después de 4 segundos
+      setTimeout(() => {
+        if (notification.parentElement) {
+          notification.style.animation = 'slideInRight 0.3s ease reverse';
+          setTimeout(() => notification.remove(), 300);
+        }
+      }, 4000);
+    }
   </script>
 </body>
 </html>

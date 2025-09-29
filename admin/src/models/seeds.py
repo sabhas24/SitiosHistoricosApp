@@ -6,53 +6,57 @@ def run():
     
     # 1. Crear permisos
     print("📝 Creating permissions...")
-    permissions = ["lectura", "escritura"]
+    permissions = ["lectura", "escritura", "eliminacion"]
     
     for perm_name in permissions:
         create_permission(perm_name)
     
     # 2. Crear roles
     print("👥 Creating roles...")
-    admin_role = create_role("usuario publico")
-    operator_role = create_role("editor")
-    user_role = create_role("administrador")
+    user_role = create_role("usuario publico")
+    editor_role = create_role("editor") 
+    admin_role = create_role("administrador")
     
     # 3. Asignar permisos a roles
     print("🔗 Assigning permissions...")
     
-    # Admin: todos los permisos
+    # Administrador: todos los permisos
     for perm_name in permissions:
-        assign_permission_to_role("Administrador", perm_name)
+        assign_permission_to_role("administrador", perm_name)
     
-    # Operador: lectura y escritura
-    for perm_name in permissions:
-        assign_permission_to_role("Operador", perm_name)
+    # Editor: lectura y escritura (no eliminación)
+    assign_permission_to_role("editor", "lectura")
+    assign_permission_to_role("editor", "escritura")
     
-    # Usuario: solo lectura
-    assign_permission_to_role("Usuario", "lectura")
+    # Usuario público: solo lectura
+    assign_permission_to_role("usuario publico", "lectura")
     
-    # 4. Crear usuarios
+    # 4. Crear usuarios de prueba
     print("👤 Creating users...")
+    
+    # Administrador
     user_new(
-        email="admin@patrimonioba.com",
+        email="admin@admin.com",
         name="Admin",
         password="admin123",
         last_name="Sistema",
         role_id=admin_role.id
     )
     
+    # Editor
     user_new(
-        email="operador@patrimonioba.com",
+        email="editor@editor.com",
         name="María",
-        password="operador123",
+        password="editor123",
         last_name="González",
-        role_id=operator_role.id
+        role_id=editor_role.id
     )
     
+    # Usuario público
     user_new(
-        email="usuario@patrimonioba.com",
+        email="user@user.com",
         name="Juan",
-        password="usuario123",
+        password="user123",
         last_name="Pérez",
         role_id=user_role.id
     )

@@ -19,7 +19,7 @@ class DevelopmentConfig(Config):
     
     DEBUG = True
     BD_USER = "postgres"
-    BD_PASSWORD = "nico1234"
+    BD_PASSWORD = "admin"
     BD_HOST = "localhost"
     BD_PORT = "5432"
     BD_NAME = "grupo44"
