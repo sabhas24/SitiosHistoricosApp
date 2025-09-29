@@ -3,6 +3,7 @@ from src.web.config import config as app_config
 from src.models import database
 from flask_session import Session 
 from src.web.controllers.auth import bp as auth_bp
+from src.web.controllers.sitios import bp as sitios_bp
 from src.web.handlers.auth import is_authenticated
 
 def create_app(env="development", static_folder="../../static"):
@@ -24,8 +25,33 @@ def create_app(env="development", static_folder="../../static"):
 
     # Registrar blueprints
     app.register_blueprint(auth_bp)
+    app.register_blueprint(sitios_bp)
 
     app.jinja_env.globals['is_authenticated'] = is_authenticated
+    
+    # Importar funciones de permisos para templates
+    from src.web.handlers.permissions import (
+        is_admin, is_editor, is_editor_or_admin,
+        can_create_sitios, can_edit_sitios, can_delete_sitios,
+        get_current_user
+    )
+    
+    # Hacer funciones de permisos disponibles en templates
+    app.jinja_env.globals['is_admin'] = is_admin
+    app.jinja_env.globals['is_editor'] = is_editor
+    app.jinja_env.globals['is_editor_or_admin'] = is_editor_or_admin
+    app.jinja_env.globals['can_create_sitios'] = can_create_sitios
+    app.jinja_env.globals['can_edit_sitios'] = can_edit_sitios
+    app.jinja_env.globals['can_delete_sitios'] = can_delete_sitios
+    app.jinja_env.globals['get_current_user'] = get_current_user
+    
+    # Filtros personalizados para Jinja2
+    @app.template_filter('nl2br')
+    def nl2br_filter(text):
+        """Convierte saltos de línea en <br> tags"""
+        if not text:
+            return text
+        return text.replace('\n', '<br>\n')
 
     @app.cli.command("reset-db")
     def reset_db_command():

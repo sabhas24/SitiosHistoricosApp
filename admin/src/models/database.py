@@ -14,6 +14,7 @@ def reset_db():
     from src.models.auth.user import user
     from src.models.auth.role import Role
     from src.models.auth.permission import Permission
+    from src.models.sitio_historico import SitioHistorico
     print("⚠️ Resetting the database")
     Base.metadata.drop_all(bind=db.engine)
     Base.metadata.create_all(bind=db.engine)

@@ -1,14 +1,84 @@
 {% extends 'layout.html' %}
 
-{% block title %}Inicio{% endblock %}
+{% block title %}Dashboard - Inicio{% endblock %}
 
 {% block content %}
-<div class="main-content">
-    <h3>Página de inicio</h3>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam nec elit a velit mollis euismod eu vitae magna. Quisque sit amet dignissim sapien. Pellentesque sollicitudin dapibus felis at posuere. Suspendisse fermentum mi et porttitor efficitur. Proin in ullamcorper dolor, eget tincidunt mauris. Nulla vestibulum enim at magna porta, id placerat justo gravida. Fusce elementum nisl et faucibus tempor. Nulla sagittis massa a turpis euismod, id rutrum sem egestas. Ut ornare lectus sit amet lorem vehicula condimentum. Aenean nisi diam, tempor non lacinia a, hendrerit et diam. Ut condimentum nisi purus, nec scelerisque ante elementum sagittis. Ut pharetra sit amet libero eu dapibus. Maecenas gravida sed ex quis condimentum. Suspendisse non ante ac lacus vestibulum ullamcorper.
+<div class="container">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <h1 class="hero-title">
+      <i class="fas fa-rocket"></i>
+      Bienvenido al Dashboard
+    </h1>
+    <p class="hero-subtitle">
+      Sistema moderno de gestión de sitios historicos .
+    </p>
+    <div class="hero-actions">
+      {% if not is_authenticated() %}
+        <a href="{{ url_for('auth.login') }}" class="hero-btn hero-btn-primary">
+          <i class="fas fa-sign-in-alt"></i>
+          Iniciar Sesión
+        </a>
+      {% else %}
+        
+      {% endif %}
+      <a href="#features" class="hero-btn hero-btn-secondary">
+        <i class="fas fa-info-circle"></i>
+        Más Información
+      </a>
+    </div>
+  </section>
 
-Fusce dapibus nisl mi, id ornare leo suscipit non. Fusce efficitur sed augue vitae facilisis. Nulla ornare elementum nisl quis auctor. Cras semper arcu diam. Quisque sodales libero ullamcorper erat sagittis, sed convallis neque tempor. Suspendisse vestibulum, dolor sed consequat consectetur, diam dolor dictum odio, id tincidunt neque augue vitae sem. Sed tincidunt, odio vitae posuere posuere, orci urna dapibus elit, auctor lobortis ligula elit vehicula felis. Suspendisse sem ipsum, malesuada a imperdiet non, ullamcorper non quam. Nullam eleifend metus lorem, ac ultricies velit hendrerit tempor. Sed quis risus sed diam tristique fringilla sed quis dui. Praesent rhoncus lacus leo, ut pharetra ipsum ornare finibus. Proin mi lectus, pellentesque at lacus in, sodales accumsan erat. Curabitur quam ex, commodo sollicitudin aliquet non, blandit vel lectus.</p>
-    <p>¡Bienvenido a mi proyecto Flask!</p>
-    <p>página en construcción </p>
+  {% if is_authenticated() %}
+  <!-- Estadísticas -->
+  <section class="stats-section">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <span class="stat-number">3</span>
+        <span class="stat-label">Usuarios Activos</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">3</span>
+        <span class="stat-label">Roles Configurados</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">2</span>
+        <span class="stat-label">Permisos Definidos</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Acciones Rápidas -->
+  <section class="quick-actions">
+    <h2 class="quick-actions-title">Acciones Rápidas</h2>
+    <div class="actions-grid">
+      <a href="javascript:void(0)" onclick="showComingSoon('Crear Usuario')" class="action-item">
+        <div class="action-icon">
+          <i class="fas fa-user-plus"></i>
+        </div>
+        <div class="action-content">
+          <div class="action-title">Crear Usuario</div>
+          <div class="action-description">Agregar un nuevo usuario al sistema</div>
+        </div>
+      </a>
+      
+      <a href="javascript:void(0)" onclick="showComingSoon('Gestionar Roles')" class="action-item">
+        <div class="action-icon">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <div class="action-content">
+          <div class="action-title">Gestionar Roles</div>
+          <div class="action-description">Configurar roles y permisos</div>
+        </div>
+      </a>
+    
+    </div>
+  </section>
+  {% endif %}
+
+ 
+    
+    
+  </section>
 </div>
 {% endblock %}

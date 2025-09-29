@@ -1,20 +1,56 @@
-<header class="topBar">
-  <div class="logo">
-    <h1>Mi Sitio</h1>
-  </div>
-  <div class="topBar-menu">
+<header class="topbar">
+  <div class="topbar-left">
     {% if is_authenticated() %}
-      <div class="dropdown">
-        <button class="dropbtn">Usuario ▼</button>
-        <div class="dropdown-content">
-          <a href="/perfil">Perfil</a>
-          <a href="/configuracion">Configuración</a>
-          <a href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
+      <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+    {% endif %}
+    <a href="{{ url_for('home') }}" class="topbar-logo">
+      <i class="fas fa-cube"></i>
+      Dashboard
+    </a>
+  </div>
+  
+  <div class="topbar-right">
+    {% if is_authenticated() %}
+      <div class="user-menu">
+        <div class="user-info">
+          <div class="user-avatar">
+            {{ session.user[0].upper() if session.user else 'U' }}
+          </div>
+          <div class="user-details">
+            <span class="user-name">{{ session.user or 'Usuario' }}</span>
+            <span class="user-role">
+              {% set current_user = get_current_user() %}
+              {% if current_user %}
+                {{ current_user.role.name.title() }}
+              {% else %}
+                Usuario
+              {% endif %}
+            </span>
+          </div>
         </div>
       </div>
+      <a href="{{ url_for('auth.logout') }}" class="logout-btn" title="Cerrar sesión">
+        <i class="fas fa-sign-out-alt"></i>
+      </a>
     {% else %}
-      <a href="{{ url_for('auth.login') }}">Iniciar sesión</a>
+      <a href="{{ url_for('auth.login') }}" class="btn btn-primary">
+        <i class="fas fa-sign-in-alt"></i>
+        Iniciar Sesión
+      </a>
     {% endif %}
   </div>
 </header>
+
+<!-- Mensajes flash -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class="flashes">
+      {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
 

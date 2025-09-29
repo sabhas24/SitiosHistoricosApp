@@ -1,8 +1,83 @@
 <nav class="sidebar" id="sidebar">
-    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Alternar sidebar">«</button>
-    <ul class="sidebar-menu">
-        <li><a href="/"><span class="icon">🏠</span><span class="label">Inicio</span></a></li>
-        <li><a href="#"><span class="icon">👤</span><span class="label">Usuarios</span></a></li>
-        <li><a href="#"><span class="icon">⚙️</span><span class="label">Configuración</span></a></li>
-    </ul>
+  <div class="sidebar-content">
+    <div class="sidebar-section">
+      <h3 class="sidebar-section-title">Principal</h3>
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">
+          <a href="{{ url_for('home') }}" class="sidebar-nav-link active" data-tooltip="Inicio">
+            <span class="sidebar-nav-icon">
+              <i class="fas fa-home"></i>
+            </span>
+            <span class="sidebar-nav-text">Inicio</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="javascript:void(0)" onclick="showComingSoon('Dashboard')" class="sidebar-nav-link"
+            data-tooltip="Dashboard">
+            <span class="sidebar-nav-icon">
+              <i class="fas fa-chart-bar"></i>
+            </span>
+            <span class="sidebar-nav-text">Dashboard</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="sidebar-section">
+      <h3 class="sidebar-section-title">Patrimonio</h3>
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">
+          <a href="{{ url_for('sitios.index') }}" class="sidebar-nav-link" data-tooltip="Sitios Históricos">
+            <span class="sidebar-nav-icon">
+              <i class="fas fa-landmark"></i>
+            </span>
+            <span class="sidebar-nav-text">Sitios Históricos</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="javascript:void(0)" onclick="showComingSoon('Etiquetas')" class="sidebar-nav-link" data-tooltip="Etiquetas">
+            <span class="sidebar-nav-icon">
+              <i class="fas fa-tags"></i>
+            </span>
+            <span class="sidebar-nav-text">Etiquetas</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="sidebar-section">
+      <h3 class="sidebar-section-title">Gestión</h3>
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-item">
+          <a href="javascript:void(0)" onclick="showComingSoon('Usuarios')" class="sidebar-nav-link"
+            data-tooltip="Usuarios">
+            <span class="sidebar-nav-icon">
+              <i class="fas fa-users"></i>
+            </span>
+            <span class="sidebar-nav-text">Usuarios</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="javascript:void(0)" onclick="showComingSoon('Roles')" class="sidebar-nav-link" data-tooltip="Roles">
+            <span class="sidebar-nav-icon">
+              <i class="fas fa-user-shield"></i>
+            </span>
+            <span class="sidebar-nav-text">Roles</span>
+          </a>
+        </li>
+        <li class="sidebar-nav-item">
+          <a href="javascript:void(0)" onclick="showComingSoon('Permisos')" class="sidebar-nav-link"
+            data-tooltip="Permisos">
+            <span class="sidebar-nav-icon">
+              <i class="fas fa-key"></i>
+            </span>
+            <span class="sidebar-nav-text">Permisos</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+
+
+  
+  </div>
 </nav>
