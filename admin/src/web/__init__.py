@@ -4,6 +4,7 @@ from src.models import database
 from flask_session import Session 
 from src.web.controllers.auth import bp as auth_bp
 from src.web.controllers.sitios import bp as sitios_bp
+from src.web.controllers.tags import bp as tags_bp
 from src.web.handlers.auth import is_authenticated
 
 def create_app(env="development", static_folder="../../static"):
@@ -26,6 +27,7 @@ def create_app(env="development", static_folder="../../static"):
     # Registrar blueprints
     app.register_blueprint(auth_bp)
     app.register_blueprint(sitios_bp)
+    app.register_blueprint(tags_bp)
 
     app.jinja_env.globals['is_authenticated'] = is_authenticated
     

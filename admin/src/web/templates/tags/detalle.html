@@ -1,0 +1,41 @@
+{% extends 'layout.html' %}
+
+{% block title %}Detalle de Etiqueta{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="flex items-center justify-between mb-3">
+        <div>
+            <h1 class="hero-title" style="font-size: 2rem; margin-bottom: 0.5rem;">
+                <i class="fas fa-tag"></i>
+                Detalle de Etiqueta
+            </h1>
+            <p class="hero-subtitle" style="margin: 0;">
+                Información detallada de la etiqueta
+            </p>
+        </div>
+        <a href="{{ url_for('tags.list_tags') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i>
+            Volver al Listado
+        </a>
+    </div>
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-info-circle"></i>
+                Datos de la Etiqueta
+            </h3>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Nombre</dt>
+                <dd class="col-sm-9">{{ tag.nombre }}</dd>
+                <dt class="col-sm-3">Slug</dt>
+                <dd class="col-sm-9">{{ tag.slug }}</dd>
+                <dt class="col-sm-3">Fecha de creación</dt>
+                <dd class="col-sm-9">{{ tag.created_at.strftime('%Y-%m-%d') if tag.created_at else '' }}</dd>
+            </dl>
+        </div>
+    </div>
+</div>
+{% endblock %}

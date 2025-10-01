@@ -1,0 +1,60 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+{% if action == 'crear' %}Nueva Etiqueta{% else %}Editar Etiqueta{% endif %} - Dashboard
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-3">
+        <div>
+            <h1 class="hero-title" style="font-size: 2rem; margin-bottom: 0.5rem;">
+                <i class="fas fa-tags"></i>
+                {% if action == 'crear' %}Nueva Etiqueta{% else %}Editar Etiqueta{% endif %}
+            </h1>
+            <p class="hero-subtitle" style="margin: 0;">
+                {% if action == 'crear' %}Registra una nueva etiqueta para clasificar sitios históricos{% else %}Modifica la información de la etiqueta{% endif %}
+            </p>
+        </div>
+        <a href="{{ url_for('tags.list_tags') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i>
+            Volver al Listado
+        </a>
+    </div>
+
+    <div class="form-container">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-edit"></i>
+                    Información de la Etiqueta
+                </h3>
+                <p class="card-subtitle">Completa todos los campos obligatorios marcados con *</p>
+            </div>
+            <div class="card-body">
+                <form method="POST"
+                    action="{% if action == 'crear' %}{{ url_for('tags.crear') }}{% else %}{{ url_for('tags.actualizar', tag_id=tag.id) }}{% endif %}"
+                    class="tag-form">
+                    <div class="form-group">
+                        <label for="nombre">Nombre <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" value="{{ tag.nombre if tag else '' }}" required minlength="3" maxlength="50" placeholder="Nombre de la etiqueta">
+                        <small class="form-text text-muted">Debe ser único, entre 3 y 50 caracteres.</small>
+                    </div>
+                    {% if tag %}
+                    <div class="form-group">
+                        <label for="slug">Slug</label>
+                        <input type="text" class="form-control" id="slug" name="slug" value="{{ tag.slug }}" readonly>
+                        <small class="form-text text-muted">Se genera automáticamente.</small>
+                    </div>
+                    {% endif %}
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i>
+                        {% if action == 'crear' %}Crear Etiqueta{% else %}Guardar Cambios{% endif %}
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

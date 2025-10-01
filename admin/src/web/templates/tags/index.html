@@ -1,0 +1,139 @@
+{% extends 'layout.html' %}
+{% block title %}Etiquetas{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-3">
+        <div>
+            <h1 class="hero-title" style="font-size: 2rem; margin-bottom: 0.5rem;">
+                <i class="fas fa-tags"></i>
+                Etiquetas
+            </h1>
+            <p class="hero-subtitle" style="margin: 0;">
+                Gestión de etiquetas para clasificar sitios históricos
+            </p>
+        </div>
+        <a href="{{ url_for('tags.nuevo') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            Nueva Etiqueta
+        </a>
+    </div>
+    <form method="GET" action="{{ url_for('tags.list_tags') }}" class="form-inline mb-3">
+        <div class="form-group mr-2">
+            <input type="text" name="search" class="form-control" placeholder="Buscar por nombre" value="{{ request.args.get('search', '') }}" minlength="3">
+        </div>
+        <div class="form-group mr-2">
+            <select name="order" class="form-control">
+                <option value="nombre" {% if request.args.get('order', 'nombre') == 'nombre' %}selected{% endif %}>Ordenar por Nombre</option>
+                <option value="created_at" {% if request.args.get('order') == 'created_at' %}selected{% endif %}>Ordenar por Fecha de Creación</option>
+            </select>
+        </div>
+        <div class="form-group mr-2">
+            <select name="direction" class="form-control">
+                <option value="asc" {% if request.args.get('direction', 'asc') == 'asc' %}selected{% endif %}>Ascendente</option>
+                <option value="desc" {% if request.args.get('direction') == 'desc' %}selected{% endif %}>Descendente</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-info">
+            <i class="fas fa-search"></i> Buscar
+        </button>
+    </form>
+    {% if tags %}
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-list"></i>
+                    Lista de Etiquetas
+                </h3>
+                <p class="card-subtitle">{{ total }} etiqueta(s) registrada(s)</p>
+            </div>
+            <div class="card-body" style="padding: 0;">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Slug</th>
+                                <th>Fecha de creación</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for tag in tags %}
+                            <tr>
+                                <td>{{ tag.nombre }}</td>
+                                <td>{{ tag.slug }}</td>
+                                <td>{{ tag.created_at.strftime('%Y-%m-%d') if tag.created_at else '' }}</td>
+                                <td>
+                                    <a href="{{ url_for('tags.editar', tag_id=tag.id) }}" class="btn btn-sm btn-warning" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="{{ url_for('tags.ver', tag_id=tag.id) }}" class="btn btn-sm btn-info" title="Ver">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <form method="POST" action="{{ url_for('tags.borrar', tag_id=tag.id) }}" style="display:inline;" onsubmit="return confirm('¿Seguro que deseas borrar esta etiqueta?');">
+                                        <button type="submit" class="btn btn-sm btn-danger" title="Borrar">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="alert alert-info">No hay etiquetas registradas.</div>
+    {% endif %}
+
+    {% if pages > 1 %}
+    <nav aria-label="Paginación de etiquetas" style="margin-top: 2rem;">
+        <ul class="pagination" style="display: flex; list-style: none; padding-left: 0; gap: 6px; justify-content: center;">
+            {% if page > 1 %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('tags.list_tags', page=page-1, search=request.args.get('search', ''), order=request.args.get('order', 'nombre'), direction=request.args.get('direction', 'asc')) }}">Anterior</a>
+            </li>
+            {% endif %}
+            {% for p in range(1, pages+1) %}
+            <li class="page-item {% if p == page %}active{% endif %}">
+                <a class="page-link" href="{{ url_for('tags.list_tags', page=p, search=request.args.get('search', ''), order=request.args.get('order', 'nombre'), direction=request.args.get('direction', 'asc')) }}">{{ p }}</a>
+            </li>
+            {% endfor %}
+            {% if page < pages %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('tags.list_tags', page=page+1, search=request.args.get('search', ''), order=request.args.get('order', 'nombre'), direction=request.args.get('direction', 'asc')) }}">Siguiente</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
+<style>
+.pagination {
+  display: flex;
+  gap: 6px;
+  list-style: none;
+  padding-left: 0;
+}
+.page-item.active .page-link {
+  background: #17a2b8;
+  color: #fff;
+  border-radius: 6px;
+}
+.page-link {
+  padding: 6px 14px;
+  border: none;
+  background: #f3f4f6;
+  color: #333;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.page-link:hover {
+  background: #e2e6ea;
+}
+</style>

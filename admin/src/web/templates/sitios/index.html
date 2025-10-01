@@ -52,7 +52,7 @@
         <i class="fas fa-list"></i>
         Lista de Sitios Históricos
       </h3>
-      <p class="card-subtitle">{{ sitios|length }} sitio(s) registrado(s)</p>
+      <p class="card-subtitle">{{ total }} sitio(s) registrado(s)</p>
     </div>
     <div class="card-body" style="padding: 0;">
       {% if sitios %}
@@ -65,6 +65,7 @@
                 <th>Categoría</th>
                 <th>Estado</th>
                 <th>Visible</th>
+                <th>Etiquetas</th>
                 <th>Acciones</th>
               </tr>
             </thead>
@@ -78,8 +79,8 @@
                   </div>
                 </td>
                 <td>
-                  <div class="ubicacion-info">
-                    <i class="fas fa-map-marker-alt"></i>
+                  <div class="ubicacion-info" style="display: flex; align-items: center;">
+                    <i class="fas fa-map-marker-alt" style="margin-right: 6px;"></i>
                     {{ sitio.ciudad }}, {{ sitio.provincia }}
                   </div>
                 </td>
@@ -100,11 +101,21 @@
                       Visible
                     </span>
                   {% else %}
-                    <span class="visible-badge oculto">
+                    <span class="visible-badge oculto" style="background: #b0b7c3; color: #fff; display: inline-flex; align-items: center;">
                       <i class="fas fa-eye-slash"></i>
-                      Oculto
+                      OCULTO
                     </span>
                   {% endif %}
+                </td>
+                <td>
+                  <div class="tags-list" style="display: flex; flex-wrap: wrap; gap: 6px;">
+                    {% for tag in sitio.tags %}
+                      <span class="tag-badge">{{ tag.nombre }}</span>
+                    {% endfor %}
+                    {% if not sitio.tags %}
+                      <span class="text-muted">Sin etiquetas</span>
+                    {% endif %}
+                  </div>
                 </td>
                 <td>
                   <div class="acciones">
@@ -145,6 +156,29 @@
       {% endif %}
     </div>
   </div>
+
+  <!-- Paginación -->
+  {% if pages > 1 %}
+  <nav aria-label="Paginación de sitios" style="margin-top: 2rem;">
+    <ul class="pagination" style="display: flex; list-style: none; padding-left: 0; gap: 6px;">
+      {% if page > 1 %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('sitios.index', page=page-1, search=search, order=order, direction=direction) }}">Anterior</a>
+      </li>
+      {% endif %}
+      {% for p in range(1, pages+1) %}
+      <li class="page-item {% if p == page %}active{% endif %}">
+        <a class="page-link" href="{{ url_for('sitios.index', page=p, search=search, order=order, direction=direction) }}">{{ p }}</a>
+      </li>
+      {% endfor %}
+      {% if page < pages %}
+      <li class="page-item">
+        <a class="page-link" href="{{ url_for('sitios.index', page=page+1, search=search, order=order, direction=direction) }}">Siguiente</a>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
 </div>
 
 <!-- Modal de confirmación para eliminar -->
@@ -264,8 +298,33 @@ document.getElementById('deleteModal').addEventListener('click', function(e) {
 }
 
 .visible-badge.oculto {
-  background: var(--text-muted);
+  background: #b0b7c3 !important;
+  color: #fff !important;
+}
+
+.etiquetas-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.etiqueta-badge {
+  background: var(--primary-color);
   color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.tag-badge {
+  background: #17a2b8;
+  color: #fff;
+  border-radius: 16px;
+  padding: 4px 12px;
+  font-size: 0.95em;
+  margin-bottom: 0;
+  display: inline-block;
 }
 
 .acciones {
