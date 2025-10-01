@@ -4,20 +4,26 @@ from src.models.sitios import (
     sitio_get_coordinates
 )
 from src.models.sitio_historico import EstadoConservacion, Categoria
+from src.models.tag import Tag
 from src.web.handlers.auth import login_required
 from src.web.handlers.permissions import (
     require_editor_or_admin, require_admin, 
     can_edit_sitios, can_delete_sitios
 )
+from src.models.database import db
 
 bp = Blueprint('sitios', __name__, url_prefix='/sitios')
 
 @bp.route('/')
 @login_required
 def index():
-    """Listar todos los sitios históricos"""
-    sitios = sitio_index()
-    return render_template('sitios/index.html', sitios=sitios)
+    page = int(request.args.get('page', 1))
+    per_page = 25  # Restaurado a 25
+    search = request.args.get('search', '').strip()
+    order = request.args.get('order', 'nombre')
+    direction = request.args.get('direction', 'asc')
+    sitios, total, page, pages = sitio_index(page=page, per_page=per_page, search=search, order=order, direction=direction)
+    return render_template('sitios/index.html', sitios=sitios, total=total, page=page, pages=pages, search=search, order=order, direction=direction)
 
 @bp.route('/nuevo')
 @require_editor_or_admin
@@ -25,9 +31,11 @@ def nuevo():
     """Formulario para crear nuevo sitio histórico"""
     estados = [estado.value for estado in EstadoConservacion]
     categorias = [categoria.value for categoria in Categoria]
+    tags_all = db.session.query(Tag).order_by(Tag.nombre).all()
     return render_template('sitios/form.html', 
                          estados=estados, 
                          categorias=categorias,
+                         tags_all=tags_all,
                          action='crear')
 
 @bp.route('/crear', methods=['POST'])
@@ -47,7 +55,8 @@ def crear():
             'estado_conservacion': request.form.get('estado_conservacion'),
             'anio_inauguracion': request.form.get('anio_inauguracion'),
             'categoria': request.form.get('categoria'),
-            'visible': request.form.get('visible') == 'on'
+            'visible': request.form.get('visible') == 'on',
+            'tags': request.form.getlist('tags')
         }
         
         # Validaciones básicas
@@ -108,6 +117,7 @@ def editar(id):
     
     estados = [estado.value for estado in EstadoConservacion]
     categorias = [categoria.value for categoria in Categoria]
+    tags_all = db.session.query(Tag).order_by(Tag.nombre).all()
     
     return render_template('sitios/form.html', 
                          sitio=sitio,
@@ -115,6 +125,7 @@ def editar(id):
                          longitud=longitud,
                          estados=estados, 
                          categorias=categorias,
+                         tags_all=tags_all,
                          action='editar')
 
 @bp.route('/<int:id>/actualizar', methods=['POST'])
@@ -134,7 +145,8 @@ def actualizar(id):
             'estado_conservacion': request.form.get('estado_conservacion'),
             'anio_inauguracion': request.form.get('anio_inauguracion'),
             'categoria': request.form.get('categoria'),
-            'visible': request.form.get('visible') == 'on'
+            'visible': request.form.get('visible') == 'on',
+            'tags': request.form.getlist('tags')
         }
         
         # Validaciones básicas

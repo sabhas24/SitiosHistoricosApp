@@ -1,7 +1,9 @@
 from src.models.database import db
 from src.models.sitio_historico import SitioHistorico, EstadoConservacion, Categoria
+from src.models.tag import Tag
 from geoalchemy2.functions import ST_X, ST_Y, ST_GeomFromText
 from sqlalchemy import func
+from sqlalchemy.orm import joinedload
 
 def sitio_create(**kwargs):
     """Crear un nuevo sitio histórico"""
@@ -20,16 +22,30 @@ def sitio_create(**kwargs):
     if 'categoria' in kwargs:
         kwargs['categoria'] = Categoria(kwargs['categoria'])
     
+    # Procesar tags
+    tags_ids = kwargs.pop('tags', None)
     sitio = SitioHistorico(**kwargs)
+    if tags_ids:
+        sitio.tags = db.session.query(Tag).filter(Tag.id.in_(tags_ids)).all()
     db.session.add(sitio)
     db.session.commit()
     
     print(f"✅ Sitio histórico created with ID: {sitio.id}")
     return sitio
 
-def sitio_index():
-    """Obtener todos los sitios históricos"""
-    return db.session.query(SitioHistorico).all()
+def sitio_index(page=1, per_page=25, search=None, order='nombre', direction='asc'):
+    """Obtener sitios históricos con paginación, búsqueda y orden"""
+    query = db.session.query(SitioHistorico).options(joinedload(SitioHistorico.tags))
+    if search:
+        query = query.filter(SitioHistorico.nombre.ilike(f'%{search}%'))
+    if order == 'nombre':
+        query = query.order_by(SitioHistorico.nombre.asc() if direction == 'asc' else SitioHistorico.nombre.desc())
+    elif order == 'fecha_registro':
+        query = query.order_by(SitioHistorico.fecha_registro.asc() if direction == 'asc' else SitioHistorico.fecha_registro.desc())
+    total = query.count()
+    sitios = query.offset((page - 1) * per_page).limit(per_page).all()
+    pages = (total + per_page - 1) // per_page
+    return sitios, total, page, pages
 
 def sitio_show(id):
     """Obtener un sitio histórico por ID"""
@@ -61,11 +77,10 @@ def sitio_update(id, **kwargs):
     if 'categoria' in kwargs:
         kwargs['categoria'] = Categoria(kwargs['categoria'])
     
-    # Actualizar campos
-    for key, value in kwargs.items():
-        if hasattr(sitio, key):
-            setattr(sitio, key, value)
-    
+    # Procesar tags
+    tags_ids = kwargs.pop('tags', None)
+    if tags_ids is not None:
+        sitio.tags = db.session.query(Tag).filter(Tag.id.in_(tags_ids)).all()
     db.session.commit()
     print(f"✅ Sitio histórico updated: {sitio.nombre}")
     return sitio

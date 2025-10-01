@@ -229,6 +229,61 @@
                         </div>
                     </div>
 
+                    <!-- Etiquetas -->
+                    <div class="form-section">
+                        <h4 class="form-section-title">
+                            <i class="fas fa-tags"></i>
+                            Etiquetas
+                        </h4>
+
+                        <div class="form-group tag-select-container">
+                            <label for="tags">Etiquetas</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                </div>
+                                <input type="text" class="form-control" id="tag-search" placeholder="Buscar etiqueta..." onkeyup="filtrarTags()">
+                            </div>
+                            <select id="tags" name="tags" class="form-control mt-2" multiple size="6" onchange="mostrarSeleccionados()">
+                                {% for tag in tags_all %}
+                                    <option value="{{ tag.id }}" {% if tag.id in (sitio.tags|map(attribute='id')|list if sitio and sitio.tags else []) %}selected{% endif %}>{{ tag.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="selected-tags" id="selected-tags">
+                                {% if sitio and sitio.tags %}
+                                    {% for tag in sitio.tags %}
+                                        <span class="selected-tag-badge">{{ tag.nombre }}</span>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <small class="form-text text-muted">Puedes buscar y seleccionar varias etiquetas para clasificar el sitio. Mantén presionada Ctrl o Shift para seleccionar varias.</small>
+                        </div>
+                        <script>
+                        function filtrarTags() {
+                            var input = document.getElementById('tag-search');
+                            var filter = input.value.toLowerCase();
+                            var select = document.getElementById('tags');
+                            for (var i = 0; i < select.options.length; i++) {
+                                var txt = select.options[i].text.toLowerCase();
+                                select.options[i].style.display = txt.includes(filter) ? '' : 'none';
+                            }
+                        }
+                        function mostrarSeleccionados() {
+                            var select = document.getElementById('tags');
+                            var container = document.getElementById('selected-tags');
+                            container.innerHTML = '';
+                            for (var i = 0; i < select.selectedOptions.length; i++) {
+                                var tagName = select.selectedOptions[i].text;
+                                var span = document.createElement('span');
+                                span.className = 'selected-tag-badge';
+                                span.textContent = tagName;
+                                container.appendChild(span);
+                            }
+                        }
+                        document.addEventListener('DOMContentLoaded', mostrarSeleccionados);
+                        </script>
+                    </div>
+
                     <!-- Botones de acción -->
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary">
@@ -630,6 +685,38 @@
         justify-content: flex-end;
         padding-top: 1rem;
         border-top: 1px solid var(--border-color);
+    }
+
+    /* Estilos para el selector de tags */
+    .tag-select-container {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        max-width: 400px;
+    }
+
+    #tags {
+        border-radius: 6px;
+        border: 1px solid #ced4da;
+        min-height: 80px;
+        font-size: 1rem;
+        background: #f8f9fa;
+    }
+
+    .selected-tags {
+        margin-top: 0.5rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.3rem;
+    }
+
+    .selected-tag-badge {
+        background: #17a2b8;
+        color: #fff;
+        border-radius: 12px;
+        padding: 0.2rem 0.7rem;
+        font-size: 0.95rem;
+        display: inline-block;
     }
 
     /* Responsive */
