@@ -2,7 +2,24 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     initializeUserActions();
+    initializeFilters();
 });
+
+function initializeFilters() {
+    // Event listeners para filtros automáticos
+    const filterType = document.getElementById('filter_type');
+    const dateOrder = document.getElementById('date_order');
+    
+    if (filterType) {
+        filterType.addEventListener('change', applyFilters);
+    }
+    if (dateOrder) {
+        dateOrder.addEventListener('change', applyFilters);
+    }
+    
+    // Cargar datos iniciales
+    applyFilters();
+}
 
 function initializeUserActions() {
     // Event listeners para botones de eliminar
@@ -48,6 +65,71 @@ function showStatusToggleConfirmation(userId, isEnabled) {
     
     $('#toggleStatusModal').modal('show');
 }
+
+function applyFilters() {
+    const filterType = document.getElementById('filter_type');
+    const dateOrder = document.getElementById('date_order');
+    const pageInput = document.getElementById('page_input');
+    
+    
+    if (!filterType || !dateOrder) {
+        console.warn('Elementos de filtro no encontrados, saltando actualización');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('filter_type', filterType.value || 'mail');
+    formData.append('date_order', dateOrder.value || 'desc');
+    formData.append('page', pageInput ? pageInput.value : '1');
+    
+    fetch('/admin/users/filter', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+        return response.text();
+    })
+    .then(html => {
+        const container = document.getElementById('users-table-container');
+        if (container) {
+            container.innerHTML = html;
+            initializeUserActions();
+        }
+    })
+    .catch(error => {
+        console.error('Error al cargar filtros:', error);
+        
+    });
+}
+
+function clearFilters() {
+    window.location.href = '/admin/users';
+}
+
+function toggleDateOrder() {
+    const dateOrder = document.getElementById('date_order');
+    dateOrder.value = dateOrder.value === 'asc' ? 'desc' : 'asc';
+    applyFilters();
+}
+
+
+
+function searchByEmail() {
+    const email = document.getElementById('email_search').value.trim();
+    if (email) {
+        window.location.href = `/admin/users/find/${email}`;
+    } 
+       
+}
+
+document.getElementById('email_search').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        searchByEmail();
+    }
+});
 
 // Función para recargar los event listeners después de filtrar
 function refreshEventListeners() {

@@ -39,6 +39,7 @@
                     <div class="form-group">
                         <label for="nombre">Nombre <span class="text-danger">*</span></label>
                         <input type="text" class="form-control" id="nombre" name="nombre" value="{{ tag.nombre if tag else '' }}" required minlength="3" maxlength="50" placeholder="Nombre de la etiqueta">
+                        <div class="invalid-feedback"></div>
                         <small class="form-text text-muted">Debe ser único, entre 3 y 50 caracteres.</small>
                     </div>
                     {% if tag %}
@@ -57,4 +58,19 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Validación personalizada para tags (3-50 caracteres)
+    FormValidator.rules.tagName = {
+        validator: (value) => validator.isLength(value, { min: 3, max: 50 }) && 
+                             validator.matches(value, /^[a-zA-Z0-9áéíóúÁÉÍÓÚñÑüÜ\s\-\_]+$/),
+        message: 'Entre 3-50 caracteres, solo letras, números, espacios, guiones y guión bajo'
+    };
+
+    FormValidator.init('.tag-form', {
+        nombre: ['required', 'tagName']
+    });
+});
+</script>
 {% endblock %}

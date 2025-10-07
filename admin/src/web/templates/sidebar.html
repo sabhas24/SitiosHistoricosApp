@@ -48,6 +48,7 @@
     <div class="sidebar-section">
       <h3 class="sidebar-section-title">Gestión</h3>
       <ul class="sidebar-nav">
+      {% if check_permission('user_show') %}
         <li class="sidebar-nav-item">
           <a href="{{ url_for('admin_users.index') }}" class="sidebar-nav-link"
             data-tooltip="Usuarios">
@@ -57,6 +58,7 @@
             <span class="sidebar-nav-text">Usuarios</span>
           </a>
         </li>
+      {% endif %}
         <li class="sidebar-nav-item">
           <a href="javascript:void(0)" onclick="showComingSoon('Roles')" class="sidebar-nav-link" data-tooltip="Roles">
             <span class="sidebar-nav-icon">

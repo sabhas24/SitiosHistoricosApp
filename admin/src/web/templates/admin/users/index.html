@@ -17,12 +17,13 @@
                     </a>
                 </div>
                 
-                <div class="card-body">
+                <div class="card-body" >
                     <!-- Filtros de búsqueda -->
                     {% include 'admin/users/components/_filters.html' %}
                     
-                    <!-- Tabla de usuarios -->
-                    {% include 'admin/users/components/_table.html' %}
+                    <div id="users-table-container">
+                        {% include 'admin/users/components/_table.html' %}
+                    </div>
                     
                     <!-- Paginación -->
                     {% include 'admin/users/components/_pagination.html' %}

@@ -28,7 +28,12 @@
                                            name="email" 
                                            value="{{ user.email if user else '' }}" 
                                            required
+                                           pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                                           maxlength="120"
                                            placeholder="usuario@ejemplo.com">
+                                    <div class="invalid-feedback">
+                                        Por favor ingrese un email válido.
+                                    </div>
                                     <small class="form-text text-muted">
                                         El email será utilizado como nombre de usuario para iniciar sesión.
                                     </small>
@@ -44,7 +49,16 @@
                                            name="name" 
                                            value="{{ user.name if user else '' }}" 
                                            required
+                                           pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$"
+                                           minlength="2"
+                                           maxlength="80"
                                            placeholder="Nombre del usuario">
+                                    <small class="form-text text-muted">
+                                        Solo letras y espacios. Mínimo 2 caracteres.
+                                    </small>
+                                    <div class="invalid-feedback">
+                                        El nombre debe contener solo letras y espacios.
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -58,7 +72,16 @@
                                            id="last_name" 
                                            name="last_name" 
                                            value="{{ user.last_name if user else '' }}" 
+                                           pattern="^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s]+$"
+                                           minlength="2"
+                                           maxlength="80"
                                            placeholder="Apellido del usuario">
+                                    <small class="form-text text-muted">
+                                        Solo letras y espacios. Mínimo 2 caracteres.
+                                    </small>
+                                    <div class="invalid-feedback">
+                                        El apellido debe contener solo letras y espacios.
+                                    </div>
                                 </div>
                             </div>
                             
@@ -91,11 +114,15 @@
                                            id="password" 
                                            name="password" 
                                            required
-                                           minlength="6"
-                                           placeholder="Mínimo 6 caracteres">
+                                           minlength="8"
+                                           pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d@$!%*?&]{8,}$"
+                                           placeholder="Mínimo 8 caracteres">
                                     <small class="form-text text-muted">
-                                        La contraseña debe tener al menos 6 caracteres.
+                                        Mínimo 8 caracteres, debe incluir: mayúscula, minúscula y número.
                                     </small>
+                                    <div class="invalid-feedback">
+                                        La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.
+                                    </div>
                                 </div>
                             </div>
                             
@@ -107,15 +134,18 @@
                                            id="confirm_password" 
                                            name="confirm_password" 
                                            required
-                                           minlength="6"
+                                           minlength="8"
                                            placeholder="Repetir contraseña">
+                                    <div class="invalid-feedback">
+                                        Las contraseñas no coinciden.
+                                    </div>
                                 </div>
                             </div>
                             {% else %}
                             <div class="col-md-6">
                                 <div class="alert alert-info">
                                     <i class="fas fa-info-circle"></i>
-                                    <strong>Nota:</strong> Para cambiar la contraseña, deje estos campos vacíos.
+                                    <strong>Nota:</strong> Para no cambiar la contraseña, deje estos campos vacíos.
                                 </div>
                             </div>
                             
@@ -171,6 +201,7 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
+                                    {% if not user.is_super_admin and user.role.name != 'admin' %}
                                     <div class="custom-control custom-switch">
                                         <input type="checkbox" 
                                                class="custom-control-input" 
@@ -185,6 +216,14 @@
                                     <small class="form-text text-muted">
                                         Desmarque esta opción para bloquear el acceso del usuario sin eliminar su cuenta.
                                     </small>
+                                    {% else %}
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-shield-alt"></i>
+                                        <strong>Administrador Protegido</strong><br>
+                                        Los usuarios administradores no pueden ser deshabilitados por seguridad.
+                                    </div>
+                                    <input type="hidden" name="enabled" value="1">
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
@@ -223,78 +262,17 @@
 </div>
 
 <script>
-// Validación de contraseñas en tiempo real
 document.addEventListener('DOMContentLoaded', function() {
-    const password = document.getElementById('password');
-    const confirmPassword = document.getElementById('confirm_password');
-    const newPassword = document.getElementById('new_password');
-    const confirmNewPassword = document.getElementById('confirm_new_password');
+    // Configuración de validación para el formulario de usuarios
+    const validationConfig = {
+        email: ['required', 'email'],
+        name: ['required', 'name'],
+        last_name: ['name'], // Opcional pero si tiene valor debe ser válido
+        password: ['password'], // Solo si existe (crear usuario)
+        new_password: ['password'] // Solo si existe (editar usuario)
+    };
     
-    function validatePasswords(pass1, pass2) {
-        if (pass1 && pass2) {
-            if (pass1.value !== pass2.value) {
-                pass2.setCustomValidity('Las contraseñas no coinciden');
-                pass2.classList.add('is-invalid');
-            } else {
-                pass2.setCustomValidity('');
-                pass2.classList.remove('is-invalid');
-                pass2.classList.add('is-valid');
-            }
-        }
-    }
-    
-    // Validación para usuario nuevo
-    if (password && confirmPassword) {
-        confirmPassword.addEventListener('input', function() {
-            validatePasswords(password, confirmPassword);
-        });
-        
-        password.addEventListener('input', function() {
-            if (confirmPassword.value) {
-                validatePasswords(password, confirmPassword);
-            }
-        });
-    }
-    
-    // Validación para usuario existente
-    if (newPassword && confirmNewPassword) {
-        confirmNewPassword.addEventListener('input', function() {
-            if (newPassword.value || confirmNewPassword.value) {
-                validatePasswords(newPassword, confirmNewPassword);
-            }
-        });
-        
-        newPassword.addEventListener('input', function() {
-            if (confirmNewPassword.value || newPassword.value) {
-                validatePasswords(newPassword, confirmNewPassword);
-            }
-        });
-    }
-    
-    // Validación del formulario
-    document.querySelector('form').addEventListener('submit', function(e) {
-        let isValid = true;
-        
-        // Verificar contraseñas para usuario nuevo
-        if (password && confirmPassword) {
-            if (password.value !== confirmPassword.value) {
-                isValid = false;
-                alert('Las contraseñas no coinciden');
-            }
-        }
-        
-        // Verificar contraseñas para usuario existente
-        if (newPassword && confirmNewPassword) {
-            if (newPassword.value !== confirmNewPassword.value) {
-                isValid = false;
-                alert('Las nuevas contraseñas no coinciden');
-            }
-        }
-        
-        if (!isValid) {
-            e.preventDefault();
-        }
-    });
+    FormValidator.init('form', validationConfig);
 });
 </script>
 

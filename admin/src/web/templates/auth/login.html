@@ -21,14 +21,15 @@
             Email o Usuario
           </label>
           <input 
-            type="text" 
+            type="email" 
             id="username" 
             name="username" 
             class="form-input"
-            placeholder="Ingresa tu email o usuario"
+            placeholder="usuario@ejemplo.com"
             autocomplete="username" 
             required
           >
+          <div class="invalid-feedback"></div>
         </div>
         
         <div class="form-group">
@@ -45,6 +46,7 @@
             autocomplete="current-password" 
             required
           >
+          <div class="invalid-feedback"></div>
         </div>
         
         <button type="submit" class="form-submit">
@@ -108,4 +110,13 @@
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    FormValidator.init('form', {
+        username: ['required', 'email'],
+        password: ['required']
+    });
+});
+</script>
 {% endblock %}

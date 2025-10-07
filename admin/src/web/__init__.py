@@ -6,7 +6,7 @@ from src.web.controllers.auth import bp as auth_bp
 from src.web.controllers.sitios import bp as sitios_bp
 from src.web.controllers.tags import bp as tags_bp
 from src.web.controllers.admin.users import bp as admin_users_bp
-from src.web.handlers.auth import is_authenticated, get_current_user, check_permission
+from src.web.handlers.auth import is_authenticated, get_current_user, check_permission,check
 
 def create_app(env="development", static_folder="../../static"):
     app = Flask(__name__, static_folder=static_folder)
@@ -33,11 +33,8 @@ def create_app(env="development", static_folder="../../static"):
 
     app.jinja_env.globals['is_authenticated'] = is_authenticated
     app.jinja_env.globals['get_current_user'] = get_current_user
-
-    # Ya no se registran helpers específicos porque se usa directamente check('perm') en templates
-    
-
-    
+    app.jinja_env.globals['check_permission'] = check_permission
+   
     # Filtros personalizados para Jinja2
     @app.template_filter('nl2br')
     def nl2br_filter(text):

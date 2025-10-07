@@ -25,6 +25,8 @@ def login_required(f):
 def check_permission(permission_name):
     user_email = session.get('user')
     user = auth.user_show(user_email)
+    if user.is_super_admin:
+        return True
     permissions = auth.permission(user)
     return user is not None and permission_name in permissions
 

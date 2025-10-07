@@ -5,24 +5,19 @@ from src.models.auth.permission import Permission
 from src.models.auth.permissions_enum import  permiso_valido
 from werkzeug.security import generate_password_hash, check_password_hash
 
-
 def permission(user_obj):
     """Return a list of permission names for the given user instance.
 
     Rules:
     - If user is None -> empty list.
-    - If user.is_super_admin -> all permission names in the system.
     - Else -> permission names attached to the user's role.
     """
     if user_obj is None:
         return []
-    # Super admin gets every permission name
-    if getattr(user_obj, 'is_super_admin', False):
-        return [p.name for p in db.session.query(Permission).all()]
-    # Normal user -> role based permissions
     if not getattr(user_obj, 'role', None):
         return []
     return [p.name for p in user_obj.role.permissions]
+
 def user_new(**kwargs):
     print(" 📝Creating a new user with the following details:")
     if 'password' in kwargs:
@@ -32,6 +27,12 @@ def user_new(**kwargs):
     db.session.commit()
     print(f" ✅ User created with ID: {new.id}")
     return new
+def user_is_blocked(email):
+    user_obj = db.session.query(user).filter_by(email=email).first()
+    if user_obj:
+        return not user_obj.enabled
+    return False
+
 def user_check_password(email, password):
     user_obj=db.session.query(user).filter_by(email=email).first()
     if user_obj and check_password_hash(user_obj.password, password):
@@ -39,6 +40,7 @@ def user_check_password(email, password):
         return True
     print(f" ❌ Password for user '{email}' is incorrect or user does not exist.")
     return False
+
 def user_index():
     return db.session.query(user).all()
 
@@ -69,6 +71,50 @@ def user_show(email):
 def email_exists(email: str) -> bool:
     user_obj = db.session.query(user).filter_by(email=email).first()
     return user_obj is not None
+
+
+
+
+def user_paginate(page=1,  filter_type='mail', date_order='desc'):
+    """Return a paginated list of users, filtered and ordered.
+
+    Args:
+        page (int): Page number (1-based).
+        filter_type (str): Filter type ( 'mail', 'role', 'active').
+        date_order (str): 'asc' or 'desc' for ordering by creation date.
+
+    Returns:
+        List[user], total_count
+    """
+    per_page = 25
+    users_query = db.session.query(user)
+    match filter_type:
+        case 'mail':
+            users_query = users_query.order_by(user.name.asc())
+        case 'role':
+            users_query = users_query.order_by(user.role_id.asc())
+        case 'active':
+            users_query = users_query.filter(user.enabled == True).order_by(user.id.asc())
+        case 'inactive':
+            users_query = users_query.filter(user.enabled == False).order_by(user.id.asc())
+    match date_order:
+        case 'asc': 
+            users_query = users_query.order_by(user.inserted_at.asc()) 
+        case 'desc':
+            users_query = users_query.order_by(user.inserted_at.desc())
+        
+    total = users_query.count()
+    return users_query.offset((page - 1) * per_page).limit(per_page).all(), total
+
+def user_show_id(user_id):
+    user_obj = db.session.get(user, user_id)
+    if not user_obj:
+        print(f" ❌ User with ID {user_id} not found")
+        return None
+    return user_obj
+
+
+
 def create_role(name):
     print(f" 📝Creating role: {name}")
     role = Role(name=name)

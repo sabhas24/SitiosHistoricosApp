@@ -23,7 +23,7 @@
             <span class="badge badge-danger">Inactivo</span>
         {% endif %}
     </td>
-    <td>{{ user.created_at.strftime('%d/%m/%Y') if user.created_at else '-' }}</td>
+    <td>{{ user.inserted_at.strftime('%d/%m/%Y') if user.inserted_at else '-' }}</td>
     <td>
         {% include 'admin/users/components/_action_buttons.html' %}
     </td>
