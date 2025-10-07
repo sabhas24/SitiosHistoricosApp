@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from src.models.sitios import (
     sitio_create, sitio_index, sitio_show, sitio_update, sitio_delete,
-    sitio_get_coordinates
+    sitio_get_coordinates, get_search_options
 )
 from src.models.sitio_historico import EstadoConservacion, Categoria
 from src.models.tag import Tag
@@ -17,13 +17,61 @@ bp = Blueprint('sitios', __name__, url_prefix='/sitios')
 @bp.route('/')
 @login_required
 def index():
-    page = int(request.args.get('page', 1))
-    per_page = 25  # Restaurado a 25
-    search = request.args.get('search', '').strip()
-    order = request.args.get('order', 'nombre')
-    direction = request.args.get('direction', 'asc')
-    sitios, total, page, pages = sitio_index(page=page, per_page=per_page, search=search, order=order, direction=direction)
-    return render_template('sitios/index.html', sitios=sitios, total=total, page=page, pages=pages, search=search, order=order, direction=direction)
+    """Listar sitios históricos con paginación y búsqueda avanzada"""
+    # Obtener número de página
+    page = request.args.get('page', 1, type=int)
+    
+    # Obtener filtros de búsqueda
+    filters = {}
+    
+    # Búsqueda por texto
+    if request.args.get('search'):
+        filters['search'] = request.args.get('search').strip()
+    
+    # Filtros de ubicación
+    if request.args.get('ciudad'):
+        filters['ciudad'] = request.args.get('ciudad').strip()
+    
+    if request.args.get('provincia'):
+        filters['provincia'] = request.args.get('provincia')
+    
+    # Filtros de características
+    if request.args.get('categoria'):
+        filters['categoria'] = request.args.get('categoria')
+    
+    if request.args.get('estado_conservacion'):
+        filters['estado_conservacion'] = request.args.get('estado_conservacion')
+    
+    # Filtro de visibilidad
+    visible = request.args.get('visible')
+    if visible == 'true':
+        filters['visible'] = True
+    elif visible == 'false':
+        filters['visible'] = False
+    
+    # Filtros de fecha
+    if request.args.get('fecha_desde'):
+        filters['fecha_desde'] = request.args.get('fecha_desde')
+    
+    if request.args.get('fecha_hasta'):
+        filters['fecha_hasta'] = request.args.get('fecha_hasta')
+    
+    # Orden
+    if request.args.get('order_by'):
+        filters['order_by'] = request.args.get('order_by')
+    
+    if request.args.get('order_dir'):
+        filters['order_dir'] = request.args.get('order_dir')
+    
+    # Obtener datos paginados con filtros
+    pagination_data = sitio_index(page=page, per_page=25, filters=filters)
+    
+    # Obtener opciones para los selectores
+    search_options = get_search_options()
+    
+    return render_template('sitios/index.html', 
+                         search_options=search_options,
+                         **pagination_data)
 
 @bp.route('/nuevo')
 @require_editor_or_admin
