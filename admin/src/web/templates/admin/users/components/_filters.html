@@ -1,0 +1,54 @@
+<!-- Filtros de búsqueda para usuarios -->
+<form method="GET" class="mb-4">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="card-title mb-0">
+                <i class="fas fa-filter"></i> Filtros de Búsqueda
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="text" class="form-control" id="email" name="email" 
+                               value="{{ request.args.get('email', '') }}" placeholder="Buscar por email">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="role">Rol</label>
+                        <select class="form-control" id="role" name="role">
+                            <option value="">Todos los roles</option>
+                            <option value="1" {% if request.args.get('role') == '1' %}selected{% endif %}>Administrador</option>
+                            <option value="2" {% if request.args.get('role') == '2' %}selected{% endif %}>Usuario</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="enabled">Estado</label>
+                        <select class="form-control" id="enabled" name="enabled">
+                            <option value="">Todos</option>
+                            <option value="true" {% if request.args.get('enabled') == 'true' %}selected{% endif %}>Activo</option>
+                            <option value="false" {% if request.args.get('enabled') == 'false' %}selected{% endif %}>Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label>&nbsp;</label>
+                        <div>
+                            <button type="submit" class="btn btn-info btn-block">
+                                <i class="fas fa-search"></i> Filtrar
+                            </button>
+                            <a href="{{ url_for('admin_users.index') }}" class="btn btn-secondary btn-block mt-1">
+                                <i class="fas fa-times"></i> Limpiar
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

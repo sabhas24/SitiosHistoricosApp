@@ -5,7 +5,8 @@ from flask_session import Session
 from src.web.controllers.auth import bp as auth_bp
 from src.web.controllers.sitios import bp as sitios_bp
 from src.web.controllers.tags import bp as tags_bp
-from src.web.handlers.auth import is_authenticated
+from src.web.controllers.admin.users import bp as admin_users_bp
+from src.web.handlers.auth import is_authenticated, get_current_user, check_permission
 
 def create_app(env="development", static_folder="../../static"):
     app = Flask(__name__, static_folder=static_folder)
@@ -28,24 +29,14 @@ def create_app(env="development", static_folder="../../static"):
     app.register_blueprint(auth_bp)
     app.register_blueprint(sitios_bp)
     app.register_blueprint(tags_bp)
+    app.register_blueprint(admin_users_bp)
 
     app.jinja_env.globals['is_authenticated'] = is_authenticated
-    
-    # Importar funciones de permisos para templates
-    from src.web.handlers.permissions import (
-        is_admin, is_editor, is_editor_or_admin,
-        can_create_sitios, can_edit_sitios, can_delete_sitios,
-        get_current_user
-    )
-    
-    # Hacer funciones de permisos disponibles en templates
-    app.jinja_env.globals['is_admin'] = is_admin
-    app.jinja_env.globals['is_editor'] = is_editor
-    app.jinja_env.globals['is_editor_or_admin'] = is_editor_or_admin
-    app.jinja_env.globals['can_create_sitios'] = can_create_sitios
-    app.jinja_env.globals['can_edit_sitios'] = can_edit_sitios
-    app.jinja_env.globals['can_delete_sitios'] = can_delete_sitios
     app.jinja_env.globals['get_current_user'] = get_current_user
+
+    # Ya no se registran helpers específicos porque se usa directamente check('perm') en templates
+    
+
     
     # Filtros personalizados para Jinja2
     @app.template_filter('nl2br')

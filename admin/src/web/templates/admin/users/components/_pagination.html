@@ -1,0 +1,36 @@
+<!-- Paginación de usuarios -->
+{% if users %}
+<nav aria-label="Paginación de usuarios">
+    <ul class="pagination justify-content-center">
+        {% if page > 1 %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('admin_users.index', page=page-1, **request.args) }}">
+                    <i class="fas fa-chevron-left"></i> Anterior
+                </a>
+            </li>
+        {% endif %}
+        
+        <li class="page-item active">
+            <span class="page-link">Página {{ page }}</span>
+        </li>
+        
+        {% if users|length == 25 %}
+            <li class="page-item">
+                <a class="page-link" href="{{ url_for('admin_users.index', page=page+1, **request.args) }}">
+                    Siguiente <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+</nav>
+
+<!-- Información adicional -->
+<div class="d-flex justify-content-between align-items-center mt-3">
+    <small class="text-muted">
+        Mostrando {{ users|length }} de {{ users|length }} usuarios en la página {{ page }}
+    </small>
+    <small class="text-muted">
+        {{ 25 }} registros por página
+    </small>
+</div>
+{% endif %}

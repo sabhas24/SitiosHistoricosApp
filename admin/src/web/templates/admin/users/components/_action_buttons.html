@@ -1,0 +1,21 @@
+<!-- Botones de acción para cada usuario -->
+<div class="btn-group" role="group">
+    <a href="{{ url_for('admin_users.edit_form', user_id=user.id) }}" 
+       class="btn btn-sm btn-warning" title="Editar">
+        <i class="fas fa-edit"></i>
+    </a>
+    
+    <button type="button" class="btn btn-sm btn-{{ 'success' if not user.enabled else 'secondary' }} toggle-status-btn" 
+            data-user-id="{{ user.id }}" 
+            data-enabled="{{ user.enabled|lower }}" 
+            title="{{ 'Activar' if not user.enabled else 'Bloquear' }} usuario">
+        <i class="fas fa-{{ 'unlock' if not user.enabled else 'lock' }}"></i>
+    </button>
+    
+    <button type="button" class="btn btn-sm btn-danger delete-user-btn" 
+            data-user-id="{{ user.id }}" 
+            data-user-name="{{ user.name }}" 
+            title="Eliminar usuario">
+        <i class="fas fa-trash"></i>
+    </button>
+</div>

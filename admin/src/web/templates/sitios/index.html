@@ -15,7 +15,7 @@
         Gestión de sitios históricos y patrimonio cultural
       </p>
     </div>
-    {% if can_create_sitios() %}
+    {% if check('site_new') %}
     <a href="{{ url_for('sitios.nuevo') }}" class="btn btn-primary">
       <i class="fas fa-plus"></i>
       Nuevo Sitio
@@ -122,12 +122,12 @@
                     <a href="{{ url_for('sitios.detalle', id=sitio.id) }}" class="btn-accion btn-ver" title="Ver detalles">
                       <i class="fas fa-eye"></i>
                     </a>
-                    {% if can_edit_sitios() %}
+                    {% if check('site_update') %}
                     <a href="{{ url_for('sitios.editar', id=sitio.id) }}" class="btn-accion btn-editar" title="Editar">
                       <i class="fas fa-edit"></i>
                     </a>
                     {% endif %}
-                    {% if can_delete_sitios() %}
+                    {% if check('site_destroy') %}
                     <button onclick="confirmarEliminacion({{ sitio.id }}, '{{ sitio.nombre }}')" class="btn-accion btn-eliminar" title="Eliminar">
                       <i class="fas fa-trash"></i>
                     </button>
@@ -146,7 +146,7 @@
           </div>
           <h3>No hay sitios históricos registrados</h3>
           <p>Comienza agregando tu primer sitio histórico al sistema.</p>
-          {% if can_create_sitios() %}
+          {% if check('site_new') %}
           <a href="{{ url_for('sitios.nuevo') }}" class="btn btn-primary">
             <i class="fas fa-plus"></i>
             Crear Primer Sitio

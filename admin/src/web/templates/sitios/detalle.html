@@ -16,7 +16,7 @@
       </p>
     </div>
     <div class="flex gap-2">
-      {% if can_edit_sitios() %}
+  {% if check('site_update') %}
       <a href="{{ url_for('sitios.editar', id=sitio.id) }}" class="btn btn-primary">
         <i class="fas fa-edit"></i>
         Editar
@@ -190,7 +190,7 @@
         </div>
         <div class="card-body">
           <div class="acciones-lista">
-            {% if can_edit_sitios() %}
+            {% if check('site_update') %}
             <a href="{{ url_for('sitios.editar', id=sitio.id) }}" class="accion-item">
               <div class="accion-icon">
                 <i class="fas fa-edit"></i>
@@ -202,7 +202,7 @@
             </a>
             {% endif %}
             
-            {% if can_delete_sitios() %}
+            {% if check('site_destroy') %}
             <button onclick="confirmarEliminacion({{ sitio.id }}, '{{ sitio.nombre }}')" class="accion-item accion-peligro">
               <div class="accion-icon">
                 <i class="fas fa-trash"></i>

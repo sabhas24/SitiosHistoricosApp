@@ -1,0 +1,56 @@
+<!-- JavaScript para funcionalidad de usuarios -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    initializeUserActions();
+});
+
+function initializeUserActions() {
+    // Event listeners para botones de eliminar
+    document.querySelectorAll('.delete-user-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const userId = this.getAttribute('data-user-id');
+            const userName = this.getAttribute('data-user-name');
+            showDeleteConfirmation(userId, userName);
+        });
+    });
+
+    // Event listeners para botones de cambiar estado
+    document.querySelectorAll('.toggle-status-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const userId = this.getAttribute('data-user-id');
+            const isEnabled = this.getAttribute('data-enabled') === 'true';
+            showStatusToggleConfirmation(userId, isEnabled);
+        });
+    });
+}
+
+function showDeleteConfirmation(userId, userName) {
+    document.getElementById('userName').textContent = userName;
+    document.getElementById('deleteForm').action = `{{ url_for('admin_users.index') }}/${userId}/eliminar`;
+    $('#deleteModal').modal('show');
+}
+
+function showStatusToggleConfirmation(userId, isEnabled) {
+    const action = isEnabled ? 'bloquear' : 'activar';
+    const actionTitle = isEnabled ? 'Bloquear Usuario' : 'Activar Usuario';
+    const message = isEnabled ? 
+        '¿Está seguro de que desea bloquear este usuario?' : 
+        '¿Está seguro de que desea activar este usuario?';
+    const btnClass = isEnabled ? 'btn-warning' : 'btn-success';
+    
+    document.getElementById('toggleStatusTitle').textContent = actionTitle;
+    document.getElementById('toggleStatusMessage').textContent = message;
+    document.getElementById('toggleStatusForm').action = `{{ url_for('admin_users.index') }}/${userId}/bloquear`;
+    
+    const btn = document.getElementById('toggleStatusBtn');
+    btn.innerHTML = `<i class="fas fa-${isEnabled ? 'lock' : 'unlock'}"></i> ${action.charAt(0).toUpperCase() + action.slice(1)}`;
+    btn.className = `btn ${btnClass}`;
+    
+    $('#toggleStatusModal').modal('show');
+}
+
+// Función para recargar los event listeners después de filtrar
+function refreshEventListeners() {
+    initializeUserActions();
+}
+</script>

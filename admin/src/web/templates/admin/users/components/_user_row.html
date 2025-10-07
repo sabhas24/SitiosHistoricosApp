@@ -1,0 +1,30 @@
+<!-- Fila individual de usuario -->
+<tr>
+    <td>{{ user.id }}</td>
+    <td>{{ user.email }}</td>
+    <td>{{ user.name }}</td>
+    <td>{{ user.last_name or '-' }}</td>
+    <td>
+        <span class="badge badge-{{ 'danger' if user.role.name == 'admin' else 'info' }}">
+            {{ user.role.name.title() }}
+        </span>
+    </td>
+    <td>
+        {% if user.is_super_admin %}
+            <span class="badge badge-warning">Sí</span>
+        {% else %}
+            <span class="badge badge-secondary">No</span>
+        {% endif %}
+    </td>
+    <td>
+        {% if user.enabled %}
+            <span class="badge badge-success">Activo</span>
+        {% else %}
+            <span class="badge badge-danger">Inactivo</span>
+        {% endif %}
+    </td>
+    <td>{{ user.created_at.strftime('%d/%m/%Y') if user.created_at else '-' }}</td>
+    <td>
+        {% include 'admin/users/components/_action_buttons.html' %}
+    </td>
+</tr>
