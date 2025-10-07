@@ -16,7 +16,7 @@ class user(Base):
     enabled: Mapped[bool] = mapped_column(default=True)
     role_id: Mapped[int] = mapped_column(ForeignKey("roles.id"), nullable=False)
     role: Mapped["Role"] = relationship("Role", back_populates="users")
-
+    is_super_admin: Mapped[bool] = mapped_column(default=False)
     inserted_at: Mapped[datetime] = mapped_column(DateTime, default=lambda:datetime.now(timezone.utc))
     updated_at: Mapped[datetime] = mapped_column(
         DateTime,

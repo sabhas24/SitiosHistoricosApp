@@ -15,7 +15,7 @@
         Gestión de sitios históricos y patrimonio cultural
       </p>
     </div>
-    {% if can_create_sitios() %}
+    {% if check('site_new') %}
     <a href="{{ url_for('sitios.nuevo') }}" class="btn btn-primary">
       <i class="fas fa-plus"></i>
       Nuevo Sitio
@@ -197,175 +197,103 @@
     </div>
     <div class="card-body" style="padding: 0;">
       {% if sitios %}
-      <div class="table-responsive">
-        <table class="sitios-table">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Ubicación</th>
-              <th>Categoría</th>
-              <th>Estado</th>
-              <th>Visible</th>
-              <th>Etiquetas</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for sitio in sitios %}
-            <tr>
-              <td>
-                <div class="sitio-info">
-                  <h4 class="sitio-nombre">{{ sitio.nombre }}</h4>
-                  <p class="sitio-descripcion">{{ sitio.descripcion_breve[:100] }}{% if sitio.descripcion_breve|length >
-                    100 %}...{% endif %}</p>
-                </div>
-              </td>
-              <td>
-                <div class="ubicacion-info" style="display: flex; align-items: center;">
-                  <i class="fas fa-map-marker-alt" style="margin-right: 6px;"></i>
-                  {{ sitio.ciudad }}, {{ sitio.provincia }}
-                </div>
-              </td>
-              <td>
-                <span class="categoria-badge categoria-{{ sitio.categoria.value|lower|replace(' ', '-') }}">
-                  {{ sitio.categoria.value }}
-                </span>
-              </td>
-              <td>
-                <span class="estado-badge estado-{{ sitio.estado_conservacion.value|lower }}">
-                  {{ sitio.estado_conservacion.value }}
-                </span>
-              </td>
-              <td>
-                {% if sitio.visible %}
-                <span class="visible-badge visible">
-                  <i class="fas fa-eye"></i>
-                  Visible
-                </span>
-                {% else %}
-                <span class="visible-badge oculto"
-                  style="background: #b0b7c3; color: #fff; display: inline-flex; align-items: center;">
-                  <i class="fas fa-eye-slash"></i>
-                  OCULTO
-                </span>
-                {% endif %}
-              </td>
-              <td>
-                <div class="tags-list" style="display: flex; flex-wrap: wrap; gap: 6px;">
-                  {% for tag in sitio.tags %}
-                  <span class="tag-badge">{{ tag.nombre }}</span>
-                  {% endfor %}
-                  {% if not sitio.tags %}
-                  <span class="text-muted">Sin etiquetas</span>
+        <div class="table-responsive">
+          <table class="sitios-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Ubicación</th>
+                <th>Categoría</th>
+                <th>Estado</th>
+                <th>Visible</th>
+                <th>Etiquetas</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for sitio in sitios %}
+              <tr>
+                <td>
+                  <div class="sitio-info">
+                    <h4 class="sitio-nombre">{{ sitio.nombre }}</h4>
+                    <p class="sitio-descripcion">{{ sitio.descripcion_breve[:100] }}{% if sitio.descripcion_breve|length > 100 %}...{% endif %}</p>
+                  </div>
+                </td>
+                <td>
+                  <div class="ubicacion-info" style="display: flex; align-items: center;">
+                    <i class="fas fa-map-marker-alt" style="margin-right: 6px;"></i>
+                    {{ sitio.ciudad }}, {{ sitio.provincia }}
+                  </div>
+                </td>
+                <td>
+                  <span class="categoria-badge categoria-{{ sitio.categoria.value|lower|replace(' ', '-') }}">
+                    {{ sitio.categoria.value }}
+                  </span>
+                </td>
+                <td>
+                  <span class="estado-badge estado-{{ sitio.estado_conservacion.value|lower }}">
+                    {{ sitio.estado_conservacion.value }}
+                  </span>
+                </td>
+                <td>
+                  {% if sitio.visible %}
+                    <span class="visible-badge visible">
+                      <i class="fas fa-eye"></i>
+                      Visible
+                    </span>
+                  {% else %}
+                    <span class="visible-badge oculto" style="background: #b0b7c3; color: #fff; display: inline-flex; align-items: center;">
+                      <i class="fas fa-eye-slash"></i>
+                      OCULTO
+                    </span>
                   {% endif %}
-                </div>
-              </td>
-              <td>
-                <div class="acciones">
-                  <a href="{{ url_for('sitios.detalle', id=sitio.id) }}" class="btn-accion btn-ver"
-                    title="Ver detalles">
-                    <i class="fas fa-eye"></i>
-                  </a>
-                  {% if can_edit_sitios() %}
-                  <a href="{{ url_for('sitios.editar', id=sitio.id) }}" class="btn-accion btn-editar" title="Editar">
-                    <i class="fas fa-edit"></i>
-                  </a>
-                  {% endif %}
-                  {% if can_delete_sitios() %}
-                  <button onclick="confirmarEliminacion({{ sitio.id }}, '{{ sitio.nombre }}')"
-                    class="btn-accion btn-eliminar" title="Eliminar">
-                    <i class="fas fa-trash"></i>
-                  </button>
-                  {% endif %}
-                </div>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Controles de paginación -->
-      {% if total_pages > 1 %}
-      <div class="pagination-container">
-        <div class="pagination-info">
-          <span>Mostrando {{ ((page - 1) * per_page) + 1 }} - {{ ((page - 1) * per_page) + sitios|length }} de {{ total
-            }} sitios</span>
+                </td>
+                <td>
+                  <div class="tags-list" style="display: flex; flex-wrap: wrap; gap: 6px;">
+                    {% for tag in sitio.tags %}
+                      <span class="tag-badge">{{ tag.nombre }}</span>
+                    {% endfor %}
+                    {% if not sitio.tags %}
+                      <span class="text-muted">Sin etiquetas</span>
+                    {% endif %}
+                  </div>
+                </td>
+                <td>
+                  <div class="acciones">
+                    <a href="{{ url_for('sitios.detalle', id=sitio.id) }}" class="btn-accion btn-ver" title="Ver detalles">
+                      <i class="fas fa-eye"></i>
+                    </a>
+                    {% if check('site_update') %}
+                    <a href="{{ url_for('sitios.editar', id=sitio.id) }}" class="btn-accion btn-editar" title="Editar">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    {% endif %}
+                    {% if check('site_destroy') %}
+                    <button onclick="confirmarEliminacion({{ sitio.id }}, '{{ sitio.nombre }}')" class="btn-accion btn-eliminar" title="Eliminar">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
-
-        <nav class="pagination-nav">
-          <!-- Botón Anterior -->
-          {% if has_prev %}
-          <a href="{{ url_for('sitios.index', page=prev_num, **filters) }}" class="pagination-btn pagination-prev"></a>
-          <i class="fas fa-chevron-left"></i>
-          Anterior
-          </a>
-          {% else %}
-          <span class="pagination-btn pagination-prev disabled">
-            <i class="fas fa-chevron-left"></i>
-            Anterior
-          </span>
-          {% endif %}
-
-          <!-- Números de página -->
-          <div class="pagination-numbers">
-            {% set start_page = [1, page - 2]|max %}
-            {% set end_page = [total_pages, page + 2]|min %}
-
-            {% if start_page > 1 %}
-            <a href="{{ url_for('sitios.index', page=1, **filters) }}" class="pagination-number">1</a>
-            {% if start_page > 2 %}
-            <span class="pagination-ellipsis">...</span>
-            {% endif %}
-            {% endif %}
-
-            {% for page_num in range(start_page, end_page + 1) %}
-            {% if page_num == page %}
-            <span class="pagination-number active">{{ page_num }}</span>
-            {% else %}
-            <a href="{{ url_for('sitios.index', page=page_num, **filters) }}" class="pagination-number">{{ page_num
-              }}</a>
-            {% endif %}
-            {% endfor %}
-
-            {% if end_page < total_pages %} {% if end_page < total_pages - 1 %} <span class="pagination-ellipsis">
-              ...</span>
-              {% endif %}
-              <a href="{{ url_for('sitios.index', page=total_pages, **filters) }}" class="pagination-number">{{
-                total_pages }}</a>
-              {% endif %}
-          </div>
-
-          <!-- Botón Siguiente -->
-          {% if has_next %}
-          <a href="{{ url_for('sitios.index', page=next_num, **filters) }}" class="pagination-btn pagination-next"></a>
-          Siguiente
-          <i class="fas fa-chevron-right"></i>
-          </a>
-          {% else %}
-          <span class="pagination-btn pagination-next disabled">
-            Siguiente
-            <i class="fas fa-chevron-right"></i>
-          </span>
-          {% endif %}
-        </nav>
-      </div>
-      {% endif %}
-
       {% else %}
-      <div class="empty-state">
-        <div class="empty-icon">
-          <i class="fas fa-landmark"></i>
+        <div class="empty-state">
+          <div class="empty-icon">
+            <i class="fas fa-landmark"></i>
+          </div>
+          <h3>No hay sitios históricos registrados</h3>
+          <p>Comienza agregando tu primer sitio histórico al sistema.</p>
+          {% if check('site_new') %}
+          <a href="{{ url_for('sitios.nuevo') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            Crear Primer Sitio
+          </a>
+          {% endif %}
         </div>
-        <h3>No hay sitios históricos registrados</h3>
-        <p>Comienza agregando tu primer sitio histórico al sistema.</p>
-        {% if can_create_sitios() %}
-        <a href="{{ url_for('sitios.nuevo') }}" class="btn btn-primary">
-          <i class="fas fa-plus"></i>
-          Crear Primer Sitio
-        </a>
-        {% endif %}
-      </div>
       {% endif %}
     </div>
   </div>

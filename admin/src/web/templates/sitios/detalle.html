@@ -16,7 +16,7 @@
       </p>
     </div>
     <div class="flex gap-2">
-      {% if can_edit_sitios() %}
+  {% if check('site_update') %}
       <a href="{{ url_for('sitios.editar', id=sitio.id) }}" class="btn btn-primary">
         <i class="fas fa-edit"></i>
         Editar
@@ -151,7 +151,7 @@
             
             {% if latitud and longitud %}
             <div class="mapa-detalle">
-              <div id="mapa-detalle" style="height: 400px; width: 100%;"></div>
+              <div id="mapa-detalle" style="height: 400px; width: 100%;" data-lat="{{ latitud if latitud is not none else '' }}" data-lng="{{ longitud if longitud is not none else '' }}"></div>
               <div class="mapa-actions">
                 <a href="https://www.google.com/maps?q={{ latitud }},{{ longitud }}" target="_blank" class="btn btn-ghost">
                   <i class="fas fa-external-link-alt"></i>
@@ -190,7 +190,7 @@
         </div>
         <div class="card-body">
           <div class="acciones-lista">
-            {% if can_edit_sitios() %}
+            {% if check('site_update') %}
             <a href="{{ url_for('sitios.editar', id=sitio.id) }}" class="accion-item">
               <div class="accion-icon">
                 <i class="fas fa-edit"></i>
@@ -202,7 +202,7 @@
             </a>
             {% endif %}
             
-            {% if can_delete_sitios() %}
+            {% if check('site_destroy') %}
             <button onclick="confirmarEliminacion({{ sitio.id }}, '{{ sitio.nombre }}')" class="accion-item accion-peligro">
               <div class="accion-icon">
                 <i class="fas fa-trash"></i>
@@ -303,11 +303,17 @@
 let mapaDetalle = null;
 let marcadorDetalle = null;
 
-// Inicializar mapa de detalle
-document.addEventListener('DOMContentLoaded', function() {
-  {% if latitud and longitud %}
-  inicializarMapaDetalle({{ latitud }}, {{ longitud }});
-  {% endif %}
+// Inicializar mapa de detalle (sin directivas Jinja de control para evitar falsos errores del linter)
+// Para evitar falsos positivos del linter, extraemos los valores desde atributos data-
+document.addEventListener('DOMContentLoaded', () => {
+  const elMapa = document.getElementById('mapa-detalle');
+  const latAttr = elMapa ? elMapa.getAttribute('data-lat') : null;
+  const lngAttr = elMapa ? elMapa.getAttribute('data-lng') : null;
+  const lat = latAttr ? parseFloat(latAttr) : null;
+  const lng = lngAttr ? parseFloat(lngAttr) : null;
+  if (!isNaN(lat) && !isNaN(lng)) {
+    inicializarMapaDetalle(lat, lng);
+  }
 });
 
 function inicializarMapaDetalle(lat, lng) {

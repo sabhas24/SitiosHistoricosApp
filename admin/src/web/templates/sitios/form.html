@@ -54,6 +54,7 @@
                                 <input type="text" id="nombre" name="nombre" class="form-input"
                                     placeholder="Ej: Casa Histórica de San Martín"
                                     value="{{ sitio.nombre if sitio else '' }}" required>
+                                <div class="invalid-feedback"></div>
                             </div>
                         </div>
 
@@ -526,6 +527,18 @@
             alert('La longitud debe estar entre -180 y 180');
             return;
         }
+    });
+
+    // Sistema de validación universal
+    FormValidator.init('.sitio-form', {
+        nombre: ['required', 'text'],
+        descripcion_breve: ['required', 'text'],
+        descripcion_completa: ['longText'],
+        ciudad: ['required', 'name'],
+        provincia: ['required', 'name'],
+        latitud: ['required', 'decimal'],
+        longitud: ['required', 'decimal'],
+        anio_inauguracion: ['number']
     });
 </script>
 

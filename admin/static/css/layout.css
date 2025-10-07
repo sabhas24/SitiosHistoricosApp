@@ -226,7 +226,39 @@ main.sidebar-collapsed {
   transform: translateX(100%);
 }
 
+/* Filtros compactos */
+.filters-container {
+  font-size: 0.8rem;
+}
+
+.filters-container .form-group {
+  margin-bottom: 1rem;
+}
+
+.filters-container label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.filters-container .form-control {
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+  height: auto;
+}
+
+.filters-container .btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+}
+
 /* Responsive */
+@media (max-width: 1200px) {
+  .filters-container .col-md-4 {
+    margin-bottom: 1rem;
+  }
+}
+
 @media (max-width: 900px) {
   main.with-sidebar {
     margin-left: 0 !important;
@@ -234,6 +266,15 @@ main.sidebar-collapsed {
   
   main.sidebar-collapsed {
     margin-left: 0 !important;
+  }
+  
+  .filters-container .row {
+    flex-direction: column;
+  }
+  
+  .filters-container [class*="col-"] {
+    width: 100%;
+    margin-bottom: 0.75rem;
   }
 }
 
@@ -245,6 +286,20 @@ main.sidebar-collapsed {
   .card-header,
   .card-body {
     padding: 1rem;
+  }
+  
+  .filters-container {
+    font-size: 0.75rem;
+  }
+  
+  .filters-container .form-control {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
+  }
+  
+  .filters-container .btn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
   }
 }
 

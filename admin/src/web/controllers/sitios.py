@@ -5,17 +5,14 @@ from src.models.sitios import (
 )
 from src.models.sitio_historico import EstadoConservacion, Categoria
 from src.models.tag import Tag
-from src.web.handlers.auth import login_required
-from src.web.handlers.permissions import (
-    require_editor_or_admin, require_admin, 
-    can_edit_sitios, can_delete_sitios
-)
+from src.web.handlers.auth import login_required, check
 from src.models.database import db
 
 bp = Blueprint('sitios', __name__, url_prefix='/sitios')
 
 @bp.route('/')
 @login_required
+@check('site_index')
 def index():
     """Listar sitios históricos con paginación y búsqueda avanzada"""
     # Obtener número de página
@@ -74,7 +71,8 @@ def index():
                          **pagination_data)
 
 @bp.route('/nuevo')
-@require_editor_or_admin
+@login_required
+@check('site_new')
 def nuevo():
     """Formulario para crear nuevo sitio histórico"""
     estados = [estado.value for estado in EstadoConservacion]
@@ -87,7 +85,8 @@ def nuevo():
                          action='crear')
 
 @bp.route('/crear', methods=['POST'])
-@require_editor_or_admin
+@login_required
+@check('site_new')
 def crear():
     """Crear nuevo sitio histórico"""
     try:
@@ -136,6 +135,7 @@ def crear():
 
 @bp.route('/<int:id>')
 @login_required
+@check('site_show')
 def detalle(id):
     """Ver detalles de un sitio histórico"""
     sitio = sitio_show(id)
@@ -152,7 +152,8 @@ def detalle(id):
                          longitud=longitud)
 
 @bp.route('/<int:id>/editar')
-@require_editor_or_admin
+@login_required
+@check('site_update')
 def editar(id):
     """Formulario para editar sitio histórico"""
     sitio = sitio_show(id)
@@ -177,7 +178,8 @@ def editar(id):
                          action='editar')
 
 @bp.route('/<int:id>/actualizar', methods=['POST'])
-@require_editor_or_admin
+@login_required
+@check('site_update')
 def actualizar(id):
     """Actualizar sitio histórico"""
     try:
@@ -229,7 +231,8 @@ def actualizar(id):
         return redirect(url_for('sitios.editar', id=id))
 
 @bp.route('/<int:id>/eliminar', methods=['POST'])
-@require_admin
+@login_required
+@check('site_destroy')
 def eliminar(id):
     """Eliminar sitio histórico"""
     try:
