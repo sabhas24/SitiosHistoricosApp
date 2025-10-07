@@ -34,6 +34,24 @@
   font-size: 1.75rem;
 }
 
+.logo-image {
+  height: 40px;
+  width: auto;
+  max-width: 150px;
+  object-fit: contain;
+  margin-right: 0.5rem;
+}
+
+.logo-text {
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+/* Si el logo no carga, ocultar el margen */
+.topbar-logo:has(.logo-image[style*="display: none"]) .logo-text {
+  margin-left: 0;
+}
+
 .sidebar-toggle {
   background: none;
   border: none;

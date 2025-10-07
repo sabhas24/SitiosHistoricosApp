@@ -104,6 +104,20 @@
               <p class="info-value">{{ sitio.fecha_registro.strftime('%d/%m/%Y %H:%M') }}</p>
             </div>
           </div>
+          
+          <!-- Etiquetas -->
+          <dl class="row">
+            <dt class="col-sm-3">Etiquetas</dt>
+            <dd class="col-sm-9">
+              {% if sitio.tags %}
+                {% for tag in sitio.tags %}
+                  <span class="tag-badge">{{ tag.nombre }}</span>
+                {% endfor %}
+              {% else %}
+                <span class="text-muted">Sin etiquetas asignadas</span>
+              {% endif %}
+            </dd>
+          </dl>
         </div>
       </div>
 
@@ -605,5 +619,16 @@ document.getElementById('deleteModal').addEventListener('click', function(e) {
     flex-direction: column;
   }
 }
+
+.tag-badge {
+        background: #17a2b8;
+        color: #fff;
+        border-radius: 12px;
+        padding: 0.2rem 0.7rem;
+        font-size: 0.95rem;
+        display: inline-block;
+        margin-right: 0.3rem;
+        margin-bottom: 0.2rem;
+    }
 </style>
 {% endblock %}

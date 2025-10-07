@@ -1,23 +1,77 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from src.models.sitios import (
     sitio_create, sitio_index, sitio_show, sitio_update, sitio_delete,
-    sitio_get_coordinates
+    sitio_get_coordinates, get_search_options
 )
 from src.models.sitio_historico import EstadoConservacion, Categoria
+from src.models.tag import Tag
 from src.web.handlers.auth import login_required
 from src.web.handlers.permissions import (
     require_editor_or_admin, require_admin, 
     can_edit_sitios, can_delete_sitios
 )
+from src.models.database import db
 
 bp = Blueprint('sitios', __name__, url_prefix='/sitios')
 
 @bp.route('/')
 @login_required
 def index():
-    """Listar todos los sitios históricos"""
-    sitios = sitio_index()
-    return render_template('sitios/index.html', sitios=sitios)
+    """Listar sitios históricos con paginación y búsqueda avanzada"""
+    # Obtener número de página
+    page = request.args.get('page', 1, type=int)
+    
+    # Obtener filtros de búsqueda
+    filters = {}
+    
+    # Búsqueda por texto
+    if request.args.get('search'):
+        filters['search'] = request.args.get('search').strip()
+    
+    # Filtros de ubicación
+    if request.args.get('ciudad'):
+        filters['ciudad'] = request.args.get('ciudad').strip()
+    
+    if request.args.get('provincia'):
+        filters['provincia'] = request.args.get('provincia')
+    
+    # Filtros de características
+    if request.args.get('categoria'):
+        filters['categoria'] = request.args.get('categoria')
+    
+    if request.args.get('estado_conservacion'):
+        filters['estado_conservacion'] = request.args.get('estado_conservacion')
+    
+    # Filtro de visibilidad
+    visible = request.args.get('visible')
+    if visible == 'true':
+        filters['visible'] = True
+    elif visible == 'false':
+        filters['visible'] = False
+    
+    # Filtros de fecha
+    if request.args.get('fecha_desde'):
+        filters['fecha_desde'] = request.args.get('fecha_desde')
+    
+    if request.args.get('fecha_hasta'):
+        filters['fecha_hasta'] = request.args.get('fecha_hasta')
+    
+    # Orden
+    if request.args.get('order_by'):
+        filters['order_by'] = request.args.get('order_by')
+    
+    if request.args.get('order_dir'):
+        filters['order_dir'] = request.args.get('order_dir')
+    
+    # Obtener datos paginados con filtros
+    pagination_data = sitio_index(page=page, per_page=25, filters=filters)
+    
+    # Obtener opciones para los selectores
+    search_options = get_search_options()
+    
+    return render_template('sitios/index.html', 
+                         search_options=search_options,
+                         **pagination_data)
 
 @bp.route('/nuevo')
 @require_editor_or_admin
@@ -25,9 +79,11 @@ def nuevo():
     """Formulario para crear nuevo sitio histórico"""
     estados = [estado.value for estado in EstadoConservacion]
     categorias = [categoria.value for categoria in Categoria]
+    tags_all = db.session.query(Tag).order_by(Tag.nombre).all()
     return render_template('sitios/form.html', 
                          estados=estados, 
                          categorias=categorias,
+                         tags_all=tags_all,
                          action='crear')
 
 @bp.route('/crear', methods=['POST'])
@@ -47,7 +103,8 @@ def crear():
             'estado_conservacion': request.form.get('estado_conservacion'),
             'anio_inauguracion': request.form.get('anio_inauguracion'),
             'categoria': request.form.get('categoria'),
-            'visible': request.form.get('visible') == 'on'
+            'visible': request.form.get('visible') == 'on',
+            'tags': request.form.getlist('tags')
         }
         
         # Validaciones básicas
@@ -108,6 +165,7 @@ def editar(id):
     
     estados = [estado.value for estado in EstadoConservacion]
     categorias = [categoria.value for categoria in Categoria]
+    tags_all = db.session.query(Tag).order_by(Tag.nombre).all()
     
     return render_template('sitios/form.html', 
                          sitio=sitio,
@@ -115,6 +173,7 @@ def editar(id):
                          longitud=longitud,
                          estados=estados, 
                          categorias=categorias,
+                         tags_all=tags_all,
                          action='editar')
 
 @bp.route('/<int:id>/actualizar', methods=['POST'])
@@ -134,7 +193,8 @@ def actualizar(id):
             'estado_conservacion': request.form.get('estado_conservacion'),
             'anio_inauguracion': request.form.get('anio_inauguracion'),
             'categoria': request.form.get('categoria'),
-            'visible': request.form.get('visible') == 'on'
+            'visible': request.form.get('visible') == 'on',
+            'tags': request.form.getlist('tags')
         }
         
         # Validaciones básicas

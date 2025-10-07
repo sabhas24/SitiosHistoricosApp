@@ -8,6 +8,19 @@
   margin-bottom: 3rem;
 }
 
+.hero-logo {
+  margin-bottom: 2rem;
+}
+
+.hero-logo-image {
+  height: 120px;
+  width: auto;
+  max-width: 400px;
+  object-fit: contain;
+  filter: brightness(0) invert(1); /* Hace el logo blanco */
+  opacity: 0.9;
+}
+
 .hero-title {
   font-size: 2.5rem;
   font-weight: 700;
@@ -224,6 +237,11 @@
     align-items: center;
   }
   
+  .hero-logo-image {
+    height: 80px;
+    max-width: 300px;
+  }
+  
   .features-grid {
     grid-template-columns: 1fr;
   }
@@ -234,5 +252,17 @@
   
   .actions-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-logo-image {
+    height: 60px;
+    max-width: 200px;
+  }
+  
+  .hero-logo-image {
+    height: 70px;
+    max-width: 250px;
   }
 }

@@ -2,6 +2,8 @@ from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, Enum
 from sqlalchemy.sql import func
 from geoalchemy2.types import Geometry
 from src.models.database import Base
+from sqlalchemy.orm import relationship
+from src.models.tag import sitio_tag, Tag
 import enum
 
 class EstadoConservacion(enum.Enum):
@@ -37,6 +39,7 @@ class SitioHistorico(Base):
     # Campos de control
     fecha_registro = Column(DateTime, default=func.now(), nullable=False)
     visible = Column(Boolean, default=False, nullable=False)
+    tags = relationship('Tag', secondary=sitio_tag, back_populates='sitios')
     
     def __repr__(self):
         return f'<SitioHistorico {self.nombre}>'
@@ -54,5 +57,6 @@ class SitioHistorico(Base):
             'anio_inauguracion': self.anio_inauguracion,
             'categoria': self.categoria.value if self.categoria else None,
             'fecha_registro': self.fecha_registro.isoformat() if self.fecha_registro else None,
-            'visible': self.visible
+            'visible': self.visible,
+            'tags': [tag.nombre for tag in self.tags]
         }
