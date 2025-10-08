@@ -1,0 +1,235 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Historial - {{ sitio.nombre }}
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/sitios-historial.css') }}">
+
+<div class="container">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-3">
+        <div>
+            <h1 class="hero-title" style="font-size: 2rem; margin-bottom: 0.5rem;">
+                <i class="fas fa-history"></i>
+                Historial de Modificaciones
+            </h1>
+            <p class="hero-subtitle" style="margin: 0;">
+                {{ sitio.nombre }} - {{ sitio.ciudad }}, {{ sitio.provincia }}
+            </p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ url_for('sitios.detalle', id=sitio.id) }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Volver al Sitio
+            </a>
+            <a href="{{ url_for('sitios.index') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-list"></i>
+                Lista de Sitios
+            </a>
+        </div>
+    </div>
+
+    <!-- Información del sitio -->
+    <div class="card mb-3">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-info-circle"></i>
+                Información del Sitio
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="info-grid">
+                <div class="info-item">
+                    <label class="info-label">Nombre:</label>
+                    <p class="info-value">{{ sitio.nombre }}</p>
+                </div>
+                <div class="info-item">
+                    <label class="info-label">Fecha de registro:</label>
+                    <p class="info-value">{{ sitio.fecha_registro.strftime('%d/%m/%Y %H:%M') }}</p>
+                </div>
+                <div class="info-item">
+                    <label class="info-label">Estado de conservación:</label>
+                    <p class="info-value">{{ sitio.estado_conservacion.value }}</p>
+                </div>
+                <div class="info-item">
+                    <label class="info-label">Visibilidad:</label>
+                    <p class="info-value">
+                        {% if sitio.visible %}
+                            <span class="badge badge-success">Público</span>
+                        {% else %}
+                            <span class="badge badge-secondary">Privado</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="card mb-3">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-filter"></i>
+                Filtrar Historial
+            </h3>
+        </div>
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('historial.historial_sitio', sitio_id=sitio.id) }}" class="search-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tipo_accion" class="form-label">Tipo de Acción:</label>
+                        <select name="tipo_accion" id="tipo_accion" class="form-select">
+                            <option value="">Todas las acciones</option>
+                            <option value="Creación" {{ 'selected' if filtros.tipo_accion == 'Creación' }}>Creación</option>
+                            <option value="Edición" {{ 'selected' if filtros.tipo_accion == 'Edición' }}>Edición</option>
+                            <option value="Eliminación" {{ 'selected' if filtros.tipo_accion == 'Eliminación' }}>Eliminación</option>
+                            <option value="Cambio de visibilidad" {{ 'selected' if filtros.tipo_accion == 'Cambio de visibilidad' }}>Cambio de visibilidad</option>
+                            <option value="Cambio de estado" {{ 'selected' if filtros.tipo_accion == 'Cambio de estado' }}>Cambio de estado</option>
+                            <option value="Actualización de tags" {{ 'selected' if filtros.tipo_accion == 'Actualización de tags' }}>Actualización de tags</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="fecha_desde" class="form-label">Desde:</label>
+                        <input type="date" name="fecha_desde" id="fecha_desde" value="{{ filtros.fecha_desde }}" class="form-input">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="fecha_hasta" class="form-label">Hasta:</label>
+                        <input type="date" name="fecha_hasta" id="fecha_hasta" value="{{ filtros.fecha_hasta }}" class="form-input">
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter"></i> Filtrar
+                    </button>
+                    <a href="{{ url_for('historial.historial_sitio', sitio_id=sitio.id) }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Limpiar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Lista de eventos del historial -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-clock"></i>
+                Eventos del Historial
+            </h3>
+        </div>
+        <div class="card-body">
+            {% if historial_data.eventos %}
+                <div class="historial-eventos">
+                    {% for evento in historial_data.eventos %}
+                        <div class="evento-item">
+                            <div class="evento-header">
+                                <div class="evento-tipo">
+                                    {% if evento.tipo_accion == 'Creación' %}
+                                        <span class="badge badge-success">
+                                            <i class="fas fa-plus"></i> {{ evento.tipo_accion }}
+                                        </span>
+                                    {% elif evento.tipo_accion == 'Edición' %}
+                                        <span class="badge badge-primary">
+                                            <i class="fas fa-edit"></i> {{ evento.tipo_accion }}
+                                        </span>
+                                    {% elif evento.tipo_accion == 'Eliminación' %}
+                                        <span class="badge badge-danger">
+                                            <i class="fas fa-trash"></i> {{ evento.tipo_accion }}
+                                        </span>
+                                    {% elif evento.tipo_accion == 'Cambio de visibilidad' %}
+                                        <span class="badge badge-warning">
+                                            <i class="fas fa-eye"></i> {{ evento.tipo_accion }}
+                                        </span>
+                                    {% elif evento.tipo_accion == 'Cambio de estado' %}
+                                        <span class="badge badge-info">
+                                            <i class="fas fa-shield-alt"></i> {{ evento.tipo_accion }}
+                                        </span>
+                                    {% elif evento.tipo_accion == 'Actualización de tags' %}
+                                        <span class="badge badge-secondary">
+                                            <i class="fas fa-tags"></i> {{ evento.tipo_accion }}
+                                        </span>
+                                    {% else %}
+                                        <span class="badge badge-light">
+                                            <i class="fas fa-circle"></i> {{ evento.tipo_accion }}
+                                        </span>
+                                    {% endif %}
+                                </div>
+                                <div class="evento-fecha">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    {{ evento.fecha_hora.strftime('%d/%m/%Y %H:%M:%S') }}
+                                </div>
+                            </div>
+                            
+                            <div class="evento-contenido">
+                                <div class="evento-detalles">
+                                    {{ evento.detalles }}
+                                </div>
+                                
+                                <div class="evento-usuario">
+                                    <i class="fas fa-user"></i>
+                                    {% if evento.usuario %}
+                                        <strong>{{ evento.usuario.name }}</strong> ({{ evento.usuario.email }})
+                                    {% else %}
+                                        <strong>Sistema</strong>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- Paginación -->
+                {% if historial_data.total_pages > 1 %}
+                    <div class="pagination-container">
+                        <nav class="pagination-nav">
+                            {% if historial_data.has_prev %}
+                                <a href="{{ url_for('historial.historial_sitio', sitio_id=sitio.id, page=historial_data.prev_num, 
+                                                  tipo_accion=filtros.tipo_accion, fecha_desde=filtros.fecha_desde, fecha_hasta=filtros.fecha_hasta) }}" 
+                                   class="pagination-btn pagination-prev">
+                                    <i class="fas fa-chevron-left"></i> Anterior
+                                </a>
+                            {% endif %}
+                            
+                            <div class="pagination-pages">
+                                {% for page_num in range(1, historial_data.total_pages + 1) %}
+                                    {% if page_num != historial_data.page %}
+                                        <a href="{{ url_for('historial.historial_sitio', sitio_id=sitio.id, page=page_num, 
+                                                          tipo_accion=filtros.tipo_accion, fecha_desde=filtros.fecha_desde, fecha_hasta=filtros.fecha_hasta) }}" 
+                                           class="pagination-btn">
+                                            {{ page_num }}
+                                        </a>
+                                    {% else %}
+                                        <span class="pagination-btn pagination-current">{{ page_num }}</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            
+                            {% if historial_data.has_next %}
+                                <a href="{{ url_for('historial.historial_sitio', sitio_id=sitio.id, page=historial_data.next_num, 
+                                                  tipo_accion=filtros.tipo_accion, fecha_desde=filtros.fecha_desde, fecha_hasta=filtros.fecha_hasta) }}" 
+                                   class="pagination-btn pagination-next">
+                                    Siguiente <i class="fas fa-chevron-right"></i>
+                                </a>
+                            {% endif %}
+                        </nav>
+                    </div>
+                {% endif %}
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3>No hay eventos en el historial</h3>
+                    <p>No se encontraron modificaciones para este sitio histórico con los filtros aplicados.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

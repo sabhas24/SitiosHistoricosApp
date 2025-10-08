@@ -1,0 +1,376 @@
+{% extends 'layout.html' %}
+
+{% block title %}{{ sitio.nombre }} - Sitios Históricos{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/sitios-detalle.css') }}">
+
+<div class="container">
+  <!-- Header -->
+  <header class="flex items-center justify-between mb-3">
+    <div>
+      <h1 class="hero-title" style="font-size: 2rem; margin-bottom: 0.5rem;">
+        <i class="fas fa-landmark"></i>
+        {{ sitio.nombre }}
+      </h1>
+      <p class="hero-subtitle" style="margin: 0;">
+        {{ sitio.ciudad }}, {{ sitio.provincia }}
+      </p>
+    </div>
+    <div class="flex gap-2">
+  {% if check('site_update') %}
+      <a href="{{ url_for('sitios.editar', id=sitio.id) }}" class="btn btn-primary">
+        <i class="fas fa-edit"></i>
+        Editar
+      </a>
+      {% endif %}
+      {% if check('site_history') %}
+      <a href="{{ url_for('historial.historial_sitio', sitio_id=sitio.id) }}" class="btn btn-info">
+        <i class="fas fa-history"></i>
+        Ver Historial
+      </a>
+      {% endif %}
+      <a href="{{ url_for('sitios.index') }}" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i>
+        Volver al Listado
+      </a>
+    </div>
+  </header>
+
+  <div class="detalle-container">
+    <!-- Información principal -->
+    <main class="detalle-main">
+      <article class="card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="fas fa-info-circle"></i>
+            Información General
+          </h3>
+          <div class="badges-container">
+            {% if sitio.visible %}
+              <span class="visible-badge visible">
+                <i class="fas fa-eye"></i>
+                Visible
+              </span>
+            {% else %}
+              <span class="visible-badge oculto">
+                <i class="fas fa-eye-slash"></i>
+                Oculto
+              </span>
+            {% endif %}
+            
+            <span class="estado-badge estado-{{ sitio.estado_conservacion.value|lower }}">
+              {{ sitio.estado_conservacion.value }}
+            </span>
+            
+            <span class="categoria-badge">
+              {{ sitio.categoria.value }}
+            </span>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="info-grid">
+            <div class="info-item">
+              <label class="info-label">
+                <i class="fas fa-align-left"></i>
+                Descripción Breve
+              </label>
+              <p class="info-value">{{ sitio.descripcion_breve }}</p>
+            </div>
+            
+            {% if sitio.descripcion_completa %}
+            <div class="info-item full-width">
+              <label class="info-label">
+                <i class="fas fa-file-text"></i>
+                Descripción Completa
+              </label>
+              <div class="info-value descripcion-completa">
+                {{ sitio.descripcion_completa|nl2br }}
+              </div>
+            </div>
+            {% endif %}
+            
+            <div class="info-item">
+              <label class="info-label">
+                <i class="fas fa-calendar-alt"></i>
+                Año de Inauguración
+              </label>
+              <p class="info-value">
+                {% if sitio.anio_inauguracion %}
+                  {{ sitio.anio_inauguracion }}
+                {% else %}
+                  <span class="text-muted">No especificado</span>
+                {% endif %}
+              </p>
+            </div>
+            
+            <div class="info-item">
+              <label class="info-label">
+                <i class="fas fa-clock"></i>
+                Fecha de Registro
+              </label>
+              <p class="info-value">{{ sitio.fecha_registro.strftime('%d/%m/%Y %H:%M') }}</p>
+            </div>
+          </div>
+          
+          <!-- Etiquetas -->
+          <dl class="row">
+            <dt class="col-sm-3">Etiquetas</dt>
+            <dd class="col-sm-9">
+              {% if sitio.tags %}
+                {% for tag in sitio.tags %}
+                  <span class="tag-badge">{{ tag.nombre }}</span>
+                {% endfor %}
+              {% else %}
+                <span class="text-muted">Sin etiquetas asignadas</span>
+              {% endif %}
+            </dd>
+          </dl>
+        </div>
+      </div>
+
+      <!-- Ubicación -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="fas fa-map-marker-alt"></i>
+            Ubicación
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="ubicacion-info">
+            <div class="coordenadas-info">
+              <div class="coordenada-item">
+                <label class="info-label">
+                  <i class="fas fa-crosshairs"></i>
+                  Latitud
+                </label>
+                <p class="info-value coordenada-valor">{{ "%.6f"|format(latitud) if latitud else 'N/A' }}</p>
+              </div>
+              
+              <div class="coordenada-item">
+                <label class="info-label">
+                  <i class="fas fa-crosshairs"></i>
+                  Longitud
+                </label>
+                <p class="info-value coordenada-valor">{{ "%.6f"|format(longitud) if longitud else 'N/A' }}</p>
+              </div>
+            </div>
+            
+            {% if latitud and longitud %}
+            <div class="mapa-detalle">
+              <div id="mapa-detalle" style="height: 400px; width: 100%;" data-lat="{{ latitud if latitud is not none else '' }}" data-lng="{{ longitud if longitud is not none else '' }}"></div>
+              <div class="mapa-actions">
+                <a href="https://www.google.com/maps?q={{ latitud }},{{ longitud }}" target="_blank" class="btn btn-ghost">
+                  <i class="fas fa-external-link-alt"></i>
+                  Ver en Google Maps
+                </a>
+                <a href="https://www.openstreetmap.org/?mlat={{ latitud }}&mlon={{ longitud }}&zoom=15" target="_blank" class="btn btn-ghost">
+                  <i class="fas fa-map"></i>
+                  Ver en OpenStreetMap
+                </a>
+                <button onclick="centrarMapa()" class="btn btn-ghost">
+                  <i class="fas fa-crosshairs"></i>
+                  Centrar Mapa
+                </button>
+              </div>
+            </div>
+            {% else %}
+            <div class="mapa-placeholder">
+              <i class="fas fa-map-marked-alt"></i>
+              <p>No hay coordenadas disponibles para mostrar el mapa</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <!-- Panel lateral -->
+    <aside class="detalle-sidebar">
+      <!-- Acciones -->
+      <section class="card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="fas fa-cogs"></i>
+            Acciones
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="acciones-lista">
+            {% if check('site_update') %}
+            <a href="{{ url_for('sitios.editar', id=sitio.id) }}" class="accion-item">
+              <div class="accion-icon">
+                <i class="fas fa-edit"></i>
+              </div>
+              <div class="accion-content">
+                <div class="accion-title">Editar Sitio</div>
+                <div class="accion-description">Modificar información</div>
+              </div>
+            </a>
+            {% endif %}
+            
+            {% if check('site_destroy') %}
+            <button onclick="confirmarEliminacion({{ sitio.id }}, '{{ sitio.nombre }}')" class="accion-item accion-peligro">
+              <div class="accion-icon">
+                <i class="fas fa-trash"></i>
+              </div>
+              <div class="accion-content">
+                <div class="accion-title">Eliminar Sitio</div>
+                <div class="accion-description">Eliminar permanentemente</div>
+              </div>
+            </button>
+            {% endif %}
+            
+            <a href="javascript:void(0)" onclick="showComingSoon('Exportar Datos')" class="accion-item">
+              <div class="accion-icon">
+                <i class="fas fa-download"></i>
+              </div>
+              <div class="accion-content">
+                <div class="accion-title">Exportar Datos</div>
+                <div class="accion-description">Descargar información</div>
+              </div>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- Metadatos -->
+      <section class="card">
+        <header class="card-header">
+          <h3 class="card-title">
+            <i class="fas fa-info"></i>
+            Metadatos
+          </h3>
+        </header>
+        <div class="card-body">
+          <div class="metadata-list">
+            <div class="metadata-item">
+              <label>ID del Sitio</label>
+              <span>#{{ sitio.id }}</span>
+            </div>
+            
+            <div class="metadata-item">
+              <label>Estado</label>
+              <span class="estado-badge estado-{{ sitio.estado_conservacion.value|lower }}">
+                {{ sitio.estado_conservacion.value }}
+              </span>
+            </div>
+            
+            <div class="metadata-item">
+              <label>Categoría</label>
+              <span>{{ sitio.categoria.value }}</span>
+            </div>
+            
+            <div class="metadata-item">
+              <label>Visibilidad</label>
+              <span>
+                {% if sitio.visible %}
+                  <i class="fas fa-eye text-success"></i> Público
+                {% else %}
+                  <i class="fas fa-eye-slash text-muted"></i> Privado
+                {% endif %}
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<!-- Modal de confirmación para eliminar -->
+<div id="deleteModal" class="modal" style="display: none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3><i class="fas fa-exclamation-triangle"></i> Confirmar Eliminación</h3>
+    </div>
+    <div class="modal-body">
+      <p>¿Estás seguro de que deseas eliminar el sitio histórico <strong id="sitioNombre"></strong>?</p>
+      <p class="text-warning">Esta acción no se puede deshacer y se perderá toda la información asociada.</p>
+    </div>
+    <div class="modal-footer">
+      <button onclick="cerrarModal()" class="btn btn-secondary">Cancelar</button>
+      <form id="deleteForm" method="POST" style="display: inline;">
+        <button type="submit" class="btn btn-danger">
+          <i class="fas fa-trash"></i>
+          Eliminar Definitivamente
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+let mapaDetalle = null;
+let marcadorDetalle = null;
+
+// Inicializar mapa de detalle (sin directivas Jinja de control para evitar falsos errores del linter)
+// Para evitar falsos positivos del linter, extraemos los valores desde atributos data-
+document.addEventListener('DOMContentLoaded', () => {
+  const elMapa = document.getElementById('mapa-detalle');
+  const latAttr = elMapa ? elMapa.getAttribute('data-lat') : null;
+  const lngAttr = elMapa ? elMapa.getAttribute('data-lng') : null;
+  const lat = latAttr ? parseFloat(latAttr) : null;
+  const lng = lngAttr ? parseFloat(lngAttr) : null;
+  if (!isNaN(lat) && !isNaN(lng)) {
+    inicializarMapaDetalle(lat, lng);
+  }
+});
+
+function inicializarMapaDetalle(lat, lng) {
+  // Crear el mapa centrado en las coordenadas del sitio
+  mapaDetalle = L.map('mapa-detalle').setView([lat, lng], 15);
+  
+  // Agregar capa de OpenStreetMap
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19
+  }).addTo(mapaDetalle);
+  
+  // Agregar marcador del sitio
+  marcadorDetalle = L.marker([lat, lng]).addTo(mapaDetalle);
+  
+  // Popup con información del sitio
+  marcadorDetalle.bindPopup(`
+    <div class="sitio-popup">
+      <strong>{{ sitio.nombre }}</strong><br>
+      <small>{{ sitio.ciudad }}, {{ sitio.provincia }}</small><br>
+      <em>Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}</em>
+    </div>
+  `).openPopup();
+}
+
+function centrarMapa() {
+  if (mapaDetalle && marcadorDetalle) {
+    const pos = marcadorDetalle.getLatLng();
+    mapaDetalle.setView(pos, 15);
+    marcadorDetalle.openPopup();
+  }
+}
+
+function confirmarEliminacion(id, nombre) {
+  document.getElementById('sitioNombre').textContent = nombre;
+  document.getElementById('deleteForm').action = `/sitios/${id}/eliminar`;
+  document.getElementById('deleteModal').style.display = 'flex';
+}
+
+function cerrarModal() {
+  document.getElementById('deleteModal').style.display = 'none';
+}
+
+// Cerrar modal al hacer click fuera
+document.getElementById('deleteModal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    cerrarModal();
+  }
+});
+</script>
+
+{% endblock %}

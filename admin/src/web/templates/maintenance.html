@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modo Mantenimiento - Sistema</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/maintenance.css') }}">
+</head>
+<body>
+    <div class="maintenance-container">
+        <div class="maintenance-icon">
+            <i class="fas fa-tools"></i>
+        </div>
+        
+        <h1 class="maintenance-title">
+            {% if is_admin_maintenance %}
+                Sistema en Mantenimiento
+            {% else %}
+                Portal en Mantenimiento
+            {% endif %}
+        </h1>
+        
+        <p class="maintenance-message">
+            {% if is_admin_maintenance %}
+                El panel de administración está temporalmente fuera de servicio para tareas de mantenimiento.
+                Solo los administradores del sistema pueden acceder durante este período.
+            {% else %}
+                El portal está temporalmente fuera de servicio para tareas de mantenimiento.
+                Estaremos de vuelta pronto.
+            {% endif %}
+        </p>
+        
+        {% if message %}
+            <div class="maintenance-custom-message">
+                <i class="fas fa-info-circle"></i>
+                {{ message }}
+            </div>
+        {% endif %}
+        
+        <div class="maintenance-actions">
+            {% if is_admin_maintenance %}
+                <a href="{{ url_for('auth.login') }}" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Iniciar Sesión como System Admin
+                </a>
+            {% endif %}
+            
+            <button onclick="window.location.reload()" class="btn btn-secondary">
+                <i class="fas fa-refresh"></i>
+                Recargar Página
+            </button>
+        </div>
+        
+        <div class="maintenance-info">
+            <p>
+                <i class="fas fa-clock"></i>
+                Si es un administrador del sistema y necesita acceso inmediato, 
+                contacte al equipo técnico.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Recargar automáticamente cada 30 segundos para verificar si el mantenimiento terminó
+        setTimeout(function() {
+            window.location.reload();
+        }, 30000);
+    </script>
+</body>
+</html>

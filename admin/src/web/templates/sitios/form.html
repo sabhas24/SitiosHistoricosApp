@@ -1,0 +1,558 @@
+{% extends 'layout.html' %}
+
+{% block title %}
+{% if action == 'crear' %}Nuevo Sitio Históri                    <!-- Ubicación y coordenadas -->
+                    <section class="form-section">
+                        <h4 class="form-section-title">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Ubicación
+                        </h4>lse %}Editar Sitio Histórico{% endif %} - Dashboard
+{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/sitios-form.css') }}">
+
+<div class="container">
+    <!-- Header -->
+    <header class="flex items-center justify-between mb-3">
+        <div>
+            <h1 class="hero-title" style="font-size: 2rem; margin-bottom: 0.5rem;">
+                <i class="fas fa-landmark"></i>
+                {% if action == 'crear' %}Nuevo Sitio Histórico{% else %}Editar Sitio Histórico{% endif %}
+            </h1>
+            <p class="hero-subtitle" style="margin: 0;">
+                {% if action == 'crear' %}Registra un nuevo sitio histórico en el sistema{% else %}Modifica la
+                información del sitio histórico{% endif %}
+            </p>
+        </div>
+        {% if sitio and check('site_history') %}
+        <a href="{{ url_for('historial.historial_sitio', sitio_id=sitio.id) }}" class="btn btn-info">
+            <i class="fas fa-history"></i>
+            Ver Historial
+        </a>
+        {% endif %}
+        <a href="{{ url_for('sitios.index') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i>
+            Volver al Listado
+        </a>
+    </header>
+
+    <main class="form-container">
+        <article class="card">
+            <header class="card-header">
+                <h3 class="card-title">
+                    <i class="fas fa-edit"></i>
+                    Información del Sitio Histórico
+                </h3>
+                <p class="card-subtitle">Completa todos los campos obligatorios marcados con *</p>
+            </header>
+            <div class="card-body">
+                <form method="POST"
+                    action="{% if action == 'crear' %}{{ url_for('sitios.crear') }}{% else %}{{ url_for('sitios.actualizar', id=sitio.id) }}{% endif %}"
+                    class="sitio-form">
+
+                    <!-- Información básica -->
+                    <section class="form-section">
+                        <h4 class="form-section-title">
+                            <i class="fas fa-info-circle"></i>
+                            Información Básica
+                        </h4>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="nombre" class="form-label">
+                                    <i class="fas fa-tag"></i>
+                                    Nombre del Sitio *
+                                </label>
+                                <input type="text" id="nombre" name="nombre" class="form-input"
+                                    placeholder="Ej: Casa Histórica de San Martín"
+                                    value="{{ sitio.nombre if sitio else '' }}" required>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="descripcion_breve" class="form-label">
+                                    <i class="fas fa-align-left"></i>
+                                    Descripción Breve *
+                                </label>
+                                <textarea id="descripcion_breve" name="descripcion_breve" class="form-textarea"
+                                    placeholder="Descripción corta del sitio histórico (máximo 200 caracteres)"
+                                    maxlength="200" rows="3"
+                                    required>{{ sitio.descripcion_breve if sitio else '' }}</textarea>
+                                <small class="form-help">Máximo 200 caracteres</small>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="descripcion_completa" class="form-label">
+                                    <i class="fas fa-file-text"></i>
+                                    Descripción Completa
+                                </label>
+                                <textarea id="descripcion_completa" name="descripcion_completa" class="form-textarea"
+                                    placeholder="Descripción detallada del sitio histórico, su historia y características"
+                                    rows="5">{{ sitio.descripcion_completa if sitio else '' }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ubicación -->
+                    <div class="form-section">
+                        <h4 class="form-section-title">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Ubicación
+                        </h4>
+
+                        <div class="form-row">
+                            <div class="form-group form-group-half">
+                                <label for="ciudad" class="form-label">
+                                    <i class="fas fa-city"></i>
+                                    Ciudad *
+                                </label>
+                                <input type="text" id="ciudad" name="ciudad" class="form-input"
+                                    placeholder="Ej: La Plata" value="{{ sitio.ciudad if sitio else '' }}" required>
+                            </div>
+
+                            <div class="form-group form-group-half">
+                                <label for="provincia" class="form-label">
+                                    <i class="fas fa-map"></i>
+                                    Provincia *
+                                </label>
+                                <input type="text" id="provincia" name="provincia" class="form-input"
+                                    placeholder="Ej: Buenos Aires" value="{{ sitio.provincia if sitio else '' }}"
+                                    required>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group form-group-half">
+                                <label for="latitud" class="form-label">
+                                    <i class="fas fa-crosshairs"></i>
+                                    Latitud *
+                                </label>
+                                <input type="number" id="latitud" name="latitud" class="form-input"
+                                    placeholder="Ej: -34.9214" step="any" min="-90" max="90"
+                                    value="{{ latitud if latitud else '' }}" required>
+                                <small class="form-help">Valor entre -90 y 90</small>
+                            </div>
+
+                            <div class="form-group form-group-half">
+                                <label for="longitud" class="form-label">
+                                    <i class="fas fa-crosshairs"></i>
+                                    Longitud *
+                                </label>
+                                <input type="number" id="longitud" name="longitud" class="form-input"
+                                    placeholder="Ej: -57.9544" step="any" min="-180" max="180"
+                                    value="{{ longitud if longitud else '' }}" required>
+                                <small class="form-help">Valor entre -180 y 180</small>
+                            </div>
+                        </div>
+
+                        <!-- Mapa interactivo -->
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-map"></i>
+                                Seleccionar Ubicación en el Mapa
+                            </label>
+                            <div id="mapa-container" class="mapa-container">
+                                <div id="mapa" style="height: 400px; width: 100%;"></div>
+                            </div>
+                            <div class="mapa-instrucciones">
+                                <p><i class="fas fa-info-circle"></i> Haz clic en el mapa para seleccionar la ubicación
+                                    del sitio histórico</p>
+                                <button type="button" id="btn-obtener-ubicacion" class="btn btn-ghost">
+                                    <i class="fas fa-location-arrow"></i>
+                                    Usar Mi Ubicación Actual
+                                </button>
+                                <button type="button" id="btn-centrar-argentina" class="btn btn-ghost">
+                                    <i class="fas fa-map-marked-alt"></i>
+                                    Centrar en Argentina
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Características -->
+                    <section class="form-section">
+                        <h4 class="form-section-title">
+                            <i class="fas fa-cogs"></i>
+                            Características
+                        </h4>
+
+                        <div class="form-row">
+                            <div class="form-group form-group-half">
+                                <label for="categoria" class="form-label">
+                                    <i class="fas fa-layer-group"></i>
+                                    Categoría *
+                                </label>
+                                <select id="categoria" name="categoria" class="form-select" required>
+                                    <option value="">Selecciona una categoría</option>
+                                    {% for categoria in categorias %}
+                                    <option value="{{ categoria }}" {% if sitio and sitio.categoria.value==categoria
+                                        %}selected{% endif %}>
+                                        {{ categoria }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="form-group form-group-half">
+                                <label for="estado_conservacion" class="form-label">
+                                    <i class="fas fa-shield-alt"></i>
+                                    Estado de Conservación *
+                                </label>
+                                <select id="estado_conservacion" name="estado_conservacion" class="form-select"
+                                    required>
+                                    <option value="">Selecciona un estado</option>
+                                    {% for estado in estados %}
+                                    <option value="{{ estado }}" {% if sitio and sitio.estado_conservacion.value==estado
+                                        %}selected{% endif %}>
+                                        {{ estado }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group form-group-half">
+                                <label for="anio_inauguracion" class="form-label">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    Año de Inauguración
+                                </label>
+                                <input type="number" id="anio_inauguracion" name="anio_inauguracion" class="form-input"
+                                    placeholder="Ej: 1810" min="1000" max="2030"
+                                    value="{{ sitio.anio_inauguracion if sitio and sitio.anio_inauguracion else '' }}">
+                                <small class="form-help">Opcional - Año entre 1000 y 2030</small>
+                            </div>
+
+                            <div class="form-group form-group-half">
+                                <div class="form-checkbox">
+                                    <input type="checkbox" id="visible" name="visible" {% if sitio and sitio.visible
+                                        %}checked{% endif %}>
+                                    <label for="visible">
+                                        <i class="fas fa-eye"></i>
+                                        Sitio visible en el portal público
+                                    </label>
+                                </div>
+                                <small class="form-help">Marca esta opción si el sitio debe ser visible para el
+                                    público</small>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Etiquetas -->
+                    <section class="form-section">
+                        <h4 class="form-section-title">
+                            <i class="fas fa-tags"></i>
+                            Etiquetas
+                        </h4>
+
+                        <div class="form-group tag-select-container">
+                            <label for="tags">Etiquetas</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                </div>
+                                <input type="text" class="form-control" id="tag-search" placeholder="Buscar etiqueta..." onkeyup="filtrarTags()">
+                            </div>
+                            <select id="tags" name="tags" class="form-control mt-2" multiple size="6" onchange="mostrarSeleccionados()">
+                                {% for tag in tags_all %}
+                                    <option value="{{ tag.id }}" {% if tag.id in (sitio.tags|map(attribute='id')|list if sitio and sitio.tags else []) %}selected{% endif %}>{{ tag.nombre }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="selected-tags" id="selected-tags">
+                                {% if sitio and sitio.tags %}
+                                    {% for tag in sitio.tags %}
+                                        <span class="selected-tag-badge">{{ tag.nombre }}</span>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <small class="form-text text-muted">Puedes buscar y seleccionar varias etiquetas para clasificar el sitio. Mantén presionada Ctrl o Shift para seleccionar varias.</small>
+                        </div>
+                        <script>
+                        function filtrarTags() {
+                            var input = document.getElementById('tag-search');
+                            var filter = input.value.toLowerCase();
+                            var select = document.getElementById('tags');
+                            for (var i = 0; i < select.options.length; i++) {
+                                var txt = select.options[i].text.toLowerCase();
+                                select.options[i].style.display = txt.includes(filter) ? '' : 'none';
+                            }
+                        }
+                        function mostrarSeleccionados() {
+                            var select = document.getElementById('tags');
+                            var container = document.getElementById('selected-tags');
+                            container.innerHTML = '';
+                            for (var i = 0; i < select.selectedOptions.length; i++) {
+                                var tagName = select.selectedOptions[i].text;
+                                var span = document.createElement('span');
+                                span.className = 'selected-tag-badge';
+                                span.textContent = tagName;
+                                container.appendChild(span);
+                            }
+                        }
+                        document.addEventListener('DOMContentLoaded', mostrarSeleccionados);
+                        </script>
+                    </section>
+
+                    <!-- Botones de acción -->
+                    <footer class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i>
+                            {% if action == 'crear' %}Crear Sitio Histórico{% else %}Actualizar Sitio Histórico{% endif
+                            %}
+                        </button>
+                        <a href="{{ url_for('sitios.index') }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i>
+                            Cancelar
+                        </a>
+                    </footer>
+                </form>
+            </div>
+        </article>
+    </main>
+</div>
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    // Variables globales
+    let mapa = null;
+    let marcador = null;
+
+    // Inicializar cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', function () {
+        inicializarMapa();
+
+        // Botones de acción
+        document.getElementById('btn-obtener-ubicacion').addEventListener('click', obtenerUbicacionActual);
+        document.getElementById('btn-centrar-argentina').addEventListener('click', centrarEnArgentina);
+
+        // Escuchar cambios manuales en los inputs (opcional)
+        document.getElementById('latitud').addEventListener('change', actualizarMarcadorDesdeInputs);
+        document.getElementById('longitud').addEventListener('change', actualizarMarcadorDesdeInputs);
+    });
+
+    function inicializarMapa() {
+        // Coordenadas iniciales (centro de Argentina)
+        let lat = -34.6118;
+        let lng = -58.3960;
+        let zoom = 6;
+
+        // Si hay coordenadas previas, usarlas
+        const latInput = document.getElementById('latitud');
+        const lngInput = document.getElementById('longitud');
+
+        if (latInput.value && lngInput.value) {
+            lat = parseFloat(latInput.value);
+            lng = parseFloat(lngInput.value);
+            zoom = 13;
+        }
+
+        // Crear el mapa
+        mapa = L.map('mapa').setView([lat, lng], zoom);
+
+        // Agregar capa de OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19
+        }).addTo(mapa);
+
+        // Si hay coordenadas previas, agregar marcador
+        if (latInput.value && lngInput.value) {
+            agregarMarcador(lat, lng);
+        }
+
+        // Evento click en el mapa
+        mapa.on('click', function (e) {
+            const lat = e.latlng.lat;
+            const lng = e.latlng.lng;
+
+            // Actualizar inputs
+            document.getElementById('latitud').value = lat.toFixed(6);
+            document.getElementById('longitud').value = lng.toFixed(6);
+
+            // Agregar/mover marcador
+            agregarMarcador(lat, lng);
+
+            // Mostrar notificación
+            mostrarNotificacion(`Ubicación seleccionada: ${lat.toFixed(4)}, ${lng.toFixed(4)}`);
+        });
+    }
+
+    function agregarMarcador(lat, lng) {
+        // Remover marcador anterior si existe
+        if (marcador) {
+            mapa.removeLayer(marcador);
+        }
+
+        // Crear nuevo marcador
+        marcador = L.marker([lat, lng], {
+            draggable: true
+        }).addTo(mapa);
+
+        // Popup con información
+        marcador.bindPopup(`
+    <div class="marcador-popup">
+      <strong>Ubicación del Sitio</strong><br>
+      Lat: ${lat.toFixed(6)}<br>
+      Lng: ${lng.toFixed(6)}
+    </div>
+  `).openPopup();
+
+        // Evento drag del marcador
+        marcador.on('dragend', function (e) {
+            const newLat = e.target.getLatLng().lat;
+            const newLng = e.target.getLatLng().lng;
+
+            // Actualizar inputs
+            document.getElementById('latitud').value = newLat.toFixed(6);
+            document.getElementById('longitud').value = newLng.toFixed(6);
+
+            // Actualizar popup
+            marcador.setPopupContent(`
+      <div class="marcador-popup">
+        <strong>Ubicación del Sitio</strong><br>
+        Lat: ${newLat.toFixed(6)}<br>
+        Lng: ${newLng.toFixed(6)}
+      </div>
+    `);
+
+            mostrarNotificacion(`Ubicación actualizada: ${newLat.toFixed(4)}, ${newLng.toFixed(4)}`);
+        });
+    }
+
+    function actualizarMarcadorDesdeInputs() {
+        const lat = parseFloat(document.getElementById('latitud').value);
+        const lng = parseFloat(document.getElementById('longitud').value);
+
+        if (!isNaN(lat) && !isNaN(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180) {
+            agregarMarcador(lat, lng);
+            mapa.setView([lat, lng], 13);
+        }
+    }
+
+    function obtenerUbicacionActual() {
+        if (!navigator.geolocation) {
+            alert('La geolocalización no está soportada en este navegador');
+            return;
+        }
+
+        const btn = document.getElementById('btn-obtener-ubicacion');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Obteniendo ubicación...';
+        btn.disabled = true;
+
+        navigator.geolocation.getCurrentPosition(
+            function (position) {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+
+                // Actualizar inputs
+                document.getElementById('latitud').value = lat.toFixed(6);
+                document.getElementById('longitud').value = lng.toFixed(6);
+
+                // Centrar mapa y agregar marcador
+                mapa.setView([lat, lng], 15);
+                agregarMarcador(lat, lng);
+
+                mostrarNotificacion('Ubicación actual obtenida correctamente');
+
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            },
+            function (error) {
+                console.error('Error obteniendo ubicación:', error);
+                let mensaje = 'No se pudo obtener la ubicación.';
+
+                switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                        mensaje = 'Permiso de ubicación denegado. Verifica la configuración del navegador.';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        mensaje = 'Información de ubicación no disponible.';
+                        break;
+                    case error.TIMEOUT:
+                        mensaje = 'Tiempo de espera agotado para obtener la ubicación.';
+                        break;
+                }
+
+                alert(mensaje);
+
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            },
+            {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 60000
+            }
+        );
+    }
+
+    function centrarEnArgentina() {
+        mapa.setView([-34.6118, -58.3960], 6);
+        mostrarNotificacion('Mapa centrado en Argentina');
+    }
+
+    function mostrarNotificacion(mensaje) {
+        // Crear notificación temporal
+        const notif = document.createElement('div');
+        notif.className = 'mapa-notificacion';
+        notif.innerHTML = `<i class="fas fa-check-circle"></i> ${mensaje}`;
+
+        document.body.appendChild(notif);
+
+        // Remover después de 3 segundos
+        setTimeout(() => {
+            if (notif.parentElement) {
+                notif.remove();
+            }
+        }, 3000);
+    }
+
+    // Validación del formulario
+    document.querySelector('.sitio-form').addEventListener('submit', function (e) {
+        const lat = parseFloat(document.getElementById('latitud').value);
+        const lng = parseFloat(document.getElementById('longitud').value);
+
+        if (isNaN(lat) || isNaN(lng)) {
+            e.preventDefault();
+            alert('Por favor, selecciona una ubicación en el mapa o ingresa coordenadas válidas');
+            return;
+        }
+
+        if (lat < -90 || lat > 90) {
+            e.preventDefault();
+            alert('La latitud debe estar entre -90 y 90');
+            return;
+        }
+
+        if (lng < -180 || lng > 180) {
+            e.preventDefault();
+            alert('La longitud debe estar entre -180 y 180');
+            return;
+        }
+    });
+
+    // Sistema de validación universal
+    FormValidator.init('.sitio-form', {
+        nombre: ['required', 'text'],
+        descripcion_breve: ['required', 'text'],
+        descripcion_completa: ['longText'],
+        ciudad: ['required', 'name'],
+        provincia: ['required', 'name'],
+        latitud: ['required', 'decimal'],
+        longitud: ['required', 'decimal'],
+        anio_inauguracion: ['number']
+    });
+</script>
+
+{% endblock %}

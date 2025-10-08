@@ -1,9 +1,86 @@
 {% extends 'layout.html' %}
 
-{% block title %}Inicio{% endblock %}
+{% block title %}Dashboard - Inicio{% endblock %}
 
 {% block content %}
-    <h3>Página de inicio</h3>
-    <p>¡Bienvenido a mi proyecto Flask!</p>
-    <p>página en construcción </p>
+<div class="container">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-logo">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="PatrimonioBA Logo" class="hero-logo-image" onerror="this.style.display='none'">
+    </div>
+    <h1 class="hero-title">
+      Bienvenido a PatrimonioBA
+    </h1>
+    <p class="hero-subtitle">
+      Sistema moderno de gestión de sitios históricos y patrimonio cultural de Buenos Aires.
+    </p>
+    <div class="hero-actions">
+      {% if not is_authenticated() %}
+        <a href="{{ url_for('auth.login') }}" class="hero-btn hero-btn-primary">
+          <i class="fas fa-sign-in-alt"></i>
+          Iniciar Sesión
+        </a>
+      {% else %}
+        
+      {% endif %}
+      <a href="#features" class="hero-btn hero-btn-secondary">
+        <i class="fas fa-info-circle"></i>
+        Más Información
+      </a>
+    </div>
+  </section>
+
+  {% if is_authenticated() %}
+  <!-- Estadísticas -->
+  <section class="stats-section">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <span class="stat-number">3</span>
+        <span class="stat-label">Usuarios Activos</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">3</span>
+        <span class="stat-label">Roles Configurados</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number">2</span>
+        <span class="stat-label">Permisos Definidos</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Acciones Rápidas -->
+  <section class="quick-actions">
+    <h2 class="quick-actions-title">Acciones Rápidas</h2>
+    <div class="actions-grid">
+      <a href="javascript:void(0)" onclick="showComingSoon('Crear Usuario')" class="action-item">
+        <div class="action-icon">
+          <i class="fas fa-user-plus"></i>
+        </div>
+        <div class="action-content">
+          <div class="action-title">Crear Usuario</div>
+          <div class="action-description">Agregar un nuevo usuario al sistema</div>
+        </div>
+      </a>
+      
+      <a href="javascript:void(0)" onclick="showComingSoon('Gestionar Roles')" class="action-item">
+        <div class="action-icon">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <div class="action-content">
+          <div class="action-title">Gestionar Roles</div>
+          <div class="action-description">Configurar roles y permisos</div>
+        </div>
+      </a>
+    
+    </div>
+  </section>
+  {% endif %}
+
+ 
+    
+    
+  </section>
+</div>
 {% endblock %}

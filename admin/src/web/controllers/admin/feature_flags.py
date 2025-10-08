@@ -1,0 +1,68 @@
+from flask import render_template, request, jsonify, Blueprint, flash, redirect, url_for
+from src.web.handlers.auth import check_permission
+from src.models.feature_flag_services import (
+    get_all_feature_flags, 
+    update_feature_flag, 
+    get_feature_flag_by_name
+)
+
+feature_flags_bp = Blueprint("feature_flags", __name__, url_prefix="/admin/feature-flags")
+
+
+@feature_flags_bp.route("/")
+def index():
+    """Listado de feature flags - Solo para System Admins"""
+    
+    # Verificar permisos
+    if not check_permission("feature_flags"):
+        from flask import abort
+        abort(403)
+    
+    flags = get_all_feature_flags()
+    return render_template("admin/feature_flags/index.html", flags=flags)
+
+
+@feature_flags_bp.route("/toggle/<flag_name>", methods=["POST"])
+def toggle_flag(flag_name):
+    """Cambiar estado de un feature flag"""
+    
+    # Verificar permisos
+    if not check_permission("feature_flags"):
+        return jsonify({"success": False, "message": "Sin permisos"}), 403
+    
+    try:
+        data = request.get_json()
+        is_enabled = data.get('is_enabled', False)
+        maintenance_message = data.get('maintenance_message', '')
+        
+        success, message = update_feature_flag(flag_name, is_enabled, maintenance_message)
+        
+        if success:
+            return jsonify({
+                "success": True, 
+                "message": message,
+                "is_enabled": is_enabled
+            })
+        else:
+            return jsonify({"success": False, "message": message}), 400
+            
+    except Exception as e:
+        return jsonify({"success": False, "message": f"Error: {str(e)}"}), 500
+
+
+@feature_flags_bp.route("/get/<flag_name>")
+def get_flag(flag_name):
+    """Obtener información de un feature flag específico"""
+    
+    # Verificar permisos
+    if not check_permission("feature_flags"):
+        return jsonify({"success": False, "message": "Sin permisos"}), 403
+    
+    flag = get_feature_flag_by_name(flag_name)
+    if not flag:
+        return jsonify({"success": False, "message": "Flag no encontrado"}), 404
+    
+    return jsonify({
+        "success": True,
+        "flag": flag.to_dict()
+    })

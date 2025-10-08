@@ -1,0 +1,94 @@
+<header class="topbar">
+  <div class="topbar-left">
+    {% if is_authenticated() %}
+      <button class="sidebar-toggle" id="sidebarToggle">
+        <i class="fas fa-bars"></i>
+      </button>
+    {% endif %}
+    <a href="{{ url_for('home') }}" class="topbar-logo">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="PatrimonioBA Logo" class="logo-image" onerror="this.style.display='none'">
+      <span class="logo-text">PatrimonioBA</span>
+    </a>
+  </div>
+  
+  <div class="topbar-right">
+    {% if is_authenticated() %}
+      <div class="user-dropdown">
+        <button class="user-dropdown-toggle" id="userDropdownToggle">
+          <div class="user-info">
+            <div class="user-avatar">
+              {{ session.user[0].upper() if session.user else 'U' }}
+            </div>
+            <div class="user-details">
+              <span class="user-name">{{ session.user or 'Usuario' }}</span>
+              <span class="user-role">
+                {% set current_user = get_current_user() %}
+                {% if current_user %}
+                  {{ current_user.role.name.title() }}
+                {% else %}
+                  Usuario
+                {% endif %}
+              </span>
+            </div>
+          </div>
+          <i class="fas fa-chevron-down dropdown-arrow"></i>
+        </button>
+        
+        <div class="user-dropdown-menu" id="userDropdownMenu">
+          <div class="dropdown-header">
+            <div class="user-avatar large">
+              {{ session.user[0].upper() if session.user else 'U' }}
+            </div>
+            <div class="user-info-detailed">
+              <span class="user-name">{{ session.user or 'Usuario' }}</span>
+              <span class="user-email">{{ session.user or 'usuario@email.com' }}</span>
+              <span class="user-role">
+                {% set current_user = get_current_user() %}
+                {% if current_user %}
+                  {{ current_user.role.name.title() }}
+                {% else %}
+                  Usuario
+                {% endif %}
+              </span>
+            </div>
+          </div>
+          
+          <div class="dropdown-divider"></div>
+          
+          <div class="dropdown-items">
+            <a href="{{ url_for('profile.view_profile') }}" class="dropdown-item">
+              <i class="fas fa-user"></i>
+              <span>Ver Perfil</span>
+            </a>
+          </div>
+          
+          <div class="dropdown-divider"></div>
+          
+          <div class="dropdown-items">
+            <a href="{{ url_for('auth.logout') }}" class="dropdown-item logout-item">
+              <i class="fas fa-sign-out-alt"></i>
+              <span>Cerrar Sesión</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <a href="{{ url_for('auth.login') }}" class="btn btn-primary">
+        <i class="fas fa-sign-in-alt"></i>
+        Iniciar Sesión
+      </a>
+    {% endif %}
+  </div>
+</header>
+
+<!-- Mensajes flash -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class="flashes">
+      {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
