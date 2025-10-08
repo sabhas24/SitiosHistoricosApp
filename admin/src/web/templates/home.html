@@ -4,10 +4,11 @@
 
 {% block content %}
 <div class="container">
-  <header class="hero-section" role="banner">
-    <figure class="hero-logo">
-      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logotipo de PatrimonioBA" class="hero-logo-image" onerror="this.style.display='none'">
-    </figure>
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-logo">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="PatrimonioBA Logo" class="hero-logo-image" onerror="this.style.display='none'">
+    </div>
     <h1 class="hero-title">
       Bienvenido a PatrimonioBA
     </h1>
@@ -28,7 +29,7 @@
         Más Información
       </a>
     </div>
-  </header>
+  </section>
 
   {% if is_authenticated() %}
   <!-- Estadísticas -->
