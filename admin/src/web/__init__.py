@@ -34,6 +34,7 @@ def create_app(env="development", static_folder="../../static"):
     app.jinja_env.globals['is_authenticated'] = is_authenticated
     app.jinja_env.globals['get_current_user'] = get_current_user
     app.jinja_env.globals['check_permission'] = check_permission
+    app.jinja_env.globals['check'] = check_permission
    
     # Filtros personalizados para Jinja2
     @app.template_filter('nl2br')
