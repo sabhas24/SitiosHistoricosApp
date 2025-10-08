@@ -1,6 +1,6 @@
 from flask import render_template, request, jsonify, Blueprint, flash, redirect, url_for
 from src.web.handlers.auth import check_permission
-from src.models.feature_flag_services import (
+from src.models.feature_flag.feature_flag_services import (
     get_all_feature_flags, 
     update_feature_flag, 
     get_feature_flag_by_name

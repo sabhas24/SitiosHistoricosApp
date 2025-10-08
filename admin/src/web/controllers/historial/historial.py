@@ -1,6 +1,6 @@
 from flask import render_template, request, jsonify, Blueprint
 from src.web.handlers.auth import check_permission
-from src.models.historial_services import obtener_historial_sitio
+from src.models.historial.historial_services import obtener_historial_sitio
 from src.models.sitios import get_sitio_by_id
 
 historial_bp = Blueprint("historial", __name__, url_prefix="/historial")

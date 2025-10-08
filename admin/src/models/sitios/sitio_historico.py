@@ -3,7 +3,7 @@ from sqlalchemy.sql import func
 from geoalchemy2.types import Geometry
 from src.models.database import Base
 from sqlalchemy.orm import relationship
-from src.models.tag import sitio_tag, Tag
+from src.models.tags.tag import sitio_tag, Tag
 import enum
 
 class EstadoConservacion(enum.Enum):
@@ -29,8 +29,9 @@ class SitioHistorico(Base):
     ciudad = Column(String(100), nullable=False)
     provincia = Column(String(100), nullable=False)
     
-    # Coordenadas geográficas usando PostGIS
-    ubicacion = Column(Geometry('POINT'), nullable=False)
+    
+    
+    ubicacion = Column(Geometry('POINT', 4326), nullable=False)
     
     estado_conservacion = Column(Enum(EstadoConservacion), nullable=False)
     anio_inauguracion = Column(Integer, nullable=True)
