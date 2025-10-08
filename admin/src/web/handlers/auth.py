@@ -1,14 +1,13 @@
-from math import perm
-from os import abort
-from flask import session, redirect, url_for, flash,abort
+from flask import session, redirect, url_for, flash, abort, current_app
 from functools import wraps
 from src.models import auth
 
-def is_authenticated() :
-    return session.get('user') is not None
+def is_authenticated():
+    if not session.get('user'):
+        return False
+    return True
 
 def get_current_user():
-    """Obtiene el usuario actual desde la sesión"""
     user_email = session.get('user')
     if user_email:
         return auth.user_show(user_email)
@@ -18,7 +17,8 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not is_authenticated():
-            flash('Por favor, inicia sesión para acceder a esta página.', 'warning')
+            session.clear()
+            flash('Tu sesión ha expirado. Por favor, inicia sesión nuevamente.', 'warning')
             return redirect(url_for('auth.login'))
         return f(*args, **kwargs)
     return decorated_function
@@ -41,3 +41,21 @@ def check(permission_name):
             return f(*args, **kwargs)
         return decorated_function
     return decorator
+
+def get_session_info():
+    if not session.get('user'):
+        return None
+        
+    lifetime = current_app.config.get('PERMANENT_SESSION_LIFETIME')
+    if lifetime and session.permanent:
+        hours = lifetime.total_seconds() / 3600
+        return {
+            'user': session.get('user'),
+            'expires_in_hours': hours,
+            'permanent': session.permanent
+        }
+    
+    return {
+        'user': session.get('user'),
+        'permanent': session.permanent
+    }

@@ -1,5 +1,5 @@
 from flask import request, session, render_template, redirect, url_for
-from src.models.feature_flag_services import (
+from src.models.feature_flag.feature_flag_services import (
     is_admin_maintenance_active, 
     get_maintenance_message,
     is_portal_maintenance_active

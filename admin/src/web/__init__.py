@@ -3,15 +3,15 @@ from src.web.config import config as app_config
 from src.models import database
 from flask_session import Session 
 from src.web.controllers.auth import bp as auth_bp
-from src.web.controllers.sitios import bp as sitios_bp
-from src.web.controllers.tags import bp as tags_bp
+from src.web.controllers.sitios import bp as sitios_bp  # re-exported in controllers/sitios/__init__.py
+from src.web.controllers.tagsfolder.tags import bp as tags_bp
 from src.web.controllers.admin.users import bp as admin_users_bp
 from src.web.controllers.admin.feature_flags import feature_flags_bp
-from src.web.controllers.historial import historial_bp
-from src.web.controllers.profile import bp as profile_bp
+from src.web.controllers.historial import historial_bp  # re-exported in controllers/historial/__init__.py
+from src.web.controllers.perfil.profile import bp as profile_bp
 from src.web.controllers.propuestas import propuestas_bp
 from src.web.controllers.reseñas import reseñas_bp
-from src.web.handlers.auth import is_authenticated, get_current_user, check_permission,check
+from src.web.handlers.auth import is_authenticated, get_current_user, check_permission, check, get_session_info
 
 def create_app(env="development", static_folder="../../static"):
     app = Flask(__name__, static_folder=static_folder)
@@ -52,11 +52,9 @@ def create_app(env="development", static_folder="../../static"):
     app.jinja_env.globals['get_current_user'] = get_current_user
     app.jinja_env.globals['check_permission'] = check_permission
     app.jinja_env.globals['check'] = check
-   
-    # Filtros personalizados para Jinja2
+    app.jinja_env.globals['get_session_info'] = get_session_info
     @app.template_filter('nl2br')
     def nl2br_filter(text):
-        """Convierte saltos de línea en <br> tags"""
         if not text:
             return text
         return text.replace('\n', '<br>\n')

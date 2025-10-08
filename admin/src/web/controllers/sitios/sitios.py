@@ -3,8 +3,8 @@ from src.models.sitios import (
     sitio_create, sitio_index, sitio_show, sitio_update, sitio_delete,
     sitio_get_coordinates, get_search_options, sitio_export_csv
 )
-from src.models.sitio_historico import EstadoConservacion, Categoria
-from src.models.tag import Tag
+from src.models.sitios.sitio_historico import EstadoConservacion, Categoria
+from src.models.tags.tag import Tag
 from src.web.handlers.auth import login_required, check
 from src.models.database import db
 

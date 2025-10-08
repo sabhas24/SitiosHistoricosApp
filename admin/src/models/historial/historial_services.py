@@ -1,5 +1,5 @@
 from src.models.database import db
-from src.models.historial import HistorialSitio, TipoAccion
+from src.models.historial.historial import HistorialSitio, TipoAccion
 from flask import session
 from sqlalchemy import func, or_
 
@@ -19,7 +19,7 @@ def registrar_evento_historial(sitio_id, tipo_accion, detalles=None):
         
         # Para eventos de eliminación, agregar información del sitio al detalle
         if tipo_accion == "Eliminación" and sitio_id:
-            from src.models.sitio_historico import SitioHistorico
+            from src.models.sitios.sitio_historico import SitioHistorico
             sitio = db.session.get(SitioHistorico, sitio_id)
             if sitio and detalles:
                 detalles += f" - ID: {sitio_id}, Ubicación: {sitio.ciudad}, {sitio.provincia}"

@@ -1,6 +1,6 @@
 from flask import render_template, request, redirect, url_for, flash, jsonify, Blueprint
 from src.web.handlers.auth import check_permission
-from src.models.propuesta_services import (
+from src.models.propuestas.propuesta_services import (
     obtener_propuestas, 
     obtener_propuesta_por_id, 
     aprobar_propuesta, 

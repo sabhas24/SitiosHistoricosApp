@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, abort, render_template, session, redirect, url_for, flash
-from src.models.tag import Tag
+from src.models.tags.tag import Tag
 from src.models.database import db
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import asc, desc

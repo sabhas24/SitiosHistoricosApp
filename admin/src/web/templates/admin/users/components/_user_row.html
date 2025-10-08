@@ -1,29 +1,35 @@
-<!-- Fila individual de usuario -->
 <tr>
-    <td>{{ user.id }}</td>
-    <td>{{ user.email }}</td>
-    <td>{{ user.name }}</td>
-    <td>{{ user.last_name or '-' }}</td>
+    <td class="d-none d-lg-table-cell">{{ user.id }}</td>
     <td>
-        <span class="badge badge-{{ 'danger' if user.role.name == 'admin' else 'info' }}">
+        <div class="d-block">{{ user.email }}</div>
+        <small class="d-block d-md-none text-muted">
+            {{ user.name }} {{ user.last_name or '' }}
+        </small>
+    </td>
+    <td class="d-none d-md-table-cell">{{ user.name }}</td>
+    <td class="d-none d-md-table-cell">{{ user.last_name or '-' }}</td>
+    <td class="d-none d-sm-table-cell">
+        <span class="badge bg-{{ 'danger' if user.role.name == 'admin' else 'info' }}">
             {{ user.role.name.title() }}
         </span>
     </td>
-    <td>
+    <td class="d-none d-lg-table-cell">
         {% if user.is_super_admin %}
-            <span class="badge badge-warning">Sí</span>
+            <span class="badge bg-warning">Sí</span>
         {% else %}
-            <span class="badge badge-secondary">No</span>
+            <span class="badge bg-secondary">No</span>
         {% endif %}
     </td>
-    <td>
+    <td class="d-none d-sm-table-cell">
         {% if user.enabled %}
-            <span class="badge badge-success">Activo</span>
+            <span class="badge bg-success">Activo</span>
         {% else %}
-            <span class="badge badge-danger">Inactivo</span>
+            <span class="badge bg-danger">Inactivo</span>
         {% endif %}
     </td>
-    <td>{{ user.inserted_at.strftime('%d/%m/%Y') if user.inserted_at else '-' }}</td>
+    <td class="d-none d-xl-table-cell">
+        <small>{{ user.inserted_at.strftime('%d/%m/%Y') if user.inserted_at else '-' }}</small>
+    </td>
     <td>
         {% include 'admin/users/components/_action_buttons.html' %}
     </td>

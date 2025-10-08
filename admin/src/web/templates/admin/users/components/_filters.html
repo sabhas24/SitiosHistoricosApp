@@ -2,45 +2,45 @@
 <div class="card mb-4 filters-container">
     <div class="card-header">
         <h5 class="card-title mb-0">
-            <i class="fas fa-filter"></i> Filtros de Búsqueda
+            <i class="fas fa-filter"></i> 
+            <span class="d-none d-sm-inline">Filtros de</span> Búsqueda
         </h5>
     </div>
     <div class="card-body">
-        <div class="row">
-            <div class="col-md-4">
+        <div class="row g-3">
+            <div class="col-12 col-lg-5">
                 <div class="form-group">
-                    <label for="email_search">Buscar por Email</label>
+                    <label for="email_search" class="form-label">Buscar por Email</label>
                     <div class="input-group">
-                        <input type="text" class="form-control" id="email_search" placeholder="Ingrese email del usuario" autocomplete="off">
-                        <div class="input-group-append">
-                            <button class="btn btn-primary" type="button" onclick="searchByEmail()">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </div>
+                        <input type="text" class="form-control" id="email_search" placeholder="email@ejemplo.com" autocomplete="off">
+                        <button class="btn btn-primary" type="button" onclick="searchByEmail()">
+                            <i class="fas fa-search"></i>
+                            <span class="d-none d-sm-inline ms-1">Buscar</span>
+                        </button>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
+            <div class="col-6 col-sm-4 col-lg-3">
                 <div class="form-group">
-                    <label for="filter_type">Filtro</label>
-                    <select class="form-control" id="filter_type">
-                        <option value="mail">Por Email</option>
-                        <option value="role">Por Rol</option>
+                    <label for="filter_type" class="form-label">Filtro</label>
+                    <select class="form-control form-select" id="filter_type">
+                        <option value="mail">Email</option>
+                        <option value="admin">Admins</option>
+                        <option value="editor">Editores</option>
                         <option value="active">Activos</option>
                         <option value="inactive">Inactivos</option>
                     </select>
                 </div>
             </div>
-            <div class="col-md-2">
+            <div class="col-6 col-sm-4 col-lg-2">
                 <div class="form-group">
-                    <label for="date_order">Orden</label>
-                    <select class="form-control" id="date_order">
+                    <label for="date_order" class="form-label">Orden</label>
+                    <select class="form-control form-select" id="date_order">
                         <option value="desc">Recientes</option>
                         <option value="asc">Antiguos</option>
                     </select>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

@@ -18,13 +18,13 @@
       </p>
     </div>
     <div class="header-actions">
-      {% if check('site_export') %}
+      {% if check_permission('site_export') %}
       <a href="{{ url_for('sitios.exportar_csv', **request.args) }}" class="btn btn-success">
         <i class="fas fa-download"></i>
         Exportar CSV
       </a>
       {% endif %}
-      {% if check('site_new') %}
+      {% if check_permission('site_new') %}
       <a href="{{ url_for('sitios.nuevo') }}" class="btn btn-primary">
         <i class="fas fa-plus"></i>
         Nuevo Sitio
@@ -292,12 +292,12 @@
                     title="Ver detalles">
                     <i class="fas fa-eye"></i>
                   </a>
-                  {% if check('site_update') %}
+                  {% if check_permission('site_update') %}
                   <a href="{{ url_for('sitios.editar', id=sitio.id) }}" class="btn-accion btn-editar" title="Editar">
                     <i class="fas fa-edit"></i>
                   </a>
                   {% endif %}
-                  {% if check('site_destroy') %}
+                  {% if check_permission('site_destroy') %}
                   <button data-id="{{ sitio.id }}" data-nombre="{{ sitio.nombre|escape }}" class="btn-accion btn-eliminar btn-eliminar-sitio" title="Eliminar">
                     <i class="fas fa-trash"></i>
                   </button>
@@ -384,7 +384,7 @@
         </div>
         <h3>No hay sitios históricos registrados</h3>
         <p>Comienza agregando tu primer sitio histórico al sistema.</p>
-        {% if check('site_new') %}
+        {% if check_permission('site_new') %}
         <a href="{{ url_for('sitios.nuevo') }}" class="btn btn-primary">
           <i class="fas fa-plus"></i>
           Crear Primer Sitio

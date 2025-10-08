@@ -1,32 +1,26 @@
 
-<div class="btn-group" role="group">
+<div class="btn-group btn-group-sm d-flex flex-nowrap" role="group">
     <a href="{{ url_for('admin_users.edit_form', user_id=user.id) }}" 
-       class="btn btn-sm btn-warning" title="Editar">
+       class="btn btn-outline-primary" title="Editar">
         <i class="fas fa-edit"></i>
     </a>
     
     {% if user.is_super_admin or user.role.name == 'admin' %}
-    <button type="button" class="btn btn-sm btn-info" disabled title="Los administradores no pueden ser bloqueados">
+    <button type="button" class="btn btn-outline-secondary" disabled title="Protegido">
         <i class="fas fa-shield-alt"></i>
     </button>
     {% else %}
-    <button type="button" class="btn btn-sm btn-{{ 'success' if not user.enabled else 'secondary' }} toggle-status-btn" 
+    <button type="button" class="btn btn-outline-{{ 'success' if not user.enabled else 'warning' }} toggle-status-btn" 
             data-user-id="{{ user.id }}" 
             data-enabled="{{ user.enabled|lower }}" 
-            title="{{ 'Activar' if not user.enabled else 'Bloquear' }} usuario">
+            title="{{ 'Activar' if not user.enabled else 'Bloquear' }}">
         <i class="fas fa-{{ 'unlock' if not user.enabled else 'lock' }}"></i>
     </button>
-    {% endif %}
     
-    {% if user.is_super_admin or user.role.name == 'admin' %}
-    <button type="button" class="btn btn-sm btn-secondary" disabled title="Los administradores no pueden ser eliminados">
-        <i class="fas fa-shield-alt"></i>
-    </button>
-    {% else %}
-    <button type="button" class="btn btn-sm btn-danger delete-user-btn" 
+    <button type="button" class="btn btn-outline-danger delete-user-btn" 
             data-user-id="{{ user.id }}" 
             data-user-name="{{ user.name }}" 
-            title="Eliminar usuario">
+            title="Eliminar">
         <i class="fas fa-trash"></i>
     </button>
     {% endif %}
