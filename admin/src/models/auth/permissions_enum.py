@@ -1,6 +1,5 @@
 from enum import Enum
 
-
 class Permisos(Enum):
     USER_INDEX = "user_index"
     USER_SHOW = "user_show"
@@ -16,6 +15,7 @@ class Permisos(Enum):
     SITE_EXPORT = "site_export"
     SITE_SET_VISIBILITY = "site_set_visibility"
     SITE_HISTORY = "site_history"
+    TAG_INDEX = "tag_index"
     TAG_NEW = "tag_new"
     TAG_UPDATE = "tag_update"
     TAG_DESTROY = "tag_destroy"
@@ -24,6 +24,7 @@ class Permisos(Enum):
     REVIEW_INDEX = "review_index"
     REVIEW_MODERATE = "review_moderate"
     FEATURE_FLAGS = "feature_flags"
+    REPORT_VIEW = "report_view"
 
 
 _VALUES = {p.value for p in Permisos}
@@ -35,4 +36,3 @@ def permiso_valido(nombre: str) -> bool:
 
 def todos_los_permisos() -> list[str]:
     return list(_VALUES)
-

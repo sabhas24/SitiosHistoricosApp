@@ -20,6 +20,7 @@ def authenticate():
             return redirect(url_for('auth.login'))
         else:
             flash('Usuario autenticado con éxito!', 'success')
+            session.permanent = True  # Habilita expiración automática
             session['user'] = params.get('username')
             return redirect(url_for('home'))
     else:

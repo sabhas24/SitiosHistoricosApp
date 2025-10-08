@@ -5,6 +5,11 @@
 {% endblock %}
 
 {% block content %}
+{% if not check_permission('proposal_validate') %}
+    <div class="alert alert-danger">
+        <i class="fas fa-lock"></i> No tienes permisos para validar propuestas.
+    </div>
+{% else %}
 <div class="container">
     <!-- Header -->
     <header class="flex items-center justify-between mb-3">
@@ -324,4 +329,5 @@
 .text-warning { color: #ffc107 !important; }
 .text-danger { color: #dc3545 !important; }
 </style>
+{% endif %}
 {% endblock %}

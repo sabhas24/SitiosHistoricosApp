@@ -5,6 +5,11 @@
 {% endblock %}
 
 {% block content %}
+{% if not check_permission('review_moderate') %}
+    <div class="alert alert-danger">
+        <i class="fas fa-lock"></i> No tienes permisos para moderar reseñas.
+    </div>
+{% else %}
 <div class="container">
     <!-- Header -->
     <div class="flex items-center justify-between mb-3">
@@ -433,4 +438,5 @@
 .text-danger { color: #dc3545 !important; }
 .text-muted { color: #6c757d !important; }
 </style>
+{% endif %}
 {% endblock %}
