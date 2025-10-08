@@ -89,13 +89,15 @@ def user_paginate(page=1, filter_type='mail', date_order='desc'):
     per_page = 25
     users_query = db.session.query(user)
     
-    # Apply email search filter if provided
+    
   
     match filter_type:
         case 'mail':
             users_query = users_query.order_by(user.name.asc())
-        case 'role':
-            users_query = users_query.order_by(user.role_id.asc())
+        case 'admin':
+            users_query = users_query.filter(user.role.has(name='admin')).order_by(user.id.asc())
+        case 'editor':
+            users_query = users_query.filter(user.role.has(name='editor')).order_by(user.id.asc())
         case 'active':
             users_query = users_query.filter(user.enabled == True).order_by(user.id.asc())
         case 'inactive':

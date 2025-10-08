@@ -1,5 +1,5 @@
 from src.models.database import db
-from src.models.sitio_historico import SitioHistorico, EstadoConservacion, Categoria
+from src.models.sitios.sitio_historico import SitioHistorico, EstadoConservacion, Categoria
 from geoalchemy2.functions import ST_X, ST_Y, ST_GeomFromText
 from sqlalchemy import func, or_
 
@@ -14,7 +14,8 @@ def sitio_create(**kwargs):
     if 'latitud' in kwargs and 'longitud' in kwargs:
         lat = float(kwargs.pop('latitud'))
         lng = float(kwargs.pop('longitud'))
-        kwargs['ubicacion'] = f'POINT({lng} {lat})'
+        # Incluir SRID explícito para que no quede en -1
+        kwargs['ubicacion'] = f'SRID=4326;POINT({lng} {lat})'
     
     # Convertir strings a enums
     if 'estado_conservacion' in kwargs:
@@ -30,14 +31,14 @@ def sitio_create(**kwargs):
     
     # Agregar tags si existen
     if tag_ids:
-        from src.models.tag import Tag
+        from src.models.tags.tag import Tag
         tags = db.session.query(Tag).filter(Tag.id.in_(tag_ids)).all()
         sitio.tags = tags
     
     db.session.commit()
     
     # Registrar evento en historial
-    from src.models.historial_services import registrar_evento_historial
+    from src.models.historial.historial_services import registrar_evento_historial
     registrar_evento_historial(
         sitio_id=sitio.id,
         tipo_accion="Creación",
@@ -89,7 +90,7 @@ def sitio_index(page=1, per_page=25, filters=None):
         
         # Filtro por tags
         if filters.get('tags'):
-            from src.models.tag import Tag
+            from src.models.tags.tag import Tag
             tag_ids = filters['tags'] if isinstance(filters['tags'], list) else [filters['tags']]
             # Convertir a enteros si vienen como strings
             tag_ids = [int(tag_id) for tag_id in tag_ids if str(tag_id).isdigit()]
@@ -194,7 +195,7 @@ def sitio_update(id, **kwargs):
     if 'latitud' in kwargs and 'longitud' in kwargs:
         lat = float(kwargs.pop('latitud'))
         lng = float(kwargs.pop('longitud'))
-        kwargs['ubicacion'] = f'POINT({lng} {lat})'
+        kwargs['ubicacion'] = f'SRID=4326;POINT({lng} {lat})'
     
     # Convertir strings a enums
     if 'estado_conservacion' in kwargs:
@@ -211,7 +212,7 @@ def sitio_update(id, **kwargs):
     # Actualizar tags si se proporcionaron
     tags_changed = False
     if tag_ids is not None:
-        from src.models.tag import Tag
+        from src.models.tags.tag import Tag
         if tag_ids:  # Si hay tags seleccionados
             tags = db.session.query(Tag).filter(Tag.id.in_(tag_ids)).all()
             nuevos_tags = [tag.nombre for tag in tags]
@@ -227,7 +228,7 @@ def sitio_update(id, **kwargs):
     db.session.commit()
     
     # Registrar eventos en historial según lo que cambió
-    from src.models.historial_services import registrar_evento_historial
+    from src.models.historial.historial_services import registrar_evento_historial
     
     # Detectar cambios específicos
     if 'visible' in kwargs and valores_anteriores['visible'] != kwargs['visible']:
@@ -277,7 +278,7 @@ def sitio_delete(id):
     nombre_sitio = sitio.nombre
     
     # Registrar evento en historial antes de eliminar
-    from src.models.historial_services import registrar_evento_historial
+    from src.models.historial.historial_services import registrar_evento_historial
     registrar_evento_historial(
         sitio_id=id,
         tipo_accion="Eliminación",
@@ -333,7 +334,7 @@ def get_search_options():
     ciudades = [c[0] for c in ciudades if c[0]]
     
     # Obtener tags disponibles
-    from src.models.tag import Tag
+    from src.models.tags.tag import Tag
     tags = db.session.query(Tag).order_by(Tag.nombre).all()
     
     return {
@@ -382,7 +383,7 @@ def sitio_export_csv(filters=None):
         
         # Filtro por tags
         if filters.get('tags'):
-            from src.models.tag import Tag
+            from src.models.tags.tag import Tag
             tag_ids = filters['tags'] if isinstance(filters['tags'], list) else [filters['tags']]
             # Convertir a enteros si vienen como strings
             tag_ids = [int(tag_id) for tag_id in tag_ids if str(tag_id).isdigit()]
