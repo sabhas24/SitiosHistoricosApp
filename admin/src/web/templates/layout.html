@@ -62,6 +62,12 @@
           main.classList.toggle('sidebar-collapsed', minimized);
         }
         
+        // Aplicar también al footer
+        const footer = document.querySelector('.footer');
+        if (footer) {
+          footer.classList.toggle('sidebar-collapsed', minimized);
+        }
+        
         // Cambiar icono del botón
         const icon = toggle.querySelector('i');
         if (icon) {

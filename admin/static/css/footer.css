@@ -4,6 +4,15 @@
   border-top: 1px solid var(--border-color);
   padding: 1.5rem 0;
   margin-top: auto;
+  transition: margin-left 0.3s ease;
+}
+
+.footer.with-sidebar {
+  margin-left: 280px;
+}
+
+.footer.sidebar-collapsed {
+  margin-left: 80px;
 }
 
 .footer-content {
