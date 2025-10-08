@@ -46,6 +46,32 @@
     </div>
 
     <div class="sidebar-section">
+      <h3 class="sidebar-section-title">Moderación</h3>
+      <ul class="sidebar-nav">
+        {% if check('proposal_index') %}
+        <li class="sidebar-nav-item">
+          <a href="{{ url_for('propuestas.index') }}" class="sidebar-nav-link" data-tooltip="Validación de Propuestas">
+            <span class="sidebar-nav-icon">
+              <i class="fas fa-clipboard-check"></i>
+            </span>
+            <span class="sidebar-nav-text">Validación de Propuestas</span>
+          </a>
+        </li>
+        {% endif %}
+        {% if check('review_index') %}
+        <li class="sidebar-nav-item">
+          <a href="{{ url_for('reseñas.index') }}" class="sidebar-nav-link" data-tooltip="Moderación de Reseñas">
+            <span class="sidebar-nav-icon">
+              <i class="fas fa-star-half-alt"></i>
+            </span>
+            <span class="sidebar-nav-text">Moderación de Reseñas</span>
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+
+    <div class="sidebar-section">
       <h3 class="sidebar-section-title">Gestión</h3>
       <ul class="sidebar-nav">
       {% if check('user_index') %}
@@ -76,6 +102,17 @@
             <span class="sidebar-nav-text">Permisos</span>
           </a>
         </li>
+        {% if get_current_user() and get_current_user().is_super_admin %}
+        <li class="sidebar-nav-item">
+          <a href="{{ url_for('feature_flags.index') }}" class="sidebar-nav-link"
+            data-tooltip="Feature Flags">
+            <span class="sidebar-nav-icon">
+              <i class="fas fa-flag"></i>
+            </span>
+            <span class="sidebar-nav-text">Feature Flags</span>
+          </a>
+        </li>
+        {% endif %}
       </ul>
     </div>
 

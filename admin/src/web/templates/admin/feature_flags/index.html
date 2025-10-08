@@ -1,0 +1,252 @@
+{% extends 'layout.html' %}
+
+{% block title %}Feature Flags - Administración{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/feature-flags.css') }}">
+
+<div class="container">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-3">
+        <div>
+            <h1 class="hero-title" style="font-size: 2rem; margin-bottom: 0.5rem;">
+                <i class="fas fa-flag"></i>
+                Feature Flags
+            </h1>
+            <p class="hero-subtitle" style="margin: 0;">
+                Gestión de funcionalidades del sistema - Solo System Admins
+            </p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ url_for('home') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Volver al Inicio
+            </a>
+        </div>
+    </div>
+
+    <!-- Alerta de información -->
+    <div class="card mb-3" style="border-left: 4px solid #f59e0b;">
+        <div class="card-body">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-exclamation-triangle" style="color: #f59e0b; font-size: 1.5rem;"></i>
+                <div>
+                    <h4 style="margin: 0; color: #92400e;">Atención</h4>
+                    <p style="margin: 0; color: #451a03;">Los cambios en los feature flags afectan inmediatamente el comportamiento del sistema. Use con precaución.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Feature Flags -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-list"></i>
+                Funcionalidades del Sistema
+            </h3>
+        </div>
+        <div class="card-body">
+            {% if flags %}
+                <div class="feature-flags-list">
+                    {% for flag in flags %}
+                        <div class="feature-flag-item" data-flag-name="{{ flag.name }}">
+                            <div class="flag-info">
+                                <div class="flag-header">
+                                    <h4 class="flag-name">{{ flag.name }}</h4>
+                                    <div class="flag-status">
+                                        {% if flag.is_enabled %}
+                                            <span class="badge badge-success">
+                                                <i class="fas fa-toggle-on"></i> ACTIVO
+                                            </span>
+                                        {% else %}
+                                            <span class="badge badge-secondary">
+                                                <i class="fas fa-toggle-off"></i> INACTIVO
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <p class="flag-description">{{ flag.description }}</p>
+                                
+                                <div class="flag-metadata">
+                                    <div class="metadata-item">
+                                        <i class="fas fa-user"></i>
+                                        <strong>Modificado por:</strong> {{ flag.last_modified_by }}
+                                    </div>
+                                    <div class="metadata-item">
+                                        <i class="fas fa-clock"></i>
+                                        <strong>Última modificación:</strong> {{ flag.last_modified_at.strftime('%d/%m/%Y %H:%M:%S') }}
+                                    </div>
+                                    {% if flag.maintenance_message and flag.is_enabled %}
+                                        <div class="metadata-item">
+                                            <i class="fas fa-comment"></i>
+                                            <strong>Mensaje de mantenimiento:</strong> {{ flag.maintenance_message }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="flag-actions">
+                                <button type="button" class="btn btn-primary toggle-flag-btn" 
+                                        data-flag-name="{{ flag.name }}"
+                                        data-current-state="{{ flag.is_enabled|lower }}"
+                                        data-requires-message="{{ 'true' if flag.name in ['admin_maintenance_mode', 'portal_maintenance_mode'] else 'false' }}">
+                                    {% if flag.is_enabled %}
+                                        <i class="fas fa-toggle-off"></i> Desactivar
+                                    {% else %}
+                                        <i class="fas fa-toggle-on"></i> Activar
+                                    {% endif %}
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-flag"></i>
+                    </div>
+                    <h3>No hay feature flags configurados</h3>
+                    <p>Los feature flags se crearán automáticamente al inicializar el sistema.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal para confirmación y mensaje de mantenimiento -->
+<div id="flagModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">Confirmar cambio de Feature Flag</h3>
+            <button type="button" class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="confirmationMessage"></div>
+            
+            <div id="maintenanceMessageContainer" style="display: none; margin-top: 1rem;">
+                <label for="maintenanceMessage" class="form-label">
+                    <i class="fas fa-comment"></i>
+                    Mensaje de mantenimiento *
+                </label>
+                <textarea id="maintenanceMessage" class="form-input" rows="3" 
+                          placeholder="Ingrese el mensaje que se mostrará durante el mantenimiento..."
+                          maxlength="500"></textarea>
+                <small class="text-muted">Máximo 500 caracteres</small>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancelar</button>
+            <button type="button" id="confirmButton" class="btn btn-primary">Confirmar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Manejar clicks en botones de toggle
+    document.querySelectorAll('.toggle-flag-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const flagName = this.dataset.flagName;
+            const currentState = this.dataset.currentState === 'true';
+            const requiresMessage = this.dataset.requiresMessage === 'true';
+            const newState = !currentState;
+            
+            showConfirmationModal(flagName, newState, requiresMessage);
+        });
+    });
+});
+
+function showConfirmationModal(flagName, newState, requiresMessage) {
+    const modal = document.getElementById('flagModal');
+    const title = document.getElementById('modalTitle');
+    const message = document.getElementById('confirmationMessage');
+    const messageContainer = document.getElementById('maintenanceMessageContainer');
+    const messageInput = document.getElementById('maintenanceMessage');
+    const confirmButton = document.getElementById('confirmButton');
+    
+    // Configurar título y mensaje
+    title.textContent = `${newState ? 'Activar' : 'Desactivar'} ${flagName}`;
+    
+    let warningText = `¿Está seguro que desea ${newState ? 'activar' : 'desactivar'} el feature flag "${flagName}"?`;
+    
+    if (flagName === 'admin_maintenance_mode' && newState) {
+        warningText += '<br><br><strong style="color: #dc2626;">⚠️ ATENCIÓN:</strong> Esto bloqueará el acceso al panel de administración para todos los usuarios excepto System Admins.';
+    } else if (flagName === 'portal_maintenance_mode' && newState) {
+        warningText += '<br><br><strong style="color: #dc2626;">⚠️ ATENCIÓN:</strong> Esto pondrá el portal público en modo mantenimiento.';
+    }
+    
+    message.innerHTML = warningText;
+    
+    // Mostrar/ocultar campo de mensaje
+    if (requiresMessage && newState) {
+        messageContainer.style.display = 'block';
+        messageInput.value = '';
+        messageInput.required = true;
+    } else {
+        messageContainer.style.display = 'none';
+        messageInput.required = false;
+    }
+    
+    // Configurar botón de confirmación
+    confirmButton.onclick = function() {
+        toggleFeatureFlag(flagName, newState, messageInput.value);
+    };
+    
+    modal.style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('flagModal').style.display = 'none';
+}
+
+function toggleFeatureFlag(flagName, isEnabled, maintenanceMessage = '') {
+    // Validar mensaje si es requerido
+    if (isEnabled && ['admin_maintenance_mode', 'portal_maintenance_mode'].includes(flagName)) {
+        if (!maintenanceMessage.trim()) {
+            alert('El mensaje de mantenimiento es obligatorio');
+            return;
+        }
+    }
+    
+    const data = {
+        is_enabled: isEnabled,
+        maintenance_message: maintenanceMessage
+    };
+    
+    fetch(`/admin/feature-flags/toggle/${flagName}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Mostrar mensaje de éxito
+            alert(data.message);
+            // Recargar la página para reflejar los cambios
+            window.location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al actualizar el feature flag');
+    })
+    .finally(() => {
+        closeModal();
+    });
+}
+
+// Cerrar modal al hacer click fuera
+document.getElementById('flagModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeModal();
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,19 @@
+.is-invalid {
+    border-color: #dc3545;
+}
+
+.is-valid {
+    border-color: #28a745;
+}
+
+.custom-control-label {
+    cursor: pointer;
+}
+
+.card-tools {
+    margin-left: auto;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}

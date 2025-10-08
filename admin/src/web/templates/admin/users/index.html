@@ -7,17 +7,17 @@
     <div class="row">
         <div class="col-12">
             <!-- Encabezado -->
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
+            <main class="card">
+                <header class="card-header d-flex justify-content-between align-items-center">
                     <h3 class="card-title">
                         <i class="fas fa-users"></i> Gestión de Usuarios
                     </h3>
                     <a href="{{ url_for('admin_users.create_form') }}" class="btn btn-primary">
                         <i class="fas fa-plus"></i> Nuevo Usuario
                     </a>
-                </div>
+                </header>
                 
-                <div class="card-body" >
+                <section class="card-body" >
                     <!-- Filtros de búsqueda -->
                     {% include 'admin/users/components/_filters.html' %}
                     
@@ -27,8 +27,8 @@
                     
                     <!-- Paginación -->
                     {% include 'admin/users/components/_pagination.html' %}
-                </div>
-            </div>
+                </section>
+            </main>
         </div>
     </div>
 </div>

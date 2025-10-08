@@ -1,7 +1,7 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify, make_response
 from src.models.sitios import (
     sitio_create, sitio_index, sitio_show, sitio_update, sitio_delete,
-    sitio_get_coordinates, get_search_options
+    sitio_get_coordinates, get_search_options, sitio_export_csv
 )
 from src.models.sitio_historico import EstadoConservacion, Categoria
 from src.models.tag import Tag
@@ -38,6 +38,10 @@ def index():
     
     if request.args.get('estado_conservacion'):
         filters['estado_conservacion'] = request.args.get('estado_conservacion')
+    
+    # Filtro por tags
+    if request.args.getlist('tags'):
+        filters['tags'] = request.args.getlist('tags')
     
     # Filtro de visibilidad
     visible = request.args.get('visible')
@@ -244,3 +248,125 @@ def eliminar(id):
         flash(f'Error al eliminar el sitio histórico: {str(e)}', 'error')
     
     return redirect(url_for('sitios.index'))
+
+@bp.route('/exportar-csv')
+@login_required
+@check('site_export')
+def exportar_csv():
+    """Exportar sitios históricos a CSV"""
+    import csv
+    import io
+    from datetime import datetime
+    
+    try:
+        # Obtener los mismos filtros que en index
+        filters = {}
+        
+        # Búsqueda por texto
+        if request.args.get('search'):
+            filters['search'] = request.args.get('search').strip()
+        
+        # Filtros de ubicación
+        if request.args.get('ciudad'):
+            filters['ciudad'] = request.args.get('ciudad').strip()
+        
+        if request.args.get('provincia'):
+            filters['provincia'] = request.args.get('provincia')
+        
+        # Filtros de características
+        if request.args.get('categoria'):
+            filters['categoria'] = request.args.get('categoria')
+        
+        if request.args.get('estado_conservacion'):
+            filters['estado_conservacion'] = request.args.get('estado_conservacion')
+        
+        # Filtro por tags
+        if request.args.getlist('tags'):
+            filters['tags'] = request.args.getlist('tags')
+        
+        # Filtro de visibilidad
+        visible = request.args.get('visible')
+        if visible == 'true':
+            filters['visible'] = True
+        elif visible == 'false':
+            filters['visible'] = False
+        
+        # Filtros de fecha
+        if request.args.get('fecha_desde'):
+            filters['fecha_desde'] = request.args.get('fecha_desde')
+        
+        if request.args.get('fecha_hasta'):
+            filters['fecha_hasta'] = request.args.get('fecha_hasta')
+        
+        # Orden
+        if request.args.get('order_by'):
+            filters['order_by'] = request.args.get('order_by')
+        
+        if request.args.get('order_dir'):
+            filters['order_dir'] = request.args.get('order_dir')
+        
+        # Obtener sitios con filtros aplicados
+        sitios = sitio_export_csv(filters)
+        
+        if not sitios:
+            flash('No hay datos para exportar', 'warning')
+            return redirect(url_for('sitios.index'))
+        
+        # Crear archivo CSV en memoria
+        output = io.StringIO()
+        writer = csv.writer(output)
+        
+        # Escribir cabeceras
+        writer.writerow([
+            'ID',
+            'Nombre',
+            'Descripción Breve',
+            'Ciudad',
+            'Provincia',
+            'Estado de Conservación',
+            'Fecha de Registro',
+            'Latitud',
+            'Longitud',
+            'Tags Asociados'
+        ])
+        
+        # Escribir datos
+        for sitio in sitios:
+            # Obtener coordenadas
+            latitud, longitud = sitio_get_coordinates(sitio)
+            
+            # Obtener tags como texto separado por punto y coma
+            tags_texto = '; '.join([tag.nombre for tag in sitio.tags]) if sitio.tags else ''
+            
+            writer.writerow([
+                sitio.id,
+                sitio.nombre,
+                sitio.descripcion_breve,
+                sitio.ciudad,
+                sitio.provincia,
+                sitio.estado_conservacion.value if sitio.estado_conservacion else '',
+                sitio.fecha_registro.strftime('%Y-%m-%d %H:%M:%S') if sitio.fecha_registro else '',
+                f"{latitud:.6f}" if latitud else '',
+                f"{longitud:.6f}" if longitud else '',
+                tags_texto
+            ])
+        
+        # Crear respuesta
+        output.seek(0)
+        csv_data = output.getvalue()
+        output.close()
+        
+        # Generar nombre del archivo
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M')
+        filename = f'sitios_{timestamp}.csv'
+        
+        # Crear respuesta HTTP
+        response = make_response(csv_data)
+        response.headers['Content-Type'] = 'text/csv; charset=utf-8'
+        response.headers['Content-Disposition'] = f'attachment; filename="{filename}"'
+        
+        return response
+        
+    except Exception as e:
+        flash(f'Error al exportar CSV: {str(e)}', 'error')
+        return redirect(url_for('sitios.index'))

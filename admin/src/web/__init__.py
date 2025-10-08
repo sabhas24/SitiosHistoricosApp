@@ -6,6 +6,11 @@ from src.web.controllers.auth import bp as auth_bp
 from src.web.controllers.sitios import bp as sitios_bp
 from src.web.controllers.tags import bp as tags_bp
 from src.web.controllers.admin.users import bp as admin_users_bp
+from src.web.controllers.admin.feature_flags import feature_flags_bp
+from src.web.controllers.historial import historial_bp
+from src.web.controllers.profile import bp as profile_bp
+from src.web.controllers.propuestas import propuestas_bp
+from src.web.controllers.reseñas import reseñas_bp
 from src.web.handlers.auth import is_authenticated, get_current_user, check_permission,check
 
 def create_app(env="development", static_folder="../../static"):
@@ -17,8 +22,15 @@ def create_app(env="development", static_folder="../../static"):
     # Inicializar DB
     database.init_app(app)
 
-
     Session(app)
+
+    # Middleware para verificar modo de mantenimiento
+    @app.before_request
+    def before_request():
+        from src.web.handlers.maintenance import check_maintenance_mode
+        maintenance_response = check_maintenance_mode()
+        if maintenance_response:
+            return maintenance_response
 
     @app.route("/")
     def home():
@@ -30,6 +42,11 @@ def create_app(env="development", static_folder="../../static"):
     app.register_blueprint(sitios_bp)
     app.register_blueprint(tags_bp)
     app.register_blueprint(admin_users_bp)
+    app.register_blueprint(feature_flags_bp)
+    app.register_blueprint(historial_bp)
+    app.register_blueprint(profile_bp)
+    app.register_blueprint(propuestas_bp)
+    app.register_blueprint(reseñas_bp)
 
     app.jinja_env.globals['is_authenticated'] = is_authenticated
     app.jinja_env.globals['get_current_user'] = get_current_user

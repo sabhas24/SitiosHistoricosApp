@@ -1,0 +1,317 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Detalle de Propuesta - {{ propuesta.nombre }}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-3">
+        <div>
+            <h1 class="hero-title" style="font-size: 2rem; margin-bottom: 0.5rem;">
+                <i class="fas fa-clipboard-check"></i>
+                Detalle de Propuesta
+            </h1>
+            <p class="hero-subtitle" style="margin: 0;">
+                {{ propuesta.nombre }}
+            </p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ url_for('propuestas.index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Volver a Propuestas
+            </a>
+        </div>
+    </div>
+
+    <!-- Estado actual -->
+    <div class="alert {% if propuesta.estado.value == 'Pendiente' %}alert-warning{% elif propuesta.estado.value == 'Aprobada' %}alert-success{% else %}alert-danger{% endif %} mb-4">
+        <div class="d-flex align-items-center">
+            <div class="mr-3">
+                {% if propuesta.estado.value == 'Pendiente' %}
+                    <i class="fas fa-clock fa-2x"></i>
+                {% elif propuesta.estado.value == 'Aprobada' %}
+                    <i class="fas fa-check-circle fa-2x"></i>
+                {% else %}
+                    <i class="fas fa-times-circle fa-2x"></i>
+                {% endif %}
+            </div>
+            <div>
+                <h4 class="alert-heading mb-1">Estado: {{ propuesta.estado.value }}</h4>
+                {% if propuesta.estado.value == 'Pendiente' %}
+                    <p class="mb-0">Esta propuesta está pendiente de validación y requiere revisión.</p>
+                {% elif propuesta.estado.value == 'Aprobada' %}
+                    <p class="mb-0">
+                        Propuesta aprobada el {{ propuesta.fecha_validacion.strftime('%d/%m/%Y %H:%M') }} 
+                        {% if propuesta.usuario_validador %}por {{ propuesta.usuario_validador.name }}{% endif %}.
+                        {% if propuesta.sitio_creado %}
+                            <a href="{{ url_for('sitios.detalle', id=propuesta.sitio_creado.id) }}" class="btn btn-sm btn-outline-primary ml-2">
+                                <i class="fas fa-landmark"></i> Ver sitio creado
+                            </a>
+                        {% endif %}
+                    </p>
+                {% else %}
+                    <p class="mb-0">
+                        Propuesta rechazada el {{ propuesta.fecha_validacion.strftime('%d/%m/%Y %H:%M') }} 
+                        {% if propuesta.usuario_validador %}por {{ propuesta.usuario_validador.name }}{% endif %}.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Información del sitio propuesto -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-landmark"></i>
+                        Información del Sitio Propuesto
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <label class="info-label">Nombre:</label>
+                            <p class="info-value">{{ propuesta.nombre }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label class="info-label">Descripción breve:</label>
+                            <p class="info-value">{{ propuesta.descripcion_breve }}</p>
+                        </div>
+                        {% if propuesta.descripcion_completa %}
+                        <div class="info-item info-item-full">
+                            <label class="info-label">Descripción completa:</label>
+                            <p class="info-value">{{ propuesta.descripcion_completa }}</p>
+                        </div>
+                        {% endif %}
+                        <div class="info-item">
+                            <label class="info-label">Ciudad:</label>
+                            <p class="info-value">{{ propuesta.ciudad }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label class="info-label">Provincia:</label>
+                            <p class="info-value">{{ propuesta.provincia }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label class="info-label">Coordenadas:</label>
+                            <p class="info-value">{{ propuesta.latitud }}, {{ propuesta.longitud }}</p>
+                        </div>
+                        <div class="info-item">
+                            <label class="info-label">Estado de conservación:</label>
+                            <p class="info-value">
+                                <span class="badge {% if propuesta.estado_conservacion.value == 'Bueno' %}badge-success{% elif propuesta.estado_conservacion.value == 'Regular' %}badge-warning{% else %}badge-danger{% endif %}">
+                                    {{ propuesta.estado_conservacion.value }}
+                                </span>
+                            </p>
+                        </div>
+                        <div class="info-item">
+                            <label class="info-label">Categoría:</label>
+                            <p class="info-value">{{ propuesta.categoria }}</p>
+                        </div>
+                        {% if propuesta.año_inauguracion %}
+                        <div class="info-item">
+                            <label class="info-label">Año de inauguración:</label>
+                            <p class="info-value">{{ propuesta.año_inauguracion }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mapa -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-map-marker-alt"></i>
+                        Ubicación Propuesta
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div id="map" style="height: 300px; border-radius: 8px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel lateral -->
+        <div class="col-md-4">
+            <!-- Información del proponente -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-user"></i>
+                        Información del Proponente
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <label class="info-label">Nombre:</label>
+                        <p class="info-value">{{ propuesta.nombre_proponente }}</p>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Email:</label>
+                        <p class="info-value">{{ propuesta.email_proponente }}</p>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Fecha de propuesta:</label>
+                        <p class="info-value">{{ propuesta.fecha_propuesta.strftime('%d/%m/%Y %H:%M') }}</p>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Días desde propuesta:</label>
+                        <p class="info-value">
+                            <span class="{% if propuesta.dias_desde_propuesta > 7 %}text-danger{% elif propuesta.dias_desde_propuesta > 3 %}text-warning{% else %}text-success{% endif %}">
+                                {{ propuesta.dias_desde_propuesta }} días
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {% if propuesta.estado.value == 'Rechazada' and propuesta.motivo_rechazo %}
+            <!-- Motivo de rechazo -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title text-danger">
+                        <i class="fas fa-times-circle"></i>
+                        Motivo de Rechazo
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-danger">{{ propuesta.motivo_rechazo }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Acciones -->
+            {% if propuesta.puede_ser_validada and check('proposal_validate') %}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-cogs"></i>
+                        Acciones de Validación
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-success" onclick="aprobarPropuesta()">
+                            <i class="fas fa-check-circle"></i>
+                            Aprobar Propuesta
+                        </button>
+                        <button type="button" class="btn btn-danger" onclick="mostrarFormularioRechazo()">
+                            <i class="fas fa-times-circle"></i>
+                            Rechazar Propuesta
+                        </button>
+                    </div>
+
+                    <!-- Formulario de rechazo (oculto inicialmente) -->
+                    <div id="rechazoForm" style="display: none; margin-top: 1rem;">
+                        <form method="POST" action="{{ url_for('propuestas.rechazar', propuesta_id=propuesta.id) }}">
+                            <div class="form-group">
+                                <label for="motivo_rechazo" class="form-label">Motivo del rechazo:</label>
+                                <textarea name="motivo_rechazo" id="motivo_rechazo" class="form-control" rows="4" required 
+                                    placeholder="Explique brevemente por qué se rechaza esta propuesta..."></textarea>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-times-circle"></i>
+                                    Confirmar Rechazo
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="ocultarFormularioRechazo()">
+                                    Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modales y scripts -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+// Inicializar mapa
+document.addEventListener('DOMContentLoaded', function() {
+    const lat = {{ propuesta.latitud }};
+    const lng = {{ propuesta.longitud }};
+    
+    const map = L.map('map').setView([lat, lng], 15);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+    
+    L.marker([lat, lng])
+        .addTo(map)
+        .bindPopup('<strong>{{ propuesta.nombre }}</strong><br>{{ propuesta.ciudad }}, {{ propuesta.provincia }}')
+        .openPopup();
+});
+
+function aprobarPropuesta() {
+    if (confirm('¿Está seguro de que desea aprobar esta propuesta? Se creará un nuevo sitio histórico.')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ url_for("propuestas.aprobar", propuesta_id=propuesta.id) }}';
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function mostrarFormularioRechazo() {
+    document.getElementById('rechazoForm').style.display = 'block';
+}
+
+function ocultarFormularioRechazo() {
+    document.getElementById('rechazoForm').style.display = 'none';
+}
+</script>
+
+<style>
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.info-item-full {
+    grid-column: 1 / -1;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.25rem;
+    display: block;
+}
+
+.info-value {
+    margin: 0;
+    color: #212529;
+}
+
+@media (max-width: 768px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.alert {
+    border-radius: 12px;
+    border: none;
+}
+
+.d-grid {
+    display: grid;
+}
+
+.gap-2 {
+    gap: 0.5rem;
+}
+</style>
+{% endblock %}

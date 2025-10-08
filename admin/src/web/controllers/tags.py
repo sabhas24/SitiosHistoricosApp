@@ -45,6 +45,13 @@ def crear():
     if not nombre or len(nombre) < 3 or len(nombre) > 50:
         flash('El nombre debe tener entre 3 y 50 caracteres.', 'danger')
         return render_template('tags/form.html', action='crear', tag=None)
+    
+    # Verificar unicidad case-insensitive
+    existing = db.session.query(Tag).filter(Tag.nombre.ilike(nombre)).first()
+    if existing:
+        flash('Ya existe una etiqueta con ese nombre (sin distinguir mayúsculas/minúsculas).', 'danger')
+        return render_template('tags/form.html', action='crear', tag=None)
+    
     tag = Tag(nombre)
     db.session.add(tag)
     try:
@@ -78,6 +85,16 @@ def actualizar(tag_id):
     if not nombre or len(nombre) < 3 or len(nombre) > 50:
         flash('El nombre debe tener entre 3 y 50 caracteres.', 'danger')
         return render_template('tags/form.html', action='editar', tag=tag)
+    
+    # Verificar unicidad case-insensitive (excluyendo el tag actual)
+    existing = db.session.query(Tag).filter(
+        Tag.nombre.ilike(nombre),
+        Tag.id != tag_id
+    ).first()
+    if existing:
+        flash('Ya existe otra etiqueta con ese nombre (sin distinguir mayúsculas/minúsculas).', 'danger')
+        return render_template('tags/form.html', action='editar', tag=tag)
+    
     tag.nombre = nombre
     tag.slug = Tag.generate_slug(nombre)
     try:

@@ -120,7 +120,7 @@ def validate_user_data(data: Dict) -> List[str]:
     else:
         try:
             role_id = int(role)
-            if role_id not in [1, 2]:  # Ajustar según los roles disponibles
+            if role_id not in [1, 2]:  # 1=Admin, 2=Editor
                 errors.append("El rol seleccionado no es válido")
         except ValueError:
             errors.append("El rol seleccionado no es válido")

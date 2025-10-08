@@ -3,9 +3,11 @@
 {% block title %}Sitios Históricos - Dashboard{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/sitios-index.css') }}">
+
 <div class="container">
   <!-- Header -->
-  <div class="flex items-center justify-between mb-3">
+  <header class="flex items-center justify-between mb-3">
     <div>
       <h1 class="hero-title" style="font-size: 2rem; margin-bottom: 0.5rem;">
         <i class="fas fa-landmark"></i>
@@ -15,16 +17,24 @@
         Gestión de sitios históricos y patrimonio cultural
       </p>
     </div>
-    {% if check('site_new') %}
-    <a href="{{ url_for('sitios.nuevo') }}" class="btn btn-primary">
-      <i class="fas fa-plus"></i>
-      Nuevo Sitio
-    </a>
-    {% endif %}
-  </div>
+    <div class="header-actions">
+      {% if check('site_export') %}
+      <a href="{{ url_for('sitios.exportar_csv', **request.args) }}" class="btn btn-success">
+        <i class="fas fa-download"></i>
+        Exportar CSV
+      </a>
+      {% endif %}
+      {% if check('site_new') %}
+      <a href="{{ url_for('sitios.nuevo') }}" class="btn btn-primary">
+        <i class="fas fa-plus"></i>
+        Nuevo Sitio
+      </a>
+      {% endif %}
+    </div>
+  </header>
 
   <!-- Formulario de búsqueda avanzada -->
-  <div class="card mb-3">
+  <section class="card mb-3">
     <div class="card-header">
       <h3 class="card-title">
         <i class="fas fa-search"></i>
@@ -122,6 +132,22 @@
             </select>
           </div>
 
+          <!-- Etiquetas -->
+          <div class="search-group">
+            <label for="tags" class="search-label">
+              <i class="fas fa-tags"></i>
+              Etiquetas
+            </label>
+            <select id="tags" name="tags" class="form-select" multiple size="4">
+              {% for tag in search_options.tags %}
+              <option value="{{ tag.id }}" {% if tag.id|string in (filters.tags or []) %}selected{% endif %}>
+                {{ tag.nombre }}
+              </option>
+              {% endfor %}
+            </select>
+            <small class="form-help">Mantén presionada Ctrl (o Cmd en Mac) para seleccionar múltiples etiquetas</small>
+          </div>
+
           <!-- Fecha desde -->
           <div class="search-group">
             <label for="fecha_desde" class="search-label">
@@ -185,8 +211,8 @@
   </div>
 
   <!-- Lista de sitios -->
-  <div class="card">
-    <div class="card-header">
+  <section class="card">
+    <header class="card-header">
       <h3 class="card-title">
         <i class="fas fa-list"></i>
         Lista de Sitios Históricos
@@ -194,7 +220,7 @@
       <p class="card-subtitle">
         Mostrando {{ sitios|length }} de {{ total }} sitio(s) - Página {{ page }} de {{ total_pages }}
       </p>
-    </div>
+    </header>
     <div class="card-body" style="padding: 0;">
       {% if sitios %}
       <div class="table-responsive">
@@ -286,7 +312,7 @@
 
       <!-- Controles de paginación -->
       {% if total_pages > 1 %}
-      <div class="pagination-container">
+      <footer class="pagination-container">
         <div class="pagination-info">
           <span>Mostrando {{ ((page - 1) * per_page) + 1 }} - {{ ((page - 1) * per_page) + sitios|length }} de {{ total
             }} sitios</span>
@@ -348,11 +374,11 @@
           </span>
           {% endif %}
         </nav>
-      </div>
+      </footer>
       {% endif %}
 
       {% else %}
-      <div class="empty-state">
+      <section class="empty-state">
         <div class="empty-icon">
           <i class="fas fa-landmark"></i>
         </div>
@@ -364,10 +390,10 @@
           Crear Primer Sitio
         </a>
         {% endif %}
-      </div>
+      </section>
       {% endif %}
     </div>
-  </div>
+  </section>
 
 
 </div>
@@ -452,438 +478,4 @@
   });
 </script>
 
-<style>
-  /* Estilos para la tabla de sitios */
-  .sitios-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  .sitios-table th,
-  .sitios-table td {
-    padding: 1rem;
-    text-align: left;
-    border-bottom: 1px solid var(--border-color);
-  }
-
-  .sitios-table th {
-    background: var(--surface);
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-
-  .sitio-info h4 {
-    margin: 0 0 0.25rem 0;
-    font-size: 1rem;
-    font-weight: 600;
-  }
-
-  .sitio-descripcion {
-    margin: 0;
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-  }
-
-  .ubicacion-info {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--text-secondary);
-  }
-
-  .categoria-badge,
-  .estado-badge,
-  .visible-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: var(--radius);
-    font-size: 0.75rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .categoria-badge {
-    background: var(--primary-color);
-    color: white;
-  }
-
-  .estado-badge.estado-bueno {
-    background: var(--success-color);
-    color: white;
-  }
-
-  .estado-badge.estado-regular {
-    background: var(--warning-color);
-    color: white;
-  }
-
-  .estado-badge.estado-malo {
-    background: var(--error-color);
-    color: white;
-  }
-
-  .visible-badge.visible {
-    background: #10b981;
-    color: white;
-  }
-
-  .visible-badge.oculto {
-    background: #b0b7c3 !important;
-    color: #fff !important;
-  }
-
-  .etiquetas-info {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .etiqueta-badge {
-    background: var(--primary-color);
-    color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: var(--radius);
-    font-size: 0.75rem;
-    font-weight: 500;
-  }
-
-  .tag-badge {
-    background: #17a2b8;
-    color: #fff;
-    border-radius: 16px;
-    padding: 4px 12px;
-    font-size: 0.95em;
-    margin-bottom: 0;
-    display: inline-block;
-  }
-
-  .acciones {
-    display: flex;
-    gap: 0.5rem;
-  }
-
-  .btn-accion {
-    width: 32px;
-    height: 32px;
-    border: none;
-    border-radius: var(--radius);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: var(--transition);
-    text-decoration: none;
-  }
-
-  .btn-ver {
-    background: var(--primary-color);
-    color: white;
-  }
-
-  .btn-editar {
-    background: var(--warning-color);
-    color: white;
-  }
-
-  .btn-eliminar {
-    background: var(--error-color);
-    color: white;
-  }
-
-  .btn-accion:hover {
-    transform: scale(1.1);
-  }
-
-  /* Empty state */
-  .empty-state {
-    text-align: center;
-    padding: 3rem 2rem;
-  }
-
-  .empty-icon {
-    font-size: 4rem;
-    color: var(--text-muted);
-    margin-bottom: 1rem;
-  }
-
-  .empty-state h3 {
-    margin-bottom: 0.5rem;
-    color: var(--text-primary);
-  }
-
-  .empty-state p {
-    color: var(--text-secondary);
-    margin-bottom: 2rem;
-  }
-
-  /* Modal */
-  .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-  }
-
-  .modal-content {
-    background: var(--background);
-    border-radius: var(--radius-lg);
-    max-width: 500px;
-    width: 90%;
-    box-shadow: var(--shadow-lg);
-  }
-
-  .modal-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid var(--border-color);
-  }
-
-  .modal-header h3 {
-    margin: 0;
-    color: var(--error-color);
-  }
-
-  .modal-body {
-    padding: 1.5rem;
-  }
-
-  .modal-footer {
-    padding: 1rem 1.5rem;
-    border-top: 1px solid var(--border-color);
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-  }
-
-  .btn-danger {
-    background: var(--error-color);
-    color: white;
-  }
-
-  .btn-danger:hover {
-    background: #dc2626;
-  }
-
-  .text-warning {
-    color: var(--warning-color);
-    font-size: 0.875rem;
-  }
-
-  /* Paginación */
-  .pagination-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.5rem;
-    border-top: 1px solid var(--border-color);
-    background: var(--surface);
-  }
-
-  .pagination-info {
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-  }
-
-  .pagination-nav {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .pagination-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius);
-    background: var(--background);
-    color: var(--text-primary);
-    text-decoration: none;
-    font-size: 0.875rem;
-    font-weight: 500;
-    transition: var(--transition);
-  }
-
-  .pagination-btn:hover:not(.disabled) {
-    background: var(--primary-color);
-    color: white;
-    border-color: var(--primary-color);
-  }
-
-  .pagination-btn.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    color: var(--text-muted);
-  }
-
-  .pagination-numbers {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    margin: 0 1rem;
-  }
-
-  .pagination-number {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius);
-    background: var(--background);
-    color: var(--text-primary);
-    text-decoration: none;
-    font-size: 0.875rem;
-    font-weight: 500;
-    transition: var(--transition);
-  }
-
-  .pagination-number:hover {
-    background: var(--surface);
-    border-color: var(--primary-color);
-  }
-
-  .pagination-number.active {
-    background: var(--primary-color);
-    color: white;
-    border-color: var(--primary-color);
-  }
-
-  .pagination-ellipsis {
-    padding: 0 0.5rem;
-    color: var(--text-muted);
-    font-size: 0.875rem;
-  }
-
-  /* Estilos para búsqueda avanzada */
-  .search-form-container {
-    transition: var(--transition);
-  }
-
-  .search-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-  }
-
-  .search-group {
-    display: flex;
-    flex-direction: column;
-  }
-
-  .search-label {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 500;
-    color: var(--text-primary);
-    font-size: 0.875rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .search-actions {
-    display: flex;
-    gap: 1rem;
-    justify-content: flex-end;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-color);
-  }
-
-  .active-filters {
-    background: var(--surface);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius);
-    padding: 1rem;
-  }
-
-  .filters-title {
-    margin: 0 0 0.75rem 0;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--text-secondary);
-  }
-
-  .filters-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .filter-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: var(--primary-color);
-    color: white;
-    padding: 0.25rem 0.75rem;
-    border-radius: var(--radius);
-    font-size: 0.75rem;
-    font-weight: 500;
-  }
-
-  .filter-remove {
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
-    margin-left: 0.25rem;
-    padding: 0 0.25rem;
-    border-radius: 50%;
-    transition: var(--transition);
-  }
-
-  .filter-remove:hover {
-    background: rgba(255, 255, 255, 0.2);
-  }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    .sitios-table {
-      font-size: 0.875rem;
-    }
-
-    .sitios-table th,
-    .sitios-table td {
-      padding: 0.75rem 0.5rem;
-    }
-
-    .acciones {
-      flex-direction: column;
-    }
-
-    .pagination-container {
-      flex-direction: column;
-      gap: 1rem;
-      text-align: center;
-    }
-
-    .pagination-numbers {
-      margin: 0;
-    }
-
-    .pagination-info {
-      order: 2;
-    }
-
-    .search-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .search-actions {
-      flex-direction: column;
-    }
-
-    .filters-list {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-  }
-</style>
 {% endblock %}

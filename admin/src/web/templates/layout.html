@@ -20,20 +20,24 @@
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/favicon.png') }}">
 </head>
 <body>
-  {% include 'topBar.html' %}
+  {% if is_authenticated() and request.endpoint != 'auth.login' %}
+    {% include 'topBar.html' %}
+  {% endif %}
   
   <div class="layout-container">
-    {% if is_authenticated() %}
+    {% if is_authenticated() and request.endpoint != 'auth.login' %}
       {% include 'sidebar.html' %}
     {% endif %}
     
-    <main {% if is_authenticated() %}class="with-sidebar"{% endif %}>
+    <main {% if is_authenticated() and request.endpoint != 'auth.login' %}class="with-sidebar"{% endif %}>
         {% block content %}
         {% endblock %}
     </main>
   </div>
   
-  {% include 'footer.html' %}
+  {% if is_authenticated() and request.endpoint != 'auth.login' %}
+    {% include 'footer.html' %}
+  {% endif %}
   <script>
     // Sidebar functionality
     document.addEventListener('DOMContentLoaded', function() {
@@ -145,6 +149,42 @@
         }, 3000); 
         li.addEventListener('click', () => { clearTimeout(timeout); li.classList.add('removing'); setTimeout(()=>li.remove(), 500); });
       });
+    })();
+
+    // User dropdown functionality
+    (function() {
+      const dropdownToggle = document.getElementById('userDropdownToggle');
+      const dropdown = dropdownToggle?.closest('.user-dropdown');
+      const dropdownMenu = document.getElementById('userDropdownMenu');
+      
+      if (dropdownToggle && dropdown && dropdownMenu) {
+        dropdownToggle.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          dropdown.classList.toggle('active');
+        });
+        
+        // Cerrar dropdown al hacer click fuera
+        document.addEventListener('click', (e) => {
+          if (!dropdown.contains(e.target)) {
+            dropdown.classList.remove('active');
+          }
+        });
+        
+        // Cerrar dropdown al hacer click en un item (excepto submenus)
+        dropdownMenu.addEventListener('click', (e) => {
+          if (e.target.classList.contains('dropdown-item') || e.target.closest('.dropdown-item')) {
+            dropdown.classList.remove('active');
+          }
+        });
+        
+        // Cerrar con tecla Escape
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            dropdown.classList.remove('active');
+          }
+        });
+      }
     })();
 
     // Función para mostrar mensaje de "próximamente"

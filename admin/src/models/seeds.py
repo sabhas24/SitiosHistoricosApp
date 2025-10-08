@@ -23,16 +23,29 @@ ADMIN_PERMISSIONS = [
     "site_destroy",
     "site_export",
     "site_set_visibility",
+    "site_history",
     "tag_new",
     "tag_update",
     "tag_destroy",
+    "proposal_index",
     "proposal_validate",
-    "review_moderate",
+    "review_index",
+    "review_moderate"
 ]
 
 EDITOR_PERMISSIONS = [  
     "site_index",
+    "site_new",      # Editores pueden crear sitios
     "site_show",
+    "site_update",   # Editores pueden modificar sitios
+    "site_history",
+    "tag_new",       # Editores pueden crear tags
+    "tag_update",    # Editores pueden modificar tags
+    "tag_destroy",   # Editores pueden eliminar tags
+    "proposal_index", # Editores pueden ver propuestas
+    "proposal_validate", # Editores pueden validar propuestas
+    "review_index",  # Editores pueden ver reseñas
+    "review_moderate" # Editores pueden moderar reseñas
 ]
 
 
@@ -56,7 +69,27 @@ def run():
         create_permission(perm)
         assign_permission_to_role("editor", perm)
 
-    # 3. Usuarios de ejemplo (solo crear si no existen)
+    # 3. Crear feature flags por defecto
+    from src.models.feature_flag_services import create_default_feature_flags
+    create_default_feature_flags()
+
+    # 4. Crear datos de ejemplo para propuestas y reseñas
+    from src.models.propuesta_services import crear_propuesta_ejemplo
+    from src.models.reseña_services import crear_reseña_ejemplo
+    
+    try:
+        crear_propuesta_ejemplo()
+        print("✅ Propuesta de ejemplo creada")
+    except Exception as e:
+        print(f"⚠️  Error al crear propuesta de ejemplo: {e}")
+    
+    try:
+        crear_reseña_ejemplo()
+        print("✅ Reseña de ejemplo creada")
+    except Exception as e:
+        print(f"⚠️  Error al crear reseña de ejemplo: {e}")
+
+    # 5. Usuarios de ejemplo (solo crear si no existen)
     demo_users = [
         {
             "email": "admin@admin.com",
@@ -64,6 +97,14 @@ def run():
             "last_name": "Root",
             "password": "admin123",
             "role_id": admin_role.id,
+        },
+        {
+            "email": "superadmin@admin.com",
+            "name": "Super",
+            "last_name": "Admin",
+            "password": "super123",
+            "role_id": admin_role.id,
+            "is_super_admin": True,
         },
         {
             "email": "user@user.com",
@@ -99,7 +140,7 @@ def run():
             db.session.rollback()
             print(f"⚠️  Conflicto al crear usuario: {data['email']}")
 
-    # 4. Resumen
+    # 6. Resumen
     print("📊 Resumen seeding:")
     print(f"  Roles: admin, editor")
     print(f"  Permisos admin: {len(ADMIN_PERMISSIONS)}")

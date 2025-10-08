@@ -2,9 +2,11 @@
 {% block title %}Etiquetas{% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/tags.css') }}">
+
 <div class="container">
     <!-- Header -->
-    <div class="flex items-center justify-between mb-3">
+    <header class="flex items-center justify-between mb-3">
         <div>
             <h1 class="hero-title" style="font-size: 2rem; margin-bottom: 0.5rem;">
                 <i class="fas fa-tags"></i>
@@ -18,30 +20,32 @@
             <i class="fas fa-plus"></i>
             Nueva Etiqueta
         </a>
-    </div>
-    <form method="GET" action="{{ url_for('tags.list_tags') }}" class="form-inline mb-3">
-        <div class="form-group mr-2">
-            <input type="text" name="search" class="form-control" placeholder="Buscar por nombre" value="{{ request.args.get('search', '') }}" minlength="3">
-        </div>
-        <div class="form-group mr-2">
-            <select name="order" class="form-control">
-                <option value="nombre" {% if request.args.get('order', 'nombre') == 'nombre' %}selected{% endif %}>Ordenar por Nombre</option>
-                <option value="created_at" {% if request.args.get('order') == 'created_at' %}selected{% endif %}>Ordenar por Fecha de Creación</option>
-            </select>
-        </div>
-        <div class="form-group mr-2">
-            <select name="direction" class="form-control">
-                <option value="asc" {% if request.args.get('direction', 'asc') == 'asc' %}selected{% endif %}>Ascendente</option>
-                <option value="desc" {% if request.args.get('direction') == 'desc' %}selected{% endif %}>Descendente</option>
-            </select>
-        </div>
-        <button type="submit" class="btn btn-info">
-            <i class="fas fa-search"></i> Buscar
-        </button>
-    </form>
+    </header>
+    <section>
+        <form method="GET" action="{{ url_for('tags.list_tags') }}" class="form-inline mb-3">
+            <div class="form-group mr-2">
+                <input type="text" name="search" class="form-control" placeholder="Buscar por nombre" value="{{ request.args.get('search', '') }}" minlength="3">
+            </div>
+            <div class="form-group mr-2">
+                <select name="order" class="form-control">
+                    <option value="nombre" {% if request.args.get('order', 'nombre') == 'nombre' %}selected{% endif %}>Ordenar por Nombre</option>
+                    <option value="created_at" {% if request.args.get('order') == 'created_at' %}selected{% endif %}>Ordenar por Fecha de Creación</option>
+                </select>
+            </div>
+            <div class="form-group mr-2">
+                <select name="direction" class="form-control">
+                    <option value="asc" {% if request.args.get('direction', 'asc') == 'asc' %}selected{% endif %}>Ascendente</option>
+                    <option value="desc" {% if request.args.get('direction') == 'desc' %}selected{% endif %}>Descendente</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-info">
+                <i class="fas fa-search"></i> Buscar
+            </button>
+        </form>
+    </section>
     {% if tags %}
-        <div class="card">
-            <div class="card-header">
+        <main class="card">
+            <header class="card-header">
                 <h3 class="card-title">
                     <i class="fas fa-list"></i>
                     Lista de Etiquetas
@@ -84,9 +88,9 @@
                     </table>
                 </div>
             </div>
-        </div>
+        </main>
     {% else %}
-        <div class="alert alert-info">No hay etiquetas registradas.</div>
+        <section class="alert alert-info">No hay etiquetas registradas.</section>
     {% endif %}
 
     {% if pages > 1 %}
@@ -112,28 +116,3 @@
     {% endif %}
 </div>
 {% endblock %}
-<style>
-.pagination {
-  display: flex;
-  gap: 6px;
-  list-style: none;
-  padding-left: 0;
-}
-.page-item.active .page-link {
-  background: #17a2b8;
-  color: #fff;
-  border-radius: 6px;
-}
-.page-link {
-  padding: 6px 14px;
-  border: none;
-  background: #f3f4f6;
-  color: #333;
-  border-radius: 6px;
-  text-decoration: none;
-  transition: background 0.2s;
-}
-.page-link:hover {
-  background: #e2e6ea;
-}
-</style>

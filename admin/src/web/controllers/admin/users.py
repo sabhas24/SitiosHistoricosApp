@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash
-from models.auth import user
+from src.models.auth import user
 from src.models.database import db
 from src.models import auth
 from src.web.handlers.auth import login_required, check

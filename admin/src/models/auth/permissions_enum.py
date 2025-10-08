@@ -15,11 +15,15 @@ class Permisos(Enum):
     SITE_DESTROY = "site_destroy"
     SITE_EXPORT = "site_export"
     SITE_SET_VISIBILITY = "site_set_visibility"
+    SITE_HISTORY = "site_history"
     TAG_NEW = "tag_new"
     TAG_UPDATE = "tag_update"
     TAG_DESTROY = "tag_destroy"
+    PROPOSAL_INDEX = "proposal_index"
     PROPOSAL_VALIDATE = "proposal_validate"
+    REVIEW_INDEX = "review_index"
     REVIEW_MODERATE = "review_moderate"
+    FEATURE_FLAGS = "feature_flags"
 
 
 _VALUES = {p.value for p in Permisos}

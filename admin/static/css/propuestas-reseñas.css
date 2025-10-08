@@ -1,0 +1,502 @@
+/* Estilos para módulos de Propuestas y Reseñas */
+
+/* ========================================
+   ESTADÍSTICAS - TARJETAS
+   ======================================== */
+.stat-card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.stat-card-pending { 
+    border-left: 4px solid #ffc107; 
+    background: linear-gradient(135deg, #fff8e1 0%, #ffffff 100%);
+}
+
+.stat-card-approved { 
+    border-left: 4px solid #28a745; 
+    background: linear-gradient(135deg, #e8f5e8 0%, #ffffff 100%);
+}
+
+.stat-card-rejected { 
+    border-left: 4px solid #dc3545; 
+    background: linear-gradient(135deg, #ffeaea 0%, #ffffff 100%);
+}
+
+.stat-card-total { 
+    border-left: 4px solid #6c757d; 
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+}
+
+.stat-card-rating { 
+    border-left: 4px solid #17a2b8; 
+    background: linear-gradient(135deg, #e1f5fe 0%, #ffffff 100%);
+}
+
+.stat-card .card-body {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    position: relative;
+}
+
+.stat-icon {
+    font-size: 2.5rem;
+    margin-right: 1.5rem;
+    opacity: 0.8;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover .stat-icon {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.stat-card-pending .stat-icon { color: #ffc107; }
+.stat-card-approved .stat-icon { color: #28a745; }
+.stat-card-rejected .stat-icon { color: #dc3545; }
+.stat-card-total .stat-icon { color: #6c757d; }
+.stat-card-rating .stat-icon { color: #17a2b8; }
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1;
+    color: #2c3e50;
+}
+
+.stat-label {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.95rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ========================================
+   RESEÑAS - LISTA Y TARJETAS
+   ======================================== */
+.reseñas-list {
+    display: grid;
+    gap: 1.5rem;
+}
+
+.reseña-card {
+    border: 1px solid #e9ecef;
+    border-radius: 16px;
+    padding: 2rem;
+    background: white;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.reseña-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, #ffc107, #28a745, #17a2b8);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.reseña-card:hover::before {
+    transform: scaleX(1);
+}
+
+.reseña-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.1);
+    border-color: #dee2e6;
+}
+
+.reseña-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f8f9fa;
+}
+
+.reseña-info {
+    flex: 1;
+}
+
+.reseña-titulo {
+    margin: 0 0 0.75rem 0;
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 1.25rem;
+    line-height: 1.3;
+}
+
+.reseña-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    font-size: 0.9rem;
+    color: #6c757d;
+}
+
+.reseña-meta > span {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.reseña-meta i {
+    width: 16px;
+    text-align: center;
+    opacity: 0.7;
+}
+
+.reseña-sitio strong {
+    color: #495057;
+}
+
+.reseña-rating {
+    text-align: center;
+    min-width: 120px;
+}
+
+.rating-stars {
+    font-size: 1.4rem;
+    margin-bottom: 0.5rem;
+    letter-spacing: 2px;
+}
+
+.rating-number {
+    font-size: 0.9rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.reseña-comentario {
+    margin: 0 0 1.5rem 0;
+    line-height: 1.7;
+    color: #495057;
+    font-size: 1.05rem;
+}
+
+.reseña-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid #f8f9fa;
+}
+
+.reseña-estado {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.reseña-acciones {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.reseña-dias {
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    background: #f8f9fa;
+}
+
+/* ========================================
+   BADGES Y ESTADOS
+   ======================================== */
+.badge {
+    font-size: 0.8rem;
+    padding: 0.6em 1em;
+    border-radius: 20px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.badge i {
+    font-size: 0.9em;
+}
+
+.badge-warning {
+    background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+    color: #856404;
+    border: 1px solid #ffeaa7;
+}
+
+.badge-success {
+    background: linear-gradient(135deg, #d4edda, #a8e6a3);
+    color: #155724;
+    border: 1px solid #a8e6a3;
+}
+
+.badge-danger {
+    background: linear-gradient(135deg, #f8d7da, #ff7675);
+    color: #721c24;
+    border: 1px solid #ff7675;
+}
+
+/* ========================================
+   COLORES DE TEXTO
+   ======================================== */
+.text-warning { 
+    color: #f39c12 !important; 
+    font-weight: 600;
+}
+
+.text-success { 
+    color: #27ae60 !important; 
+    font-weight: 600;
+}
+
+.text-danger { 
+    color: #e74c3c !important; 
+    font-weight: 600;
+}
+
+.text-muted { 
+    color: #95a5a6 !important; 
+}
+
+/* ========================================
+   DETALLES - PÁGINAS ESPECÍFICAS
+   ======================================== */
+.info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 1rem;
+}
+
+.info-item {
+    margin-bottom: 1.25rem;
+}
+
+.info-item-full {
+    grid-column: 1 / -1;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+    display: block;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-value {
+    margin: 0;
+    color: #2c3e50;
+    font-size: 1.05rem;
+    line-height: 1.5;
+}
+
+/* ========================================
+   RATING - ESTRELLAS MEJORADAS
+   ======================================== */
+.rating-stars-large {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: 4px;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.rating-text {
+    font-size: 1.2rem;
+    color: #6c757d;
+    font-weight: 600;
+}
+
+/* ========================================
+   CONTENIDO DE RESEÑA
+   ======================================== */
+.reseña-content {
+    padding: 1.5rem 0;
+}
+
+.reseña-header-detail {
+    text-align: center;
+    padding: 2rem 0;
+    border-bottom: 2px solid #f8f9fa;
+    margin-bottom: 2rem;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    border-radius: 12px;
+}
+
+.reseña-titulo-detail {
+    margin-bottom: 1.5rem;
+    color: #2c3e50;
+    font-weight: 700;
+    font-size: 1.75rem;
+    line-height: 1.3;
+}
+
+.reseña-comentario-detail {
+    font-size: 1.15rem;
+    line-height: 1.8;
+    color: #495057;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+    border-left: 4px solid #17a2b8;
+}
+
+/* ========================================
+   SITIO INFO
+   ======================================== */
+.sitio-info {
+    padding: 1.5rem 0;
+}
+
+.sitio-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 2px solid #f8f9fa;
+}
+
+.sitio-header h5 {
+    margin: 0;
+    color: #2c3e50;
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.sitio-details p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+    font-size: 1.05rem;
+}
+
+.sitio-details strong {
+    color: #495057;
+    font-weight: 600;
+}
+
+/* ========================================
+   RESPONSIVE DESIGN
+   ======================================== */
+@media (max-width: 768px) {
+    .info-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .reseña-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .reseña-meta {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .reseña-footer {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .sitio-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+    
+    .stat-card .card-body {
+        padding: 1rem;
+    }
+    
+    .stat-icon {
+        font-size: 2rem;
+        margin-right: 1rem;
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .reseña-card,
+    .stat-card {
+        padding: 1.5rem;
+    }
+    
+    .reseñas-list {
+        gap: 1rem;
+    }
+}
+
+/* ========================================
+   ANIMACIONES Y TRANSICIONES
+   ======================================== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.reseña-card,
+.stat-card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.reseña-card:nth-child(even) {
+    animation-delay: 0.1s;
+}
+
+.stat-card:nth-child(2) { animation-delay: 0.1s; }
+.stat-card:nth-child(3) { animation-delay: 0.2s; }
+.stat-card:nth-child(4) { animation-delay: 0.3s; }
+
+/* ========================================
+   BOTONES MEJORADOS
+   ======================================== */
+.btn-outline-primary:hover,
+.btn-outline-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.d-grid {
+    display: grid;
+}
+
+.gap-2 {
+    gap: 0.75rem;
+}

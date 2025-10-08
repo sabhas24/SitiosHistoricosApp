@@ -1,0 +1,341 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Detalle de Reseña - {{ reseña.titulo }}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-3">
+        <div>
+            <h1 class="hero-title" style="font-size: 2rem; margin-bottom: 0.5rem;">
+                <i class="fas fa-star-half-alt"></i>
+                Detalle de Reseña
+            </h1>
+            <p class="hero-subtitle" style="margin: 0;">
+                {{ reseña.titulo }}
+            </p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ url_for('reseñas.index') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Volver a Reseñas
+            </a>
+        </div>
+    </div>
+
+    <!-- Estado actual -->
+    <div class="alert {% if reseña.estado.value == 'Pendiente' %}alert-warning{% elif reseña.estado.value == 'Aprobada' %}alert-success{% else %}alert-danger{% endif %} mb-4">
+        <div class="d-flex align-items-center">
+            <div class="mr-3">
+                {% if reseña.estado.value == 'Pendiente' %}
+                    <i class="fas fa-clock fa-2x"></i>
+                {% elif reseña.estado.value == 'Aprobada' %}
+                    <i class="fas fa-check-circle fa-2x"></i>
+                {% else %}
+                    <i class="fas fa-times-circle fa-2x"></i>
+                {% endif %}
+            </div>
+            <div>
+                <h4 class="alert-heading mb-1">Estado: {{ reseña.estado.value }}</h4>
+                {% if reseña.estado.value == 'Pendiente' %}
+                    <p class="mb-0">Esta reseña está pendiente de moderación y requiere revisión.</p>
+                {% elif reseña.estado.value == 'Aprobada' %}
+                    <p class="mb-0">
+                        Reseña aprobada el {{ reseña.fecha_moderacion.strftime('%d/%m/%Y %H:%M') }} 
+                        {% if reseña.usuario_moderador %}por {{ reseña.usuario_moderador.name }}{% endif %}.
+                    </p>
+                {% else %}
+                    <p class="mb-0">
+                        Reseña rechazada el {{ reseña.fecha_moderacion.strftime('%d/%m/%Y %H:%M') }} 
+                        {% if reseña.usuario_moderador %}por {{ reseña.usuario_moderador.name }}{% endif %}.
+                    </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Contenido de la reseña -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-comment"></i>
+                        Contenido de la Reseña
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="reseña-content">
+                        <div class="reseña-header-detail">
+                            <h4 class="reseña-titulo-detail">{{ reseña.titulo }}</h4>
+                            <div class="reseña-rating-detail">
+                                <div class="rating-stars-large">
+                                    {% for i in range(1, 6) %}
+                                        {% if i <= reseña.calificacion %}
+                                            <i class="fas fa-star text-warning"></i>
+                                        {% else %}
+                                            <i class="far fa-star text-muted"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                <span class="rating-text">({{ reseña.calificacion }}/5 estrellas)</span>
+                            </div>
+                        </div>
+                        
+                        <div class="reseña-comentario-detail">
+                            <p>{{ reseña.comentario }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información del sitio -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-landmark"></i>
+                        Sitio Histórico Reseñado
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="sitio-info">
+                        <div class="sitio-header">
+                            <h5>{{ reseña.sitio.nombre }}</h5>
+                            <a href="{{ url_for('sitios.detalle', id=reseña.sitio.id) }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-external-link-alt"></i> Ver sitio completo
+                            </a>
+                        </div>
+                        <div class="sitio-details">
+                            <p><strong>Ubicación:</strong> {{ reseña.sitio.ciudad }}, {{ reseña.sitio.provincia }}</p>
+                            <p><strong>Descripción:</strong> {{ reseña.sitio.descripcion_breve }}</p>
+                            <p><strong>Estado de conservación:</strong> 
+                                <span class="badge {% if reseña.sitio.estado_conservacion.value == 'Bueno' %}badge-success{% elif reseña.sitio.estado_conservacion.value == 'Regular' %}badge-warning{% else %}badge-danger{% endif %}">
+                                    {{ reseña.sitio.estado_conservacion.value }}
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel lateral -->
+        <div class="col-md-4">
+            <!-- Información del usuario -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-user"></i>
+                        Información del Usuario
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <label class="info-label">Nombre:</label>
+                        <p class="info-value">{{ reseña.nombre_usuario }}</p>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Email:</label>
+                        <p class="info-value">{{ reseña.email_usuario }}</p>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Fecha de reseña:</label>
+                        <p class="info-value">{{ reseña.fecha_creacion.strftime('%d/%m/%Y %H:%M') }}</p>
+                    </div>
+                    <div class="info-item">
+                        <label class="info-label">Días desde creación:</label>
+                        <p class="info-value">
+                            <span class="{% if reseña.dias_desde_creacion > 7 %}text-danger{% elif reseña.dias_desde_creacion > 3 %}text-warning{% else %}text-success{% endif %}">
+                                {{ reseña.dias_desde_creacion }} días
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {% if reseña.estado.value == 'Rechazada' and reseña.motivo_rechazo %}
+            <!-- Motivo de rechazo -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title text-danger">
+                        <i class="fas fa-times-circle"></i>
+                        Motivo de Rechazo
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-danger">{{ reseña.motivo_rechazo }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Acciones -->
+            {% if reseña.puede_ser_moderada and check('review_moderate') %}
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-cogs"></i>
+                        Acciones de Moderación
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-success" onclick="aprobarReseña()">
+                            <i class="fas fa-check-circle"></i>
+                            Aprobar Reseña
+                        </button>
+                        <button type="button" class="btn btn-danger" onclick="mostrarFormularioRechazo()">
+                            <i class="fas fa-times-circle"></i>
+                            Rechazar Reseña
+                        </button>
+                    </div>
+
+                    <!-- Formulario de rechazo (oculto inicialmente) -->
+                    <div id="rechazoForm" style="display: none; margin-top: 1rem;">
+                        <form method="POST" action="{{ url_for('reseñas.rechazar', resena_id=reseña.id) }}">>
+                            <div class="form-group">
+                                <label for="motivo_rechazo" class="form-label">Motivo del rechazo:</label>
+                                <textarea name="motivo_rechazo" id="motivo_rechazo" class="form-control" rows="4" required 
+                                    placeholder="Explique brevemente por qué se rechaza esta reseña (contenido inapropiado, spam, etc.)..."></textarea>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-danger">
+                                    <i class="fas fa-times-circle"></i>
+                                    Confirmar Rechazo
+                                </button>
+                                <button type="button" class="btn btn-secondary" onclick="ocultarFormularioRechazo()">
+                                    Cancelar
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function aprobarReseña() {
+    if (confirm('¿Está seguro de que desea aprobar esta reseña? Será visible públicamente.')) {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ url_for("reseñas.aprobar", resena_id=reseña.id) }}';
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+
+function mostrarFormularioRechazo() {
+    document.getElementById('rechazoForm').style.display = 'block';
+}
+
+function ocultarFormularioRechazo() {
+    document.getElementById('rechazoForm').style.display = 'none';
+}
+</script>
+
+<style>
+.info-item {
+    margin-bottom: 1rem;
+}
+
+.info-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.25rem;
+    display: block;
+}
+
+.info-value {
+    margin: 0;
+    color: #212529;
+}
+
+.reseña-content {
+    padding: 1rem 0;
+}
+
+.reseña-header-detail {
+    text-align: center;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #f1f3f4;
+    margin-bottom: 1.5rem;
+}
+
+.reseña-titulo-detail {
+    margin-bottom: 1rem;
+    color: #212529;
+    font-weight: 600;
+}
+
+.rating-stars-large {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+}
+
+.rating-text {
+    font-size: 1.1rem;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.reseña-comentario-detail {
+    font-size: 1.1rem;
+    line-height: 1.7;
+    color: #212529;
+}
+
+.sitio-info {
+    padding: 1rem 0;
+}
+
+.sitio-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f1f3f4;
+}
+
+.sitio-header h5 {
+    margin: 0;
+    color: #212529;
+    font-weight: 600;
+}
+
+.sitio-details p {
+    margin-bottom: 0.5rem;
+    line-height: 1.6;
+}
+
+.alert {
+    border-radius: 12px;
+    border: none;
+}
+
+.d-grid {
+    display: grid;
+}
+
+.gap-2 {
+    gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .sitio-header {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+}
+
+.text-warning { color: #ffc107 !important; }
+.text-success { color: #28a745 !important; }
+.text-danger { color: #dc3545 !important; }
+.text-muted { color: #6c757d !important; }
+</style>
+{% endblock %}

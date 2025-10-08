@@ -40,6 +40,7 @@ class SitioHistorico(Base):
     fecha_registro = Column(DateTime, default=func.now(), nullable=False)
     visible = Column(Boolean, default=False, nullable=False)
     tags = relationship('Tag', secondary=sitio_tag, back_populates='sitios')
+    reseñas = relationship('Reseña', back_populates='sitio', cascade='all, delete-orphan')
     
     def __repr__(self):
         return f'<SitioHistorico {self.nombre}>'
