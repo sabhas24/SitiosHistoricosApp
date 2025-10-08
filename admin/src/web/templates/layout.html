@@ -29,7 +29,7 @@
       {% include 'sidebar.html' %}
     {% endif %}
     
-    <main {% if is_authenticated() and request.endpoint != 'auth.login' %}class="with-sidebar"{% endif %}>
+    <main {% if is_authenticated() and request.endpoint != 'auth.login' %}class="with-sidebar"{% endif %} role="main" aria-label="Contenido principal">
         {% block content %}
         {% endblock %}
     </main>

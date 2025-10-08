@@ -6,7 +6,7 @@
   position: fixed;
   left: 0;
   top: 64px;
-  height: calc(100vh - 64px);
+  height: calc(100vh - 64px - 80px); /* Resta topbar (64px) + footer (~80px) */
   overflow-y: auto;
   transition: var(--transition);
   z-index: 50;
