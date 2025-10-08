@@ -15,7 +15,7 @@
         Gestión de sitios históricos y patrimonio cultural
       </p>
     </div>
-    {% if can_create_sitios() %}
+    {% if check('site_new') %}
     <a href="{{ url_for('sitios.nuevo') }}" class="btn btn-primary">
       <i class="fas fa-plus"></i>
       Nuevo Sitio
@@ -159,99 +159,6 @@
           <!-- Dirección del orden -->
           <div class="search-group">
             <label for="order_dir" class="search-label">
-              <i class="fas fa-sort-amount-down"></i>
-              Dirección
-            </label>
-            <select id="order_dir" name="order_dir" class="form-select">
-              <option value="desc" {% if filters.order_dir=='desc' or not filters.order_dir %}selected{% endif %}>
-                Descendente</option>
-              <option value="asc" {% if filters.order_dir=='asc' %}selected{% endif %}>Ascendente</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="search-actions">
-          <button type="submit" class="btn btn-primary">
-            <i class="fas fa-search"></i>
-            Buscar
-          </button>
-          <a href="{{ url_for('sitios.index') }}" class="btn btn-secondary">
-            <i class="fas fa-times"></i>
-            Limpiar Filtros
-          </a>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Lista de sitios -->
-  <div class="card">
-    <div class="card-header">
-      <h3 class="card-title">
-        <i class="fas fa-list"></i>
-        Lista de Sitios Históricos
-      </h3>
-      <p class="card-subtitle">
-        Mostrando {{ sitios|length }} de {{ total }} sitio(s) - Página {{ page }} de {{ total_pages }}
-      </p>
-    </div>
-    <div class="card-body" style="padding: 0;">
-      {% if sitios %}
-      <div class="table-responsive">
-        <table class="sitios-table">
-          <thead>
-            <tr>
-              <th>Nombre</th>
-              <th>Ubicación</th>
-              <th>Categoría</th>
-              <th>Estado</th>
-              <th>Visible</th>
-              <th>Etiquetas</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for sitio in sitios %}
-            <tr>
-              <td>
-                <div class="sitio-info">
-                  <h4 class="sitio-nombre">{{ sitio.nombre }}</h4>
-                  <p class="sitio-descripcion">{{ sitio.descripcion_breve[:100] }}{% if sitio.descripcion_breve|length >
-                    100 %}...{% endif %}</p>
-                </div>
-              </td>
-              <td>
-                <div class="ubicacion-info" style="display: flex; align-items: center;">
-                  <i class="fas fa-map-marker-alt" style="margin-right: 6px;"></i>
-                  {{ sitio.ciudad }}, {{ sitio.provincia }}
-                </div>
-              </td>
-              <td>
-                <span class="categoria-badge categoria-{{ sitio.categoria.value|lower|replace(' ', '-') }}">
-                  {{ sitio.categoria.value }}
-                </span>
-              </td>
-              <td>
-                <span class="estado-badge estado-{{ sitio.estado_conservacion.value|lower }}">
-                  {{ sitio.estado_conservacion.value }}
-                </span>
-              </td>
-              <td>
-                {% if sitio.visible %}
-                <span class="visible-badge visible">
-                  <i class="fas fa-eye"></i>
-                  Visible
-                </span>
-                {% else %}
-                <span class="visible-badge oculto"
-                  style="background: #b0b7c3; color: #fff; display: inline-flex; align-items: center;">
-                  <i class="fas fa-eye-slash"></i>
-                  OCULTO
-                </span>
-                {% endif %}
-              </td>
-              <td>
-                <div class="tags-list" style="display: flex; flex-wrap: wrap; gap: 6px;">
                   {% for tag in sitio.tags %}
                   <span class="tag-badge">{{ tag.nombre }}</span>
                   {% endfor %}
@@ -262,18 +169,16 @@
               </td>
               <td>
                 <div class="acciones">
-                  <a href="{{ url_for('sitios.detalle', id=sitio.id) }}" class="btn-accion btn-ver"
-                    title="Ver detalles">
+                  <a href="{{ url_for('sitios.detalle', id=sitio.id) }}" class="btn-accion btn-ver" title="Ver detalles">
                     <i class="fas fa-eye"></i>
                   </a>
-                  {% if can_edit_sitios() %}
+                  {% if check('site_update') %}
                   <a href="{{ url_for('sitios.editar', id=sitio.id) }}" class="btn-accion btn-editar" title="Editar">
                     <i class="fas fa-edit"></i>
                   </a>
                   {% endif %}
-                  {% if can_delete_sitios() %}
-                  <button onclick="confirmarEliminacion({{ sitio.id }}, '{{ sitio.nombre }}')"
-                    class="btn-accion btn-eliminar" title="Eliminar">
+                  {% if check('site_destroy') %}
+                  <button data-id="{{ sitio.id }}" data-nombre="{{ sitio.nombre|escape }}" class="btn-accion btn-eliminar btn-eliminar-sitio" title="Eliminar">
                     <i class="fas fa-trash"></i>
                   </button>
                   {% endif %}
@@ -284,21 +189,35 @@
           </tbody>
         </table>
       </div>
+      {% else %}
+      <div class="empty-state">
+        <div class="empty-icon">
+          <i class="fas fa-landmark"></i>
+        </div>
+        <h3>No hay sitios históricos registrados</h3>
+        <p>Comienza agregando tu primer sitio histórico al sistema.</p>
+        {% if check('site_new') %}
+        <a href="{{ url_for('sitios.nuevo') }}" class="btn btn-primary">
+          <i class="fas fa-plus"></i>
+          Crear Primer Sitio
+        </a>
+        {% endif %}
+      </div>
+      {% endif %}
 
       <!-- Controles de paginación -->
       {% if total_pages > 1 %}
       <div class="pagination-container">
         <div class="pagination-info">
-          <span>Mostrando {{ ((page - 1) * per_page) + 1 }} - {{ ((page - 1) * per_page) + sitios|length }} de {{ total
-            }} sitios</span>
+          <span>Mostrando {{ ((page - 1) * per_page) + 1 }} - {{ ((page - 1) * per_page) + sitios|length }} de {{ total }} sitios</span>
         </div>
 
         <nav class="pagination-nav">
           <!-- Botón Anterior -->
           {% if has_prev %}
-          <a href="{{ url_for('sitios.index', page=prev_num, **filters) }}" class="pagination-btn pagination-prev"></a>
-          <i class="fas fa-chevron-left"></i>
-          Anterior
+          <a href="{{ url_for('sitios.index', page=prev_num, **filters) }}" class="pagination-btn pagination-prev">
+            <i class="fas fa-chevron-left"></i>
+            Anterior
           </a>
           {% else %}
           <span class="pagination-btn pagination-prev disabled">
@@ -323,24 +242,23 @@
             {% if page_num == page %}
             <span class="pagination-number active">{{ page_num }}</span>
             {% else %}
-            <a href="{{ url_for('sitios.index', page=page_num, **filters) }}" class="pagination-number">{{ page_num
-              }}</a>
+            <a href="{{ url_for('sitios.index', page=page_num, **filters) }}" class="pagination-number">{{ page_num }}</a>
             {% endif %}
             {% endfor %}
 
-            {% if end_page < total_pages %} {% if end_page < total_pages - 1 %} <span class="pagination-ellipsis">
-              ...</span>
+            {% if end_page < total_pages %}
+              {% if end_page < total_pages - 1 %}
+              <span class="pagination-ellipsis">...</span>
               {% endif %}
-              <a href="{{ url_for('sitios.index', page=total_pages, **filters) }}" class="pagination-number">{{
-                total_pages }}</a>
-              {% endif %}
+              <a href="{{ url_for('sitios.index', page=total_pages, **filters) }}" class="pagination-number">{{ total_pages }}</a>
+            {% endif %}
           </div>
 
           <!-- Botón Siguiente -->
           {% if has_next %}
-          <a href="{{ url_for('sitios.index', page=next_num, **filters) }}" class="pagination-btn pagination-next"></a>
-          Siguiente
-          <i class="fas fa-chevron-right"></i>
+          <a href="{{ url_for('sitios.index', page=next_num, **filters) }}" class="pagination-btn pagination-next">
+            Siguiente
+            <i class="fas fa-chevron-right"></i>
           </a>
           {% else %}
           <span class="pagination-btn pagination-next disabled">
@@ -351,21 +269,46 @@
         </nav>
       </div>
       {% endif %}
-
-      {% else %}
-      <div class="empty-state">
-        <div class="empty-icon">
-          <i class="fas fa-landmark"></i>
+                      <span class="text-muted">Sin etiquetas</span>
+                    {% endif %}
+                  </div>
+                </td>
+                <td>
+                  <div class="acciones">
+                    <a href="{{ url_for('sitios.detalle', id=sitio.id) }}" class="btn-accion btn-ver" title="Ver detalles">
+                      <i class="fas fa-eye"></i>
+                    </a>
+                    {% if check('site_update') %}
+                    <a href="{{ url_for('sitios.editar', id=sitio.id) }}" class="btn-accion btn-editar" title="Editar">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    {% endif %}
+                    {% if check('site_destroy') %}
+                    <button data-id="{{ sitio.id }}" data-nombre="{{ sitio.nombre|escape }}" class="btn-accion btn-eliminar btn-eliminar-sitio" title="Eliminar">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
         </div>
-        <h3>No hay sitios históricos registrados</h3>
-        <p>Comienza agregando tu primer sitio histórico al sistema.</p>
-        {% if can_create_sitios() %}
-        <a href="{{ url_for('sitios.nuevo') }}" class="btn btn-primary">
-          <i class="fas fa-plus"></i>
-          Crear Primer Sitio
-        </a>
-        {% endif %}
-      </div>
+      {% else %}
+        <div class="empty-state">
+          <div class="empty-icon">
+            <i class="fas fa-landmark"></i>
+          </div>
+          <h3>No hay sitios históricos registrados</h3>
+          <p>Comienza agregando tu primer sitio histórico al sistema.</p>
+          {% if check('site_new') %}
+          <a href="{{ url_for('sitios.nuevo') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i>
+            Crear Primer Sitio
+          </a>
+          {% endif %}
+        </div>
       {% endif %}
     </div>
   </div>
@@ -415,6 +358,15 @@
 
   // Toggle del formulario de búsqueda
   document.addEventListener('DOMContentLoaded', function () {
+    // Delegación para botones de eliminar sin inline JS
+    document.body.addEventListener('click', function (e) {
+      const btn = e.target.closest('.btn-eliminar-sitio');
+      if (btn) {
+        const id = btn.getAttribute('data-id');
+        const nombre = btn.getAttribute('data-nombre');
+        confirmarEliminacion(id, nombre);
+      }
+    });
     const toggleBtn = document.getElementById('toggle-search');
     const searchContainer = document.querySelector('.search-form-container');
     const toggleText = toggleBtn.querySelector('span');
@@ -437,97 +389,7 @@
       } else {
         searchContainer.style.display = 'block';
         toggleText.textContent = 'Ocultar Filtros';
-        toggleIcon.className = 'fas fa-chevron-up';
-      }
-    });
-  });
-</script>
-
-<style>
-  /* Estilos para la tabla de sitios */
-  .sitios-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  .sitios-table th,
-  .sitios-table td {
-    padding: 1rem;
-    text-align: left;
-    border-bottom: 1px solid var(--border-color);
-  }
-
-  .sitios-table th {
-    background: var(--surface);
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-
-  .sitio-info h4 {
-    margin: 0 0 0.25rem 0;
-    font-size: 1rem;
-    font-weight: 600;
-  }
-
-  .sitio-descripcion {
-    margin: 0;
-    color: var(--text-secondary);
-    font-size: 0.875rem;
-  }
-
-  .ubicacion-info {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--text-secondary);
-  }
-
-  .categoria-badge,
-  .estado-badge,
-  .visible-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: var(--radius);
-    font-size: 0.75rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .categoria-badge {
-    background: var(--primary-color);
-    color: white;
-  }
-
-  .estado-badge.estado-bueno {
-    background: var(--success-color);
-    color: white;
-  }
-
-  .estado-badge.estado-regular {
-    background: var(--warning-color);
-    color: white;
-  }
-
-  .estado-badge.estado-malo {
-    background: var(--error-color);
-    color: white;
-  }
-
-  .visible-badge.visible {
-    background: #10b981;
-    color: white;
-  }
-
-  .visible-badge.oculto {
-    background: #b0b7c3 !important;
-    color: #fff !important;
-  }
-
-  .etiquetas-info {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
+        toggle        git log --oneline --left-right HEAD...origin/permisos-y-otros-ajustes
 
   .etiqueta-badge {
     background: var(--primary-color);

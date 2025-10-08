@@ -1,0 +1,138 @@
+<!-- JavaScript para funcionalidad de usuarios -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    initializeUserActions();
+    initializeFilters();
+});
+
+function initializeFilters() {
+    // Event listeners para filtros automáticos
+    const filterType = document.getElementById('filter_type');
+    const dateOrder = document.getElementById('date_order');
+    
+    if (filterType) {
+        filterType.addEventListener('change', applyFilters);
+    }
+    if (dateOrder) {
+        dateOrder.addEventListener('change', applyFilters);
+    }
+    
+    // Cargar datos iniciales
+    applyFilters();
+}
+
+function initializeUserActions() {
+    // Event listeners para botones de eliminar
+    document.querySelectorAll('.delete-user-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const userId = this.getAttribute('data-user-id');
+            const userName = this.getAttribute('data-user-name');
+            showDeleteConfirmation(userId, userName);
+        });
+    });
+
+    // Event listeners para botones de cambiar estado
+    document.querySelectorAll('.toggle-status-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const userId = this.getAttribute('data-user-id');
+            const isEnabled = this.getAttribute('data-enabled') === 'true';
+            showStatusToggleConfirmation(userId, isEnabled);
+        });
+    });
+}
+
+function showDeleteConfirmation(userId, userName) {
+    document.getElementById('userName').textContent = userName;
+    document.getElementById('deleteForm').action = `{{ url_for('admin_users.index') }}/${userId}/eliminar`;
+    $('#deleteModal').modal('show');
+}
+
+function showStatusToggleConfirmation(userId, isEnabled) {
+    const action = isEnabled ? 'bloquear' : 'activar';
+    const actionTitle = isEnabled ? 'Bloquear Usuario' : 'Activar Usuario';
+    const message = isEnabled ? 
+        '¿Está seguro de que desea bloquear este usuario?' : 
+        '¿Está seguro de que desea activar este usuario?';
+    const btnClass = isEnabled ? 'btn-warning' : 'btn-success';
+    
+    document.getElementById('toggleStatusTitle').textContent = actionTitle;
+    document.getElementById('toggleStatusMessage').textContent = message;
+    document.getElementById('toggleStatusForm').action = `{{ url_for('admin_users.index') }}/${userId}/bloquear`;
+    
+    const btn = document.getElementById('toggleStatusBtn');
+    btn.innerHTML = `<i class="fas fa-${isEnabled ? 'lock' : 'unlock'}"></i> ${action.charAt(0).toUpperCase() + action.slice(1)}`;
+    btn.className = `btn ${btnClass}`;
+    
+    $('#toggleStatusModal').modal('show');
+}
+
+function applyFilters() {
+    const filterType = document.getElementById('filter_type');
+    const dateOrder = document.getElementById('date_order');
+    const pageInput = document.getElementById('page_input');
+    
+    
+    if (!filterType || !dateOrder) {
+        console.warn('Elementos de filtro no encontrados, saltando actualización');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('filter_type', filterType.value || 'mail');
+    formData.append('date_order', dateOrder.value || 'desc');
+    formData.append('page', pageInput ? pageInput.value : '1');
+    
+    fetch('/admin/users/filter', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+        return response.text();
+    })
+    .then(html => {
+        const container = document.getElementById('users-table-container');
+        if (container) {
+            container.innerHTML = html;
+            initializeUserActions();
+        }
+    })
+    .catch(error => {
+        console.error('Error al cargar filtros:', error);
+        
+    });
+}
+
+function clearFilters() {
+    window.location.href = '/admin/users';
+}
+
+function toggleDateOrder() {
+    const dateOrder = document.getElementById('date_order');
+    dateOrder.value = dateOrder.value === 'asc' ? 'desc' : 'asc';
+    applyFilters();
+}
+
+
+
+function searchByEmail() {
+    const email = document.getElementById('email_search').value.trim();
+    if (email) {
+        window.location.href = `/admin/users/find/${email}`;
+    } 
+       
+}
+
+document.getElementById('email_search').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        searchByEmail();
+    }
+});
+
+// Función para recargar los event listeners después de filtrar
+function refreshEventListeners() {
+    initializeUserActions();
+}
+</script>

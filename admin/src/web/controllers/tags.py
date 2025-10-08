@@ -3,23 +3,11 @@ from src.models.tag import Tag
 from src.models.database import db
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy import asc, desc
-from src.web.handlers.auth import login_required
-from src.web.handlers.permissions import user_has_role
+from src.web.handlers.auth import login_required, check
 
 bp = Blueprint('tags', __name__, url_prefix='/tags')
 
-def require_editor_or_admin(f):
-    from functools import wraps
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if not session.get('user'):
-            flash('Por favor, inicia sesión para acceder a esta página.', 'warning')
-            return redirect(url_for('auth.login'))
-        if not (user_has_role('editor') or user_has_role('administrador')):
-            flash('No tienes permisos para gestionar etiquetas.', 'danger')
-            return redirect(url_for('tags.list_tags'))
-        return f(*args, **kwargs)
-    return decorated_function
+# Los permisos ahora se manejan con el decorador @check
 
 @bp.route('', methods=['GET'])
 @login_required
@@ -44,12 +32,14 @@ def list_tags():
     return render_template('tags/index.html', tags=tags, total=total, page=page, pages=pages)
 
 @bp.route('/nuevo')
-@require_editor_or_admin
+@login_required
+@check('tag_new')
 def nuevo():
     return render_template('tags/form.html', action='crear', tag=None)
 
 @bp.route('/crear', methods=['POST'])
-@require_editor_or_admin
+@login_required
+@check('tag_new')
 def crear():
     nombre = request.form.get('nombre', '').strip()
     if not nombre or len(nombre) < 3 or len(nombre) > 50:
@@ -67,7 +57,8 @@ def crear():
         return render_template('tags/form.html', action='crear', tag=None)
 
 @bp.route('/<int:tag_id>/editar')
-@require_editor_or_admin
+@login_required
+@check('tag_update')
 def editar(tag_id):
     tag = db.session.get(Tag, tag_id)
     if not tag:
@@ -76,7 +67,8 @@ def editar(tag_id):
     return render_template('tags/form.html', action='editar', tag=tag)
 
 @bp.route('/<int:tag_id>/actualizar', methods=['POST'])
-@require_editor_or_admin
+@login_required
+@check('tag_update')
 def actualizar(tag_id):
     tag = db.session.get(Tag, tag_id)
     if not tag:
@@ -98,7 +90,8 @@ def actualizar(tag_id):
         return render_template('tags/form.html', action='editar', tag=tag)
 
 @bp.route('/<int:tag_id>', methods=['DELETE'])
-@require_editor_or_admin
+@login_required
+@check('tag_destroy')
 def delete_tag(tag_id):
     tag = db.session.get(Tag, tag_id)
     if not tag:
@@ -119,7 +112,8 @@ def ver(tag_id):
     return render_template('tags/detalle.html', tag=tag)
 
 @bp.route('/<int:tag_id>/borrar', methods=['POST'])
-@require_editor_or_admin
+@login_required
+@check('tag_destroy')
 def borrar(tag_id):
     tag = db.session.get(Tag, tag_id)
     if not tag:
