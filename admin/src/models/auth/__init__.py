@@ -75,7 +75,7 @@ def email_exists(email: str) -> bool:
 
 
 
-def user_paginate(page=1,  filter_type='mail', date_order='desc'):
+def user_paginate(page=1, filter_type='mail', date_order='desc'):
     """Return a paginated list of users, filtered and ordered.
 
     Args:
@@ -88,6 +88,9 @@ def user_paginate(page=1,  filter_type='mail', date_order='desc'):
     """
     per_page = 25
     users_query = db.session.query(user)
+    
+    # Apply email search filter if provided
+  
     match filter_type:
         case 'mail':
             users_query = users_query.order_by(user.name.asc())
@@ -96,7 +99,7 @@ def user_paginate(page=1,  filter_type='mail', date_order='desc'):
         case 'active':
             users_query = users_query.filter(user.enabled == True).order_by(user.id.asc())
         case 'inactive':
-            users_query = users_query.filter(user.enabled == False).order_by(user.id.asc())
+            users_query = users_query.filter(user.enabled == False).order_by(user.id.asc()  )
     match date_order:
         case 'asc': 
             users_query = users_query.order_by(user.inserted_at.asc()) 

@@ -9,12 +9,23 @@ function initializeFilters() {
     // Event listeners para filtros automáticos
     const filterType = document.getElementById('filter_type');
     const dateOrder = document.getElementById('date_order');
+    const emailSearch = document.getElementById('email_search');
     
     if (filterType) {
         filterType.addEventListener('change', applyFilters);
     }
     if (dateOrder) {
         dateOrder.addEventListener('change', applyFilters);
+    }
+    
+    // Event listener para búsqueda por email con Enter
+    if (emailSearch) {
+        emailSearch.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                searchByEmail();
+            }
+        });
     }
     
     // Cargar datos iniciales
@@ -119,17 +130,15 @@ function toggleDateOrder() {
 
 function searchByEmail() {
     const email = document.getElementById('email_search').value.trim();
-    if (email) {
-        window.location.href = `/admin/users/find/${email}`;
-    } 
-       
-}
-
-document.getElementById('email_search').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        searchByEmail();
+    
+    if (!email) {
+        applyFilters();
+        return;
     }
-});
+    
+    // Usar la ruta /find que ya existe
+    window.location.href = `/admin/users/find/${encodeURIComponent(email)}`;
+}
 
 // Función para recargar los event listeners después de filtrar
 function refreshEventListeners() {
