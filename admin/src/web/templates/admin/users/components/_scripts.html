@@ -107,7 +107,6 @@ function applyFilters() {
         const container = document.getElementById('users-table-container');
         if (container) {
             container.innerHTML = html;
-            updateDateIcon();
             initializeUserActions();
         }
     })
@@ -115,14 +114,6 @@ function applyFilters() {
         console.error('Error al cargar filtros:', error);
         
     });
-}
-
-function updateDateIcon() {
-    const dateOrder = document.getElementById('date_order');
-    const icon = document.getElementById('date-order-icon');
-    if (dateOrder && icon) {
-        icon.className = dateOrder.value === 'asc' ? 'fas fa-sort-up' : 'fas fa-sort-down';
-    }
 }
 
 function clearFilters() {
@@ -145,36 +136,8 @@ function searchByEmail() {
         return;
     }
     
-    // Usar AJAX para buscar sin recargar la página
-    fetch(`/admin/users/find/${encodeURIComponent(email)}`, {
-        method: 'GET',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Usuario no encontrado');
-        }
-        return response.text();
-    })
-    .then(html => {
-        // Extraer solo la tabla del HTML completo
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(html, 'text/html');
-        const tableContainer = doc.getElementById('users-table-container');
-        
-        if (tableContainer) {
-            document.getElementById('users-table-container').innerHTML = tableContainer.innerHTML;
-            updateDateIcon();
-            initializeUserActions();
-        }
-    })
-    .catch(error => {
-        console.error('Error al buscar usuario:', error);
-        alert('Usuario no encontrado');
-        applyFilters(); // Volver a la vista normal
-    });
+    // Usar la ruta /find que ya existe
+    window.location.href = `/admin/users/find/${encodeURIComponent(email)}`;
 }
 
 // Función para recargar los event listeners después de filtrar

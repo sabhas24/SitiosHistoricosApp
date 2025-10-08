@@ -75,24 +75,19 @@ def email_exists(email: str) -> bool:
 
 
 
-def user_paginate(page=1, filter_type='mail', date_order='desc', email_search=''):
+def user_paginate(page=1, filter_type='mail', date_order='desc'):
     """Return a paginated list of users, filtered and ordered.
 
     Args:
         page (int): Page number (1-based).
         filter_type (str): Filter type ( 'mail', 'role', 'active').
         date_order (str): 'asc' or 'desc' for ordering by creation date.
-        email_search (str): Email to search for (optional).
 
     Returns:
         List[user], total_count
     """
     per_page = 25
     users_query = db.session.query(user)
-    
-    # Apply email search filter if provided
-    if email_search and email_search.strip():
-        users_query = users_query.filter(user.email.ilike(f'%{email_search.strip()}%'))
     
     # Apply email search filter if provided
   
