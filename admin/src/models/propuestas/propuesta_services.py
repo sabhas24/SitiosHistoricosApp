@@ -2,9 +2,13 @@ from datetime import datetime, timezone
 from sqlalchemy import or_, and_
 from sqlalchemy.orm import joinedload
 from src.models.database import db
-from src.models.propuesta_sitio import PropuestaSitio, EstadoPropuesta
+from src.models.propuestas.propuesta_sitio import (
+    PropuestaSitio,
+    EstadoPropuesta,
+    EstadoConservacionPropuesta,
+)
 from src.models.sitios import sitio_create
-from src.models.sitio_historico import EstadoConservacion, Categoria
+from src.models.sitios.sitio_historico import EstadoConservacion, Categoria
 
 
 def obtener_propuestas(page=1, per_page=25, filters=None):
@@ -105,12 +109,13 @@ def aprobar_propuesta(propuesta_id, usuario_validador_id):
     
     try:
         # Mapear estado de conservación
+        # La propuesta almacena EstadoConservacionPropuesta; mapear a EstadoConservacion del sitio
         estado_conservacion_map = {
-            'Bueno': EstadoConservacion.BUENO,
-            'Regular': EstadoConservacion.REGULAR,
-            'Malo': EstadoConservacion.MALO
+            EstadoConservacionPropuesta.BUENO.value: EstadoConservacion.BUENO,
+            EstadoConservacionPropuesta.REGULAR.value: EstadoConservacion.REGULAR,
+            EstadoConservacionPropuesta.MALO.value: EstadoConservacion.MALO,
         }
-        estado_conservacion = estado_conservacion_map.get(propuesta.estado_conservacion.value)
+        estado_conservacion = estado_conservacion_map.get(propuesta.estado_conservacion.value, EstadoConservacion.BUENO)
         
         # Mapear categoría (simplificado)
         categoria_map = {
@@ -207,7 +212,7 @@ def crear_propuesta_ejemplo():
         provincia="Buenos Aires",
         latitud=-34.6118,
         longitud=-58.3960,
-        estado_conservacion=EstadoConservacionPropuesta.BUENO,
+    estado_conservacion=EstadoConservacionPropuesta.BUENO,
         año_inauguracion=1820,
         categoria="Edificio histórico",
         email_proponente="ciudadano@example.com",

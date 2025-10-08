@@ -136,8 +136,31 @@ function searchByEmail() {
         return;
     }
     
-    // Usar la ruta /find que ya existe
-    window.location.href = `/admin/users/find/${encodeURIComponent(email)}`;
+    // Búsqueda AJAX sin recargar página completa
+    fetch(`/admin/users/find/${encodeURIComponent(email)}`, {
+        method: 'GET'
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
+        return response.text();
+    })
+    .then(html => {
+        const container = document.getElementById('users-table-container');
+        if (container) {
+            container.innerHTML = html;
+            initializeUserActions();
+        }
+    })
+    .catch(error => {
+        console.error('Error al buscar usuario:', error);
+        // Mostrar mensaje de error sin recargar
+        const container = document.getElementById('users-table-container');
+        if (container) {
+            container.innerHTML = '<div class="alert alert-warning">Usuario no encontrado</div>';
+        }
+    });
 }
 
 // Función para recargar los event listeners después de filtrar

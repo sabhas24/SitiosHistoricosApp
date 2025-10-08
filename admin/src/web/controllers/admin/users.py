@@ -22,11 +22,18 @@ def filter_users():
    
     page = request.form.get('page', 1, type=int)
     filter_type = request.form.get('filter_type', 'mail')
+    status_filter = request.form.get('status_filter', 'all')
     date_order = request.form.get('date_order', 'desc')
+
+    # Si se selecciona filtro de estado, usar ese en lugar del filter_type
+    if status_filter != 'all':
+        final_filter = status_filter
+    else:
+        final_filter = filter_type
 
     users, total = auth.user_paginate(
         page=page,
-        filter_type=filter_type, 
+        filter_type=final_filter, 
         date_order=date_order
     )
     return render_template('admin/users/components/_table.html', users=users, total=total, page=page)
@@ -37,9 +44,8 @@ def filter_users():
 def find_user(email):
     user = auth.user_show(email)
     if not user:
-        flash('Usuario no encontrado', 'error')
-        return redirect(url_for('admin_users.index'))
-    return render_template('admin/users/index.html', users=[user], total=1, page=1)
+        return render_template('admin/users/components/_table.html', users=[], total=0, page=1)
+    return render_template('admin/users/components/_table.html', users=[user], total=1, page=1)
 @bp.route('/nuevo', methods=['GET'])
 @login_required
 @check('user_new')
@@ -59,7 +65,7 @@ def create():
         'password': request.form.get('password'),
         'confirm_password': request.form.get('confirm_password')
     }
-    
+
     validation_errors = validate_user_create_data(form_data)
     if validation_errors:
         for error in validation_errors:

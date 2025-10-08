@@ -70,12 +70,12 @@ def run():
         assign_permission_to_role("editor", perm)
 
     # 3. Crear feature flags por defecto
-    from src.models.feature_flag_services import create_default_feature_flags
+    from src.models.feature_flag.feature_flag_services import create_default_feature_flags
     create_default_feature_flags()
 
     # 4. Crear datos de ejemplo para propuestas y reseñas
-    from src.models.propuesta_services import crear_propuesta_ejemplo
-    from src.models.reseña_services import crear_reseña_ejemplo
+    from src.models.propuestas.propuesta_services import crear_propuesta_ejemplo
+    from src.models.reseñas.reseña_services import crear_reseña_ejemplo
     
     try:
         crear_propuesta_ejemplo()

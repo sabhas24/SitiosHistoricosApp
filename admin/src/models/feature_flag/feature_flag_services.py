@@ -1,5 +1,6 @@
 from src.models.database import db
-from src.models.feature_flag import FeatureFlag
+from src.models.feature_flag.feature_flag import FeatureFlag
+from typing import Optional
 from flask import session
 from sqlalchemy.exc import IntegrityError
 
@@ -24,33 +25,28 @@ def get_maintenance_message(flag_name):
 def update_feature_flag(name, is_enabled, maintenance_message=None):
     """Actualizar un feature flag"""
     try:
-        # Obtener el usuario actual
         user_email = session.get('user')
         if not user_email:
             return False, "Usuario no autenticado"
-        
+
         flag = get_feature_flag_by_name(name)
         if not flag:
             return False, f"Feature flag '{name}' no encontrado"
-        
-        # Validaciones
+
         if is_enabled and name in ['admin_maintenance_mode', 'portal_maintenance_mode']:
             if not maintenance_message or not maintenance_message.strip():
                 return False, "El mensaje de mantenimiento es obligatorio cuando se activa el modo de mantenimiento"
-            
             if len(maintenance_message) > 500:
                 return False, "El mensaje de mantenimiento no puede exceder 500 caracteres"
-        
-        # Actualizar el flag
+
         flag.is_enabled = is_enabled
-        flag.maintenance_message = maintenance_message.strip() if maintenance_message else None
+        flag.maintenance_message = maintenance_message.strip() if maintenance_message else None  # type: ignore[attr-defined]
         flag.last_modified_by = user_email
-        
+
         db.session.commit()
-        
         print(f"✅ Feature flag '{name}' actualizado: {'ON' if is_enabled else 'OFF'} por {user_email}")
         return True, "Feature flag actualizado correctamente"
-        
+
     except Exception as e:
         db.session.rollback()
         print(f"❌ Error al actualizar feature flag: {str(e)}")
