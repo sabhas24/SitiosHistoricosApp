@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from sqlalchemy import or_, and_
 from sqlalchemy.orm import joinedload
 from src.models.database import db
-from src.models.reseña import Reseña, EstadoReseña
+from src.models.reseñas.reseña import Reseña, EstadoReseña
 
 
 def obtener_reseñas(page=1, per_page=25, filters=None):
@@ -115,12 +115,10 @@ def aprobar_reseña(reseña_id, usuario_moderador_id):
         reseña.estado = EstadoReseña.APROBADA
         reseña.fecha_moderacion = datetime.now(timezone.utc)
         reseña.usuario_moderador_id = usuario_moderador_id
-        reseña.motivo_rechazo = None  # Limpiar motivo de rechazo si existía
-        
+        reseña.motivo_rechazo = None  # type: ignore[assignment]  # Limpiar motivo de rechazo si existía
+
         db.session.commit()
-        
         return True, "Reseña aprobada exitosamente"
-        
     except Exception as e:
         db.session.rollback()
         return False, f"Error al aprobar reseña: {str(e)}"
@@ -179,7 +177,7 @@ def obtener_estadisticas_reseñas():
 def crear_reseña_ejemplo():
     """Crear una reseña de ejemplo para testing"""
     # Obtener el primer sitio disponible
-    from src.models.sitio_historico import SitioHistorico
+    from src.models.sitios.sitio_historico import SitioHistorico
     sitio = db.session.query(SitioHistorico).first()
     
     if not sitio:
