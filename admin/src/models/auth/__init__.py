@@ -102,6 +102,8 @@ def user_paginate(page=1, filter_type='mail', date_order='desc'):
             users_query = users_query.filter(user.enabled == True).order_by(user.id.asc())
         case 'inactive':
             users_query = users_query.filter(user.enabled == False).order_by(user.id.asc()  )
+   
+    users_query = users_query.order_by(None)
     match date_order:
         case 'asc': 
             users_query = users_query.order_by(user.inserted_at.asc()) 
