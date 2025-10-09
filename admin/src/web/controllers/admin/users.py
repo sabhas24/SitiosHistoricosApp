@@ -22,18 +22,13 @@ def filter_users():
    
     page = request.form.get('page', 1, type=int)
     filter_type = request.form.get('filter_type', 'mail')
-    status_filter = request.form.get('status_filter', 'all')
     date_order = request.form.get('date_order', 'desc')
 
-    # Si se selecciona filtro de estado, usar ese en lugar del filter_type
-    if status_filter != 'all':
-        final_filter = status_filter
-    else:
-        final_filter = filter_type
-
+    
+   
     users, total = auth.user_paginate(
         page=page,
-        filter_type=final_filter, 
+        filter_type=filter_type, 
         date_order=date_order
     )
     return render_template('admin/users/components/_table.html', users=users, total=total, page=page)

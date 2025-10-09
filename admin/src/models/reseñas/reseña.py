@@ -3,7 +3,8 @@ from enum import Enum
 from sqlalchemy import DateTime, String, Text, Integer, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.models.database import Base
-
+from src.models.sitios.sitio_historico import SitioHistorico
+from src.models.auth.user import user
 
 class EstadoReseña(Enum):
     """Estados posibles de una reseña"""
