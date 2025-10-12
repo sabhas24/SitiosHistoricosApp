@@ -4,7 +4,7 @@
       <h3 class="sidebar-section-title">Principal</h3>
       <ul class="sidebar-nav">
         <li class="sidebar-nav-item">
-          <a href="{{ url_for('home') }}" class="sidebar-nav-link active" data-tooltip="Inicio">
+          <a href="{{ url_for('home') }}" class="sidebar-nav-link {% if request.endpoint == 'home' %}active{% endif %}" data-tooltip="Inicio">
             <span class="sidebar-nav-icon">
               <i class="fas fa-home"></i>
             </span>
@@ -18,7 +18,7 @@
       <h3 class="sidebar-section-title">Patrimonio</h3>
       <ul class="sidebar-nav">
         <li class="sidebar-nav-item">
-          <a href="{{ url_for('sitios.index') }}" class="sidebar-nav-link" data-tooltip="Sitios Históricos">
+          <a href="{{ url_for('sitios.index') }}" class="sidebar-nav-link {% if request.endpoint and request.endpoint.startswith('sitios.') %}active{% endif %}" data-tooltip="Sitios Históricos">
             <span class="sidebar-nav-icon">
               <i class="fas fa-landmark"></i>
             </span>
@@ -26,7 +26,7 @@
           </a>
         </li>
         <li class="sidebar-nav-item">
-          <a href="{{ url_for('tags.list_tags') }}" class="sidebar-nav-link" data-tooltip="Etiquetas">
+          <a href="{{ url_for('tags.list_tags') }}" class="sidebar-nav-link {% if request.endpoint and request.endpoint.startswith('tags.') %}active{% endif %}" data-tooltip="Etiquetas">
             <span class="sidebar-nav-icon">
               <i class="fas fa-tags"></i>
             </span>
@@ -41,7 +41,7 @@
       <ul class="sidebar-nav">
         {% if check_permission('proposal_index') %}
         <li class="sidebar-nav-item">
-          <a href="{{ url_for('propuestas.index') }}" class="sidebar-nav-link" data-tooltip="Validación de Propuestas">
+          <a href="{{ url_for('propuestas.index') }}" class="sidebar-nav-link {% if request.endpoint and request.endpoint.startswith('propuestas.') %}active{% endif %}" data-tooltip="Validación de Propuestas">
             <span class="sidebar-nav-icon">
               <i class="fas fa-clipboard-check"></i>
             </span>
@@ -51,7 +51,7 @@
         {% endif %}
         {% if check_permission('review_index') %}
         <li class="sidebar-nav-item">
-          <a href="{{ url_for('reseñas.index') }}" class="sidebar-nav-link" data-tooltip="Moderación de Reseñas">
+          <a href="{{ url_for('reseñas.index') }}" class="sidebar-nav-link {% if request.endpoint and request.endpoint.startswith('reseñas.') %}active{% endif %}" data-tooltip="Moderación de Reseñas">
             <span class="sidebar-nav-icon">
               <i class="fas fa-star-half-alt"></i>
             </span>
@@ -68,7 +68,7 @@
       <ul class="sidebar-nav">
       {% if check_permission('user_index') %}
         <li class="sidebar-nav-item">
-          <a href="{{ url_for('admin_users.index') }}" class="sidebar-nav-link"
+          <a href="{{ url_for('admin_users.index') }}" class="sidebar-nav-link {% if request.endpoint and request.endpoint.startswith('admin_users.') %}active{% endif %}"
             data-tooltip="Usuarios">
             <span class="sidebar-nav-icon">
               <i class="fas fa-users"></i>
