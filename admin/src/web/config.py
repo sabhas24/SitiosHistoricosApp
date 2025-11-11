@@ -22,6 +22,10 @@ class Config(object):
     TESTING = False
 
 class DevelopmentConfig(Config):
+    MINIO_SERVER = "localhost:9000"
+    MINIO_ACCESS_KEY = "minioadmin"
+    MINIO_SECRET_KEY = "minioadmin"
+    MINIO_SECURE = False
     DEBUG = True
     BD_USER = "postgres"
     BD_PASSWORD = "admin"
