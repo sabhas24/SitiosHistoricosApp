@@ -1,61 +1,45 @@
-from __future__ import annotations
 from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError
-from src.web.schemas.user import (
-    UserCreateSchema,
-    UserLoginSchema,
-    UserReadSchema,
-)
-from src.models.auth import (
-    email_exists,
-    user_new,
-    user_check_password,
-    user_show,
-)
-from src.models.database import db
-from src.models.auth.role import Role
+from src.web.schemas.user import UserCreateSchema, UserReadSchema, UserLoginSchema
+from src.models.auth import email_exists, user_new, get_roleid_by_name, user_check_password, user_show
+from src.web.utils.jwt_utils import generate_jwt_token
 
+bp = Blueprint('user_api', __name__, url_prefix='/api/user')
 
-# Este blueprint cuelga de /api (ver registro en src/web/__init__.py)
-bp = Blueprint("user_api", __name__, url_prefix="/user")
-
-
-@bp.post("/register")
+@bp.post('/register')
 def register_user():
+    """Registrar un nuevo usuario."""
     try:
-        payload = UserCreateSchema().load(request.get_json(force=True))
+        user_data = UserCreateSchema().load(request.get_json(force=True))
     except ValidationError as e:
         return jsonify(error="validacion", details=e.messages), 400
-
-    if email_exists(payload["email"]):
-        return jsonify(error="email ya registrado"), 409
-
-    # Rol por defecto: editor
-    role = db.session.query(Role).filter_by(name="editor").first()
-    if role is None:
-        return jsonify(error="rol por defecto 'editor' no está creado"), 500
-
+    
+    if email_exists(user_data["email"]):
+        return jsonify(error="exists", message="El correo ya está registrado"), 400
+    
     user = user_new(
-        email=payload["email"],
-        name=payload["name"],
-        last_name=payload["last_name"],
-        password=payload["password"],
-        role_id=role.id,
+        email=user_data["email"],   
+        name=user_data["name"],
+        last_name=user_data["last_name"],
+        password=user_data["password"],
+        role=get_roleid_by_name("user")  
     )
+    user_read = UserReadSchema().dump(user)
+    return jsonify(user_read), 201
 
-    return jsonify(UserReadSchema().dump(user)), 201
 
-
-@bp.post("/login")
+@bp.post('/login')
 def login_user():
+    """Iniciar sesión y obtener token JWT."""
     try:
-        payload = UserLoginSchema().load(request.get_json(force=True))
+        login_data = UserLoginSchema().load(request.get_json(force=True))
     except ValidationError as e:
         return jsonify(error="validacion", details=e.messages), 400
-
-    if not user_check_password(payload["email"], payload["password"]):
-        return jsonify(error="credenciales invalidas"), 401
-
-    user = user_show(payload["email"])  # para devolver datos mínimos
-    return jsonify(user=UserReadSchema().dump(user), message="login ok"), 200
-
+    
+    if not user_check_password(login_data["email"], login_data["password"]):
+        return jsonify(error="invalid_credentials", message="Correo o contraseña incorrectos"), 401
+    
+    user = user_show(login_data["email"])
+    user_read = UserReadSchema().dump(user)
+    token, expires_in = generate_jwt_token(user.id)
+    return jsonify(token=token, expires_in=expires_in, user=user_read), 200

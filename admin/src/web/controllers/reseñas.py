@@ -174,7 +174,6 @@ def json_list():
     for reseña in reseñas_data['reseñas']:
         reseña_data = {
             'id': reseña.id,
-            'titulo': reseña.titulo,
             'calificacion': reseña.calificacion,
             'estado': reseña.estado.value,
             'fecha_creacion': reseña.fecha_creacion.isoformat(),

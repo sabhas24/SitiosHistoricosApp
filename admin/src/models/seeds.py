@@ -52,6 +52,7 @@ def run():
   
     admin_role = create_role("admin")
     editor_role = create_role("editor")
+    user_role = create_role("user")
 
     for perm in ADMIN_PERMISSIONS:
         create_permission(perm)

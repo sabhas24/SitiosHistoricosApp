@@ -47,7 +47,13 @@ def sitio_create(**kwargs):
     
     print(f"✅ Sitio histórico created with ID: {sitio.id}")
     return sitio
-
+def sitio_exists(nombre, ciudad):
+    """Verificar si un sitio histórico con el mismo nombre y ciudad ya existe"""
+    existing = db.session.query(SitioHistorico).filter(
+        SitioHistorico.nombre == nombre,
+        SitioHistorico.ciudad == ciudad
+    ).first()
+    return existing is not None
 def get_sitio_by_id(id):
     """Obtener un sitio histórico por su ID"""
     return db.session.get(SitioHistorico, id)
