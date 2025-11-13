@@ -115,7 +115,18 @@ def obtener_reseñas_por_sitio(sitio_id, page=1, per_page=25):
     total = query.count()
     
     reseñas = query.offset(offset).limit(per_page).all()
-    return reseñas 
+    total_pages = (total + per_page - 1) // per_page if total > 0 else 1
+    has_prev = page > 1
+    has_next = page < total_pages
+    return {
+        'reseñas': reseñas,
+        'total': total,
+        'page': page,
+        'per_page': per_page,
+        'pages': total_pages,
+        'has_prev': has_prev,
+        'has_next': has_next,
+    }
 def aprobar_reseña(reseña_id, usuario_moderador_id):
     """Aprobar una reseña"""
     reseña = obtener_reseña_por_id(reseña_id)
