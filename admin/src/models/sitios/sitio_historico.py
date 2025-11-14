@@ -39,10 +39,12 @@ class SitioHistorico(Base):
     
     # Campos de control
     fecha_registro = Column(DateTime, default=func.now(), nullable=False)
+    fecha_ultima_modificacion = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
     visible = Column(Boolean, default=False, nullable=False)
     tags = relationship('Tag', secondary=sitio_tag, back_populates='sitios')
     reseñas = relationship('Reseña', back_populates='sitio', cascade='all, delete-orphan')
     
+    favoritos = relationship('Favorito', back_populates='sitio', cascade='all, delete-orphan')
     def __repr__(self):
         return f'<SitioHistorico {self.nombre}>'
     
@@ -55,10 +57,13 @@ class SitioHistorico(Base):
             'descripcion_completa': self.descripcion_completa,
             'ciudad': self.ciudad,
             'provincia': self.provincia,
+            'latitud': self.ubicacion.y if self.ubicacion else None,
+            'longitud': self.ubicacion.x if self.ubicacion else None,
             'estado_conservacion': self.estado_conservacion.value if self.estado_conservacion else None,
             'anio_inauguracion': self.anio_inauguracion,
             'categoria': self.categoria.value if self.categoria else None,
             'fecha_registro': self.fecha_registro.isoformat() if self.fecha_registro else None,
+            'fecha_ultima_modificacion': self.fecha_ultima_modificacion.isoformat() if self.fecha_ultima_modificacion else None,
             'visible': self.visible,
             'tags': [tag.nombre for tag in self.tags]
         }

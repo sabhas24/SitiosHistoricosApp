@@ -20,7 +20,8 @@ class Config(object):
     }
     DEBUG = False
     TESTING = False
-
+    JWT_SECRET_KEY = environ.get("JWT_SECRET_KEY", "cambiar-en-produccion")
+    JWT_EXPIRATION= 3600 
 class DevelopmentConfig(Config):
     MINIO_SERVER = "localhost:9000"
     MINIO_ACCESS_KEY = "minioadmin"

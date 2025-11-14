@@ -1,7 +1,9 @@
 from src.models.database import db
 from src.models.sitios.sitio_historico import SitioHistorico, EstadoConservacion, Categoria
-from geoalchemy2.functions import ST_X, ST_Y, ST_GeomFromText
+from geoalchemy2.functions import ST_X, ST_Y
 from sqlalchemy import func, or_
+
+from geoalchemy2 import elements as geoelements, functions as geo_functions, Geometry, Geography
 
 def sitio_create(**kwargs):
     """Crear un nuevo sitio histórico"""
@@ -47,7 +49,13 @@ def sitio_create(**kwargs):
     
     print(f"✅ Sitio histórico created with ID: {sitio.id}")
     return sitio
-
+def sitio_exists(nombre, ciudad):
+    """Verificar si un sitio histórico con el mismo nombre y ciudad ya existe"""
+    existing = db.session.query(SitioHistorico).filter(
+        SitioHistorico.nombre == nombre,
+        SitioHistorico.ciudad == ciudad
+    ).first()
+    return existing is not None
 def get_sitio_by_id(id):
     """Obtener un sitio histórico por su ID"""
     return db.session.get(SitioHistorico, id)
@@ -323,6 +331,56 @@ def sitio_count_visible():
         SitioHistorico.visible == True
     ).scalar()
 
+def obtener_sitios(name=None, descripcion=None, city=None, province=None, tag=None, order_by="latest", lat=None, long=None, radius=None, page=1, per_page=25):
+    """Obtener sitios históricos con filtros, búsqueda geográfica y paginación"""
+    query = db.session.query(SitioHistorico)
+    if name: 
+        query = query.filter(SitioHistorico.nombre.ilike(f"%{name}%"))
+    if descripcion:
+        query = query.filter(SitioHistorico.descripcion_breve.ilike(f"%{descripcion}%"))
+    if city:
+        query = query.filter(SitioHistorico.ciudad.ilike(f"%{city}%"))
+    if province:
+        query = query.filter(SitioHistorico.provincia.ilike(f"%{province}%"))
+    if tag:
+        from src.models.tags.tag import Tags
+        query = query.join(SitioHistorico.tags).filter(Tags.nombre.in_(tag))
+    if lat and long and radius:
+        center= geoelements.WKTElement(f'POINT({long} {lat})',srid=4326)
+        query = query.filter(
+            func.ST_DWithin(
+                func.cast(SitioHistorico.ubicacion, Geography),
+                func.cast(center, Geography),
+                radius
+            )
+        )
+    if order_by == 'latest':
+        query = query.order_by(SitioHistorico.fecha_registro.desc())
+    elif order_by == 'oldest':
+        query = query.order_by(SitioHistorico.fecha_registro.asc())
+    else:
+        query = query.order_by(SitioHistorico.fecha_registro.desc())
+
+    total = query.count()
+    offset = (page - 1) * per_page
+    sitios = query.offset(offset).limit(per_page).all()
+    total_pages = (total + per_page - 1) // per_page if total > 0 else 1
+    has_prev = page > 1
+    has_next = page < total_pages
+
+    return {
+        'sitios': sitios,
+        'meta': {
+        'total': total,
+        'page': page,
+        'per_page': per_page,
+        'total_pages': total_pages,
+        'has_prev': has_prev,
+        'has_next': has_next,
+        'prev_num': page - 1 if has_prev else None,
+        'next_num': page + 1 if has_next else None,
+    }
+    }
 def get_search_options():
     """Obtener opciones para los filtros de búsqueda"""
     # Obtener provincias únicas
