@@ -40,6 +40,5 @@ def login_user():
         return jsonify(error="invalid_credentials", message="Correo o contraseña incorrectos"), 401
     
     user = user_show(login_data["email"])
-    user_read = UserReadSchema().dump(user)
     token = generate_jwt_token(user.id)
-    return jsonify(token=token, user=user_read), 200
+    return jsonify(token=token), 200

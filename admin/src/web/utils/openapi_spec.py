@@ -237,6 +237,72 @@ def get_paths():
             }
         },
         "/api/sitios/": {
+            "get": {
+                "tags": ["Sitios"],
+                "summary": "Listar sitios con filtros",
+                "description": "Obtiene lista paginada de sitios con filtros de búsqueda y geográficos. Todos los parámetros son opcionales.",
+                "parameters": [
+                    {"name": "name", "in": "query", "required": False, "schema": {"type": "string"}, "description": "Buscar por nombre del sitio"},
+                    {"name": "description", "in": "query", "required": False, "schema": {"type": "string"}, "description": "Buscar en la descripción"},
+                    {"name": "city", "in": "query", "required": False, "schema": {"type": "string"}, "description": "Filtrar por ciudad"},
+                    {"name": "province", "in": "query", "required": False, "schema": {"type": "string"}, "description": "Filtrar por provincia"},
+                    {"name": "tags", "in": "query", "required": False, "schema": {"type": "array", "items": {"type": "string"}}, "description": "Filtrar por tags"},
+                    {"name": "order_by", "in": "query", "required": False, "schema": {"type": "string", "enum": ["latest", "oldest"], "default": "latest"}, "description": "Ordenar por fecha"},
+                    {"name": "lat", "in": "query", "required": False, "schema": {"type": "number", "minimum": -90, "maximum": 90}, "description": "Latitud del centro de búsqueda"},
+                    {"name": "long", "in": "query", "required": False, "schema": {"type": "number", "minimum": -180, "maximum": 180}, "description": "Longitud del centro de búsqueda"},
+                    {"name": "radius", "in": "query", "required": False, "schema": {"type": "number"}, "description": "Radio de búsqueda en metros"},
+                    {"name": "page", "in": "query", "required": False, "schema": {"type": "integer", "default": 1, "minimum": 1}, "description": "Número de página"},
+                    {"name": "per_page", "in": "query", "required": False, "schema": {"type": "integer", "default": 25, "minimum": 1, "maximum": 100}, "description": "Resultados por página"}
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de sitios con metadata de paginación",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "sitios": {"type": "array", "items": {"$ref": "#/components/schemas/SitioRead"}},
+                                        "meta": {
+                                            "type": "object",
+                                            "properties": {
+                                                "total": {"type": "integer"},
+                                                "page": {"type": "integer"},
+                                                "per_page": {"type": "integer"},
+                                                "total_pages": {"type": "integer"},
+                                                "has_prev": {"type": "boolean"},
+                                                "has_next": {"type": "boolean"},
+                                                "prev_num": {"type": "integer"},
+                                                "next_num": {"type": "integer"}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Parámetros inválidos",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "object",
+                                            "properties": {
+                                                "code": {"type": "string"},
+                                                "message": {"type": "string"},
+                                                "details": {"type": "object"}
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
             "post": {
                 "tags": ["Sitios"],
                 "summary": "Crear un nuevo sitio histórico",
@@ -400,6 +466,44 @@ def get_paths():
                         }
                     },
                     "401": {"description": "No autenticado"}
+                }
+            }
+        },
+        "/api/sitios/{sitio_id}/resenas/{resena_id}": {
+            "get": {
+                "tags": ["Reseñas"],
+                "summary": "Obtener reseña específica",
+                "description": "Obtiene una reseña por su ID",
+                "security": [{"bearerAuth": []}],
+                "parameters": [
+                    {"name": "sitio_id", "in": "path", "required": True, "schema": {"type": "integer"}},
+                    {"name": "resena_id", "in": "path", "required": True, "schema": {"type": "integer"}}
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Reseña encontrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {"$ref": "#/components/schemas/ReseñaRead"}
+                            }
+                        }
+                    },
+                    "404": {"description": "Reseña no encontrada"}
+                }
+            },
+            "delete": {
+                "tags": ["Reseñas"],
+                "summary": "Eliminar reseña",
+                "description": "Elimina una reseña (requiere permisos)",
+                "security": [{"bearerAuth": []}],
+                "parameters": [
+                    {"name": "sitio_id", "in": "path", "required": True, "schema": {"type": "integer"}},
+                    {"name": "resena_id", "in": "path", "required": True, "schema": {"type": "integer"}}
+                ],
+                "responses": {
+                    "200": {"description": "Reseña eliminada exitosamente"},
+                    "403": {"description": "Sin permisos"},
+                    "404": {"description": "Reseña no encontrada"}
                 }
             }
         }
