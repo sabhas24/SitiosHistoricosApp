@@ -4,10 +4,11 @@ from src.web.schemas.sitios import SitioCreateSchema, SitioReadSchema
 from src.web.schemas.reseña import ReseñaCreateSchema, ReseñaReadSchema
 from src.web.utils.jwt_utils import jwt_required
 from src.web.handlers.auth import check_permission
-from src.models.sitios.sitios import sitio_exists, sitio_new, get_sitio_by_id
-from src.models.reseñas.reseña_services import create_reseña, obtener_reseña_por_id, eliminar_reseña, obtener_reseñas
+from src.models.sitios.sitios import sitio_exists, sitio_create, get_sitio_by_id
+from src.models.reseñas.reseña_services import create_reseña, obtener_reseña_por_id, eliminar_reseña, obtener_reseñas, obtener_reseñas_por_sitio
 from src.models.auth import user_show_id
 from src.models.favoritos import favorito_agregar, favorito_eliminar
+from src.models.database import db
 
 
 bp = Blueprint('sitios_api', __name__, url_prefix='/api/sitios')
@@ -30,7 +31,7 @@ def create_sitio():
         return jsonify(error="Ya existe un sitio con ese nombre en esta ciudad"), 409
     
 
-    sitio = sitio_new(**sitio_data)
+    sitio = sitio_create(**sitio_data)
     sitio_read = SitioReadSchema().dump(sitio)
     return jsonify(sitio_read), 201
 
@@ -44,7 +45,7 @@ def get_sitio(id):
     return jsonify(sitio_read), 200
 
 
-@bp.post('/<int:sitio_id>/reseñas')
+@bp.post('/<int:sitio_id>/resenas')
 @jwt_required
 def new_review(sitio_id):
     """Crear una nueva reseña para un sitio."""
@@ -78,7 +79,7 @@ def new_review(sitio_id):
     
     return jsonify(ReseñaReadSchema().dump(reseña)), 201
 
-@bp.get('/<int:sitio_id>/reseñas')
+@bp.get('/<int:sitio_id>/resenas')
 @jwt_required
 def list_sitio_reviews(sitio_id):
     """Lista las reseñas de un sitio con paginación."""
@@ -92,28 +93,28 @@ def list_sitio_reviews(sitio_id):
     page = request.args.get('page', 1, type=int)
     per_page = request.args.get('per_page', 25, type=int)
     
-   reseñas_pagination = obtener_reseñas(sitio_id=sitio_id, page=page, per_page=per_page)
+    reseñas_pagination = obtener_reseñas_por_sitio(sitio_id=sitio_id, page=page, per_page=per_page)
     
     return jsonify({
-        'reseñas': reseñas,
-        'total': reseñas_pagination.total,
-        'page': reseñas_pagination.page,
-        'per_page': reseñas_pagination.per_page,
-        'pages': reseñas_pagination.pages
+        'reseñas': [ReseñaReadSchema().dump(r) for r in reseñas_pagination['reseñas']],
+        'total': reseñas_pagination['total'],
+        'page': reseñas_pagination['page'],
+        'per_page': reseñas_pagination['per_page'],
+        'pages': reseñas_pagination['pages']
     }), 200
-@bp.get('/<int:sitio_id>/reseñas/<int:reseña_id>')
+
+@bp.get('/<int:sitio_id>/resenas/<int:resena_id>')
 @jwt_required
-def get_sitio_review(sitio_id, reseña_id):
+def get_sitio_review(sitio_id, resena_id):
     """Obtiene una reseña específica de un sitio."""
-   
     sitio = get_sitio_by_id(sitio_id)
-    if not ceck_permission('review_index', request.current_user_id):
+    if not check_permission('review_index', request.current_user_id):
         return jsonify(error="forbidden", message="No tienes permiso para ver reseñas"), 403
     if not sitio:
         return jsonify(error="not_found", message="Sitio no encontrado"), 404
     
     
-    reseña = obtener_reseña_por_id(reseña_id)
+    reseña = obtener_reseña_por_id(resena_id)
     if not reseña:
         return jsonify(error="not_found", message="Reseña no encontrada"), 404
     
@@ -125,9 +126,9 @@ def get_sitio_review(sitio_id, reseña_id):
 
 
 
-@bp.delete('/<int:sitio_id>/reseñas/<int:reseña_id>')
+@bp.delete('/<int:sitio_id>/resenas/<int:resena_id>')
 @jwt_required
-def delete_sitio_review(sitio_id, reseña_id):
+def delete_sitio_review(sitio_id, resena_id):
     """Elimina una reseña específica de un sitio."""
     user_id = request.current_user_id
     if not check_permission('review_destroy', user_id):
@@ -138,7 +139,7 @@ def delete_sitio_review(sitio_id, reseña_id):
         return jsonify(error="not_found", message="Sitio no encontrado"), 404
     
     
-    reseña = obtener_reseña_por_id(reseña_id)
+    reseña = obtener_reseña_por_id(resena_id)
     if not reseña:
         return jsonify(error="not_found", message="Reseña no encontrada"), 404
     
@@ -146,10 +147,10 @@ def delete_sitio_review(sitio_id, reseña_id):
     if reseña.sitio_id != sitio_id:
         return jsonify(error="not_found", message="Reseña no pertenece a este sitio"), 404
 
-    if not eliminar_reseña(reseña_id):
+    if not eliminar_reseña(resena_id):
         return jsonify(error="internal_error", message="Error al eliminar reseña"), 500
     
-return jsonify(message="Reseña eliminada exitosamente"), 200
+    return jsonify(message="Reseña eliminada exitosamente"), 200
 
 
 @bp.put('/<int:sitio_id>/favoritos')

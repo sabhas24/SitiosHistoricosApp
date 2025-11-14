@@ -51,7 +51,7 @@ class SitioCreateSchema(BaseSchema):
     )           
     latitud = fields.Float(required=True, validate=validate.Range(min=-90, max=90))
     longitud = fields.Float(required=True, validate=validate.Range(min=-180, max=180))
-    visible = fields.Bool(required=False, missing=False)
+    visible = fields.Bool(required=False, load_default=False)
     tags = fields.List(fields.Str(), required=False)
 
 

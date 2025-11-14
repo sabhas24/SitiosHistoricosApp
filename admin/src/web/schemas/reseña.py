@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields, validate
+from marshmallow import Schema, fields, validate, EXCLUDE
 
 class BaseSchema(Schema):
     """Schema base para ignorar campos extra."""

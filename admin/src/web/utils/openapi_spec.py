@@ -77,8 +77,18 @@ def get_schemas():
             "type": "object",
             "properties": {
                 "token": {"type": "string", "description": "Token JWT"},
-                "expires_in": {"type": "integer", "description": "Segundos hasta expiración"},
+                "expires_in": {"type": "integer", "description": "Tiempo de expiración en segundos"},
                 "user": {"$ref": "#/components/schemas/UserRead"}
+            },
+            "example": {
+                "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                "expires_in": 86400,
+                "user": {
+                    "id": 1,
+                    "email": "user@example.com",
+                    "name": "Juan",
+                    "last_name": "Pérez"
+                }
             }
         },
         "SitioCreate": {
@@ -282,7 +292,7 @@ def get_paths():
                 }
             }
         },
-        "/api/sitios/{sitio_id}/reseñas": {
+        "/api/sitios/{sitio_id}/resenas": {
             "post": {
                 "tags": ["Reseñas"],
                 "summary": "Crear una reseña",

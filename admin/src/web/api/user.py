@@ -22,7 +22,7 @@ def register_user():
         name=user_data["name"],
         last_name=user_data["last_name"],
         password=user_data["password"],
-        role=get_roleid_by_name("user")  
+        role=get_roleid_by_name("public_user") 
     )
     user_read = UserReadSchema().dump(user)
     return jsonify(user_read), 201
@@ -41,5 +41,5 @@ def login_user():
     
     user = user_show(login_data["email"])
     user_read = UserReadSchema().dump(user)
-    token, expires_in = generate_jwt_token(user.id)
-    return jsonify(token=token, expires_in=expires_in, user=user_read), 200
+    token = generate_jwt_token(user.id)
+    return jsonify(token=token, user=user_read), 200

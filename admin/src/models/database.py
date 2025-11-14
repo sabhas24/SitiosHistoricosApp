@@ -14,7 +14,12 @@ def reset_db():
     from src.models.auth.user import user
     from src.models.auth.role import Role
     from src.models.auth.permission import Permission
+    from src.models.auth.associations import role_permissions
     from src.models.sitios.sitio_historico import SitioHistorico
+    from src.models.tags.tag import Tag, sitio_tag  
+    from src.models.reseñas.reseña import Reseña
+    from src.models.favoritos.favoritos import Favorito
+    from src.models.propuestas.propuesta_sitio import PropuestaSitio
     from src.models.historial.historial import HistorialSitio
     from src.models.feature_flag.feature_flag import FeatureFlag
     print("⚠️ Resetting the database")

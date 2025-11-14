@@ -40,7 +40,7 @@ class Reseña(Base):
     # Moderación
     fecha_moderacion: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     usuario_moderador_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
-    mo  tivo_rechazo: Mapped[str] = mapped_column(String(200), nullable=True)  # Máx 200 caracteres
+    motivo_rechazo: Mapped[str] = mapped_column(String(200), nullable=True)  # Máx 200 caracteres
     
     # Relaciones
     sitio: Mapped["SitioHistorico"] = relationship("SitioHistorico", back_populates="reseñas")

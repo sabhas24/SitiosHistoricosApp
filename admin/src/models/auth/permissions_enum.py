@@ -14,7 +14,7 @@ class Permisos(Enum):
     SITE_DESTROY = "site_destroy"
     SITE_EXPORT = "site_export"
     SITE_SET_VISIBILITY = "site_set_visibility"
-    SITE_HISTORY = "site_history"
+    SITE_HISTORY = "site_history"  
     TAG_INDEX = "tag_index"
     TAG_NEW = "tag_new"
     TAG_UPDATE = "tag_update"
@@ -26,6 +26,9 @@ class Permisos(Enum):
     REVIEW_DESTROY = "review_destroy"
     FEATURE_FLAGS = "feature_flags"
     REPORT_VIEW = "report_view"
+    SITE_VIEW = "site_view"
+    REVIEW_CREATE = "review_create"  
+    FAVORITE_MANAGE = "favorite_manage"  
 
 
 _VALUES = {p.value for p in Permisos}

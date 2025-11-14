@@ -3,6 +3,7 @@ from src.web.config import config as app_config
 from src.models import database
 from flask_session import Session 
 from flask_swagger_ui import get_swaggerui_blueprint
+from flask_cors import CORS
 from src.web.controllers.auth import bp as auth_bp
 from src.web.controllers.sitios import bp as sitios_bp  # re-exported in controllers/sitios/__init__.py
 from src.web.controllers.tagsfolder.tags import bp as tags_bp
@@ -15,17 +16,27 @@ from src.web.controllers.reseñas import reseñas_bp
 from src.web.handlers.auth import is_authenticated, get_current_user, check_permission, check, get_session_info
 from src.web.api import api_bp  # Blueprint de la API REST
 
+
 def create_app(env="development", static_folder="../../static"):
     app = Flask(__name__, static_folder=static_folder)
 
     
     app.config.from_object(app_config[env])
 
+    # Configurar CORS primero, antes de cualquier cosa
+    CORS(app, resources={
+        r"/api/*": {
+            "origins": "*",
+            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"],
+            "expose_headers": ["Content-Type", "Authorization"]
+        }
+    })
+
     # Inicializar DB
     database.init_app(app)
 
     Session(app)
-
     # Middleware para verificar modo de mantenimiento
     @app.before_request
     def before_request():
@@ -47,8 +58,13 @@ def create_app(env="development", static_folder="../../static"):
         API_URL,
         config={
             'app_name': "API Sitios Históricos",
-            'defaultModelsExpandDepth': 3,
-            'defaultModelExpandDepth': 3
+            'deepLinking': True,
+            'displayRequestDuration': True,
+            'docExpansion': 'list',
+            'filter': True,
+            'showExtensions': True,
+            'showCommonExtensions': True,
+            'syntaxHighlight.theme': 'monokai'
         }
     )
     
