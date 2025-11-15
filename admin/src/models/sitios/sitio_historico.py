@@ -35,11 +35,9 @@ class SitioHistorico(Base):
     anio_inauguracion = Column(Integer, nullable=True)
     categoria = Column(Enum(Categoria), nullable=False)
     
-    # Campos para ranking
     calificacion_promedio = Column(Float, default=0.0, nullable=False)
     total_resenas = Column(Integer, default=0, nullable=False)
     
-    # Campos de control
     fecha_registro = Column(DateTime, default=func.now(), nullable=False)
     fecha_ultima_modificacion = Column(DateTime, default=func.now(), onupdate=func.now(), nullable=False)
     visible = Column(Boolean, default=False, nullable=False)
@@ -47,9 +45,20 @@ class SitioHistorico(Base):
     tags = relationship('Tag', secondary=sitio_tag, back_populates='sitios')
     reseñas = relationship('Reseña', back_populates='sitio', cascade='all, delete-orphan')
     favoritos = relationship('Favorito', back_populates='sitio', cascade='all, delete-orphan')
+    imagenes = relationship('ImagenSitio', back_populates='sitio', cascade='all, delete-orphan', order_by='ImagenSitio.orden')
     
     def __repr__(self):
         return f'<SitioHistorico {self.nombre}>'
+    
+    @property
+    def imagen_portada(self):
+        """Retorna la imagen marcada como portada"""
+        return next((img for img in self.imagenes if img.es_portada), None)
+    
+    @property
+    def puede_agregar_imagen(self):
+        """Verifica si se pueden agregar más imágenes (máximo 10)"""
+        return len(self.imagenes) < 10
     
     def to_dict(self):
         """Convierte el objeto a diccionario para JSON"""

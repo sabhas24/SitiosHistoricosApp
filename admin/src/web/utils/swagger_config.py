@@ -56,6 +56,30 @@ def register_schemas(spec):
     # Registrar schemas de reseñas
     spec.components.schema("ReseñaCreate", schema=ReseñaCreateSchema)
     spec.components.schema("ReseñaRead", schema=ReseñaReadSchema)
+    
+    # Esquemas adicionales para la API REST
+    spec.components.schema("Review", {
+        "type": "object",
+        "properties": {
+            "id": {"type": "integer", "description": "ID único de la reseña"},
+            "site_id": {"type": "integer", "description": "ID del sitio histórico"},
+            "rating": {"type": "integer", "minimum": 1, "maximum": 5, "description": "Calificación de 1 a 5"},
+            "comment": {"type": "string", "description": "Comentario de la reseña"},
+            "inserted_at": {"type": "string", "format": "date-time", "description": "Fecha de creación"},
+            "updated_at": {"type": "string", "format": "date-time", "description": "Fecha de actualización"}
+        },
+        "required": ["id", "site_id", "rating", "inserted_at", "updated_at"]
+    })
+    
+    spec.components.schema("PaginationMeta", {
+        "type": "object",
+        "properties": {
+            "page": {"type": "integer", "description": "Página actual"},
+            "per_page": {"type": "integer", "description": "Elementos por página"},
+            "total": {"type": "integer", "description": "Total de elementos"}
+        },
+        "required": ["page", "per_page", "total"]
+    })
 
 
 def get_swagger_json(spec):

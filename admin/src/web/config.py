@@ -24,10 +24,16 @@ class Config(object):
     JWT_SECRET_KEY = environ.get("JWT_SECRET_KEY", "cambiar-en-produccion")
     JWT_EXPIRATION= 3600 
 class DevelopmentConfig(Config):
-    MINIO_SERVER = "localhost:9000"
-    MINIO_ACCESS_KEY = "minioadmin"
-    MINIO_SECRET_KEY = "minioadmin"
+    # Configuración MinIO
+    MINIO_ENDPOINT = environ.get("MINIO_ENDPOINT", "192.168.100.219:9000")
+    MINIO_BUCKET_NAME = environ.get("MINIO_BUCKET_NAME", "grupo44")
+    MINIO_ACCESS_KEY = environ.get("MINIO_ACCESS_KEY", "minioadmin")
+    MINIO_SECRET_KEY = environ.get("MINIO_SECRET_KEY", "minioadmin")
     MINIO_SECURE = False
+    
+    # Legacy config
+    MINIO_SERVER = "localhost:9000"
+    
     DEBUG = True
     BD_USER = "postgres"
     BD_PASSWORD = "admin"

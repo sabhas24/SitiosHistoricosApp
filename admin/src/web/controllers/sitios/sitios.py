@@ -370,3 +370,114 @@ def exportar_csv():
     except Exception as e:
         flash(f'Error al exportar CSV: {str(e)}', 'error')
         return redirect(url_for('sitios.index'))
+
+
+# Rutas para gestión de imágenes
+@bp.route('/<int:sitio_id>/imagenes')
+@login_required
+@check('site_show')
+def gestionar_imagenes(sitio_id):
+    """Página de gestión de imágenes para un sitio"""
+    from src.models.sitios.imagen_services import obtener_imagenes_sitio
+    
+    sitio = sitio_show(sitio_id)
+    if not sitio:
+        flash('Sitio no encontrado', 'error')
+        return redirect(url_for('sitios.index'))
+    
+    imagenes = obtener_imagenes_sitio(sitio_id)
+    
+    return render_template('sitios/imagenes.html', sitio=sitio, imagenes=imagenes)
+
+
+@bp.route('/<int:sitio_id>/imagenes/agregar', methods=['POST'])
+@login_required
+@check('site_update')
+def agregar_imagen(sitio_id):
+    """Agregar una nueva imagen al sitio"""
+    from src.models.sitios.imagen_services import agregar_imagen_sitio
+    
+    if 'imagen' not in request.files:
+        flash('No se seleccionó archivo', 'error')
+        return redirect(url_for('sitios.gestionar_imagenes', sitio_id=sitio_id))
+    
+    file = request.files['imagen']
+    titulo_alt = request.form.get('titulo_alt', '').strip()
+    descripcion = request.form.get('descripcion', '').strip() or None
+    
+    if not titulo_alt:
+        flash('El título/alt es obligatorio', 'error')
+        return redirect(url_for('sitios.gestionar_imagenes', sitio_id=sitio_id))
+    
+    success, message = agregar_imagen_sitio(sitio_id, file, titulo_alt, descripcion)
+    
+    if success:
+        flash(message, 'success')
+    else:
+        flash(message, 'error')
+    
+    return redirect(url_for('sitios.gestionar_imagenes', sitio_id=sitio_id))
+
+
+@bp.route('/imagenes/<int:imagen_id>/portada', methods=['POST'])
+@login_required
+@check('site_update')
+def marcar_portada(imagen_id):
+    """Marcar imagen como portada"""
+    from src.models.sitios.imagen_services import marcar_como_portada
+    from src.models.sitios.imagen_sitio import ImagenSitio
+    
+    imagen = db.session.query(ImagenSitio).get(imagen_id)
+    if not imagen:
+        flash('Imagen no encontrada', 'error')
+        return redirect(url_for('sitios.index'))
+    
+    success, message = marcar_como_portada(imagen_id)
+    
+    if success:
+        flash(message, 'success')
+    else:
+        flash(message, 'error')
+    
+    return redirect(url_for('sitios.gestionar_imagenes', sitio_id=imagen.sitio_id))
+
+
+@bp.route('/imagenes/<int:imagen_id>/eliminar', methods=['POST'])
+@login_required
+@check('site_update')
+def eliminar_imagen(imagen_id):
+    """Eliminar una imagen"""
+    from src.models.sitios.imagen_services import eliminar_imagen
+    from src.models.sitios.imagen_sitio import ImagenSitio
+    
+    imagen = db.session.query(ImagenSitio).get(imagen_id)
+    if not imagen:
+        flash('Imagen no encontrada', 'error')
+        return redirect(url_for('sitios.index'))
+    
+    sitio_id = imagen.sitio_id
+    success, message = eliminar_imagen(imagen_id)
+    
+    if success:
+        flash(message, 'success')
+    else:
+        flash(message, 'error')
+    
+    return redirect(url_for('sitios.gestionar_imagenes', sitio_id=sitio_id))
+
+
+@bp.route('/<int:sitio_id>/imagenes/reordenar', methods=['POST'])
+@login_required
+@check('site_update')
+def reordenar_imagenes(sitio_id):
+    """Reordenar imágenes de un sitio"""
+    from src.models.sitios.imagen_services import reordenar_imagenes
+    
+    orden_ids = request.json.get('orden_ids', [])
+    
+    if not orden_ids:
+        return jsonify({'success': False, 'message': 'No se proporcionó orden'})
+    
+    success, message = reordenar_imagenes(sitio_id, orden_ids)
+    
+    return jsonify({'success': success, 'message': message})
