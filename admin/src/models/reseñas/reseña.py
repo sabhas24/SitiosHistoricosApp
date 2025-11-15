@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 from enum import Enum
-from sqlalchemy import DateTime, String, Text, Integer, ForeignKey, Column, func,event
+from sqlalchemy import DateTime, String, Text, Integer, ForeignKey, Column, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.models.database import Base, db
 from src.models.sitios.sitio_historico import SitioHistorico
@@ -67,25 +67,3 @@ class Reseña(Base):
         estrellas_llenas = "★" * self.calificacion
         estrellas_vacias = "☆" * (5 - self.calificacion)
         return estrellas_llenas + estrellas_vacias
-
-# Trigger para actualizar ranking del sitio automáticamente
-@event.listens_for(db.session, 'after_flush')
-def actualizar_ranking_after_flush(session, flush_context):
-    """Se ejecuta automáticamente después de cada flush (insert/update/delete)"""
-    from src.models.sitios.sitio_historico import SitioHistorico
-    sitios_afectados = set()
-    
-    for obj in session.new | session.dirty | session.deleted:
-        if isinstance(obj, Reseña):
-            sitios_afectados.add(obj.sitio_id)
-    
-    for sitio_id in sitios_afectados:
-        result = session.query(
-            func.avg(Reseña.calificacion).label('promedio'),
-            func.count(Reseña.id).label('total')
-        ).filter(Reseña.sitio_id == sitio_id).first()
-        
-        sitio = session.get(SitioHistorico, sitio_id)
-        if sitio:
-            sitio.calificacion_promedio = float(result.promedio or 0)
-            sitio.total_resenas = result.total or 0

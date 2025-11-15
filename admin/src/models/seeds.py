@@ -67,8 +67,46 @@ def _ensure_tables():
         with db.engine.begin() as conn:
             conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis"))
             conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis_topology"))
+            
+            # Crear trigger para actualizar ranking de sitios
+            conn.execute(text("""
+                -- Función que actualiza el ranking de un sitio
+                CREATE OR REPLACE FUNCTION actualizar_ranking_sitio()
+                RETURNS TRIGGER AS $$
+                BEGIN
+                    UPDATE sitios_historicos
+                    SET 
+                        calificacion_promedio = COALESCE((
+                            SELECT AVG(calificacion)
+                            FROM reseñas
+                            WHERE sitio_id = COALESCE(NEW.sitio_id, OLD.sitio_id)
+                              AND estado = 'APROBADA'
+                        ), 0),
+                        total_resenas = COALESCE((
+                            SELECT COUNT(*)
+                            FROM reseñas
+                            WHERE sitio_id = COALESCE(NEW.sitio_id, OLD.sitio_id)
+                              AND estado = 'APROBADA'
+                        ), 0)
+                    WHERE id = COALESCE(NEW.sitio_id, OLD.sitio_id);
+                    
+                    RETURN COALESCE(NEW, OLD);
+                END;
+                $$ LANGUAGE plpgsql;
+                
+                -- Eliminar trigger si existe
+                DROP TRIGGER IF EXISTS trigger_actualizar_ranking ON reseñas;
+                
+                -- Crear trigger para INSERT, UPDATE y DELETE
+                CREATE TRIGGER trigger_actualizar_ranking
+                AFTER INSERT OR UPDATE OR DELETE ON reseñas
+                FOR EACH ROW
+                EXECUTE FUNCTION actualizar_ranking_sitio();
+            """))
+            
+            print("✅ Trigger de ranking creado correctamente")
     except Exception as e:
-        print(f"⚠️  No se pudo crear la extensión PostGIS: {e}")
+        print(f"⚠️  No se pudo crear la extensión PostGIS o trigger: {e}")
 
     inspector = inspect(db.engine)
     tables = set(inspector.get_table_names())
