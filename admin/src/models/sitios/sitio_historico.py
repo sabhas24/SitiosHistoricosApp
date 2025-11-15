@@ -71,25 +71,3 @@ class SitioHistorico(Base):
             'tags': [tag.nombre for tag in self.tags]
         }
 
-#simula un trigger de base de datos para actualizar el ranking 
-def actualizar_ranking_after_flush(session, flush_context):
-    """Se ejecuta automáticamente después de cada flush (insert/update/delete)"""
-    from src.models.reseñas.reseña import Reseña
-    
-   
-    sitios_afectados = set()
-    
-    for obj in session.new | session.dirty | session.deleted:
-        if isinstance(obj, Reseña):
-            sitios_afectados.add(obj.sitio_id)
-    
-    for sitio_id in sitios_afectados:
-        result = session.query(
-            func.avg(Reseña.calificacion).label('promedio'),
-            func.count(Reseña.id).label('total')
-        ).filter(Reseña.sitio_id == sitio_id).first()
-        
-        sitio = session.get(SitioHistorico, sitio_id)
-        if sitio:
-            sitio.calificacion_promedio = float(result.promedio or 0)
-            sitio.total_resenas = result.total or 0

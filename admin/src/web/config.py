@@ -4,6 +4,7 @@ from datetime import timedelta
 
 
 class Config(object):
+    CORS_ORIGINS = ["*"]
     SECRET_KEY = "c413c4db1b08e3ef4e296c8d9643d378"
     SESSION_TYPE="filesystem"
     SESSION_PERMANENT = False
@@ -41,6 +42,7 @@ class DevelopmentConfig(Config):
 
 
 class ProductionConfig(Config):
+    CORS_ORIGINS = ["https://grupo44.proyecto2025.linti.unlp.edu.ar/"]
     SQLALCHEMY_ENGINES = {"default": environ.get("DATABASE_URL")}
     DEBUG = False
     
