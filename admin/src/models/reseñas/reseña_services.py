@@ -12,9 +12,7 @@ def obtener_reseñas(page=1, per_page=25, filters=None):
         joinedload(Reseña.usuario_moderador)
     )
     
-    # Aplicar filtros si existen
     if filters:
-        # Filtro por estado
         if filters.get('estado'):
             try:
                 estado_enum = EstadoReseña(filters['estado'])
@@ -22,7 +20,6 @@ def obtener_reseñas(page=1, per_page=25, filters=None):
             except ValueError:
                 pass
         
-        # Filtro por calificación
         if filters.get('calificacion'):
             try:
                 calificacion = int(filters['calificacion'])
@@ -30,17 +27,16 @@ def obtener_reseñas(page=1, per_page=25, filters=None):
                     query = query.filter(Reseña.calificacion == calificacion)
             except (ValueError, TypeError):
                 pass
-        
-        # Filtro por sitio
+
         if filters.get('sitio'):
-            query = query.join(Reseña.sitio).filter(
+            from src.models.sitios.sitio_historico import SitioHistorico
+            query = query.join(SitioHistorico).filter(
                 or_(
-                    Reseña.sitio.has(nombre__ilike=f"%{filters['sitio']}%"),
-                    Reseña.sitio.has(ciudad__ilike=f"%{filters['sitio']}%")
+                    SitioHistorico.nombre.ilike(f"%{filters['sitio']}%"),
+                    SitioHistorico.ciudad.ilike(f"%{filters['sitio']}%")
                 )
             )
         
-        # Filtro por usuario
         if filters.get('usuario'):
             query = query.filter(
                 or_(
@@ -49,7 +45,6 @@ def obtener_reseñas(page=1, per_page=25, filters=None):
                 )
             )
         
-        # Filtro por rango de fechas
         if filters.get('fecha_desde'):
             try:
                 fecha_desde = datetime.strptime(filters['fecha_desde'], '%Y-%m-%d')
@@ -65,19 +60,24 @@ def obtener_reseñas(page=1, per_page=25, filters=None):
             except ValueError:
                 pass
     
-    # Orden por fecha de creación (más reciente primero)
-    query = query.order_by(Reseña.fecha_creacion.desc())
+    orden_campo = filters.get('orden_campo', 'fecha') if filters else 'fecha'
+    orden_direccion = filters.get('orden_direccion', 'desc') if filters else 'desc'
     
-    # Calcular offset
+    if orden_campo == 'calificacion':
+        if orden_direccion == 'asc':
+            query = query.order_by(Reseña.calificacion.asc())
+        else:
+            query = query.order_by(Reseña.calificacion.desc())
+    else:  
+        if orden_direccion == 'asc':
+            query = query.order_by(Reseña.fecha_creacion.asc())
+        else:
+            query = query.order_by(Reseña.fecha_creacion.desc())
+    
+    #paginacion
     offset = (page - 1) * per_page
-    
-    # Obtener total de registros
     total = query.count()
-    
-    # Obtener registros paginados
     reseñas = query.offset(offset).limit(per_page).all()
-    
-    # Calcular información de paginación
     total_pages = (total + per_page - 1) // per_page if total > 0 else 1
     has_prev = page > 1
     has_next = page < total_pages
@@ -97,18 +97,22 @@ def obtener_reseñas(page=1, per_page=25, filters=None):
 
 
 def obtener_reseña_por_id(reseña_id):
-    """Obtener una reseña específica por ID"""
     return db.session.query(Reseña).options(
         joinedload(Reseña.sitio),
         joinedload(Reseña.usuario_moderador)
     ).filter(Reseña.id == reseña_id).first()
 
 def obtener_reseñas_por_sitio(sitio_id, page=1, per_page=25):
-    """Obtener reseñas de un sitio específico con paginación"""
+    """Obtiene reseñas APROBADAS de un sitio (para API pública)"""
     query = db.session.query(Reseña).options(
         joinedload(Reseña.sitio),
         joinedload(Reseña.usuario_moderador)
-    ).filter(Reseña.sitio_id == sitio_id)
+    ).filter(
+        and_(
+            Reseña.sitio_id == sitio_id,
+            Reseña.estado == EstadoReseña.APROBADA  # Solo reseñas aprobadas
+        )
+    )
     
     query = query.order_by(Reseña.fecha_creacion.desc())
     offset = (page - 1) * per_page
@@ -128,7 +132,6 @@ def obtener_reseñas_por_sitio(sitio_id, page=1, per_page=25):
         'has_next': has_next,
     }
 def aprobar_reseña(reseña_id, usuario_moderador_id):
-    """Aprobar una reseña"""
     reseña = obtener_reseña_por_id(reseña_id)
     
     if not reseña or not reseña.puede_ser_moderada:
@@ -138,15 +141,15 @@ def aprobar_reseña(reseña_id, usuario_moderador_id):
         reseña.estado = EstadoReseña.APROBADA
         reseña.fecha_moderacion = datetime.now(timezone.utc)
         reseña.usuario_moderador_id = usuario_moderador_id
-        reseña.motivo_rechazo = None  # type: ignore[assignment]  # Limpiar motivo de rechazo si existía
+        reseña.motivo_rechazo = None 
 
         db.session.commit()
         return True, "Reseña aprobada exitosamente"
     except Exception as e:
         db.session.rollback()
         return False, f"Error al aprobar reseña: {str(e)}"
+    
 def create_reseña( comentario, calificacion, sitio_id, email_usuario, nombre_usuario):
-    """Crear una nueva reseña"""
     reseña = Reseña(
         comentario=comentario,
         calificacion=calificacion,
@@ -160,7 +163,6 @@ def create_reseña( comentario, calificacion, sitio_id, email_usuario, nombre_us
     
     return reseña
 def rechazar_reseña(reseña_id, usuario_moderador_id, motivo_rechazo):
-    """Rechazar una reseña con motivo"""
     reseña = obtener_reseña_por_id(reseña_id)
     
     if not reseña or not reseña.puede_ser_moderada:
@@ -181,7 +183,6 @@ def rechazar_reseña(reseña_id, usuario_moderador_id, motivo_rechazo):
         return False, f"Error al rechazar reseña: {str(e)}"
 
 def eliminar_reseña(reseña_id):  
-    """Eliminar una reseña por ID"""
     reseña = obtener_reseña_por_id(reseña_id)
     
     if not reseña:
@@ -194,8 +195,8 @@ def eliminar_reseña(reseña_id):
     except Exception as e:
         db.session.rollback()
         return False, f"Error al eliminar reseña: {str(e)}"
+    
 def obtener_estadisticas_reseñas():
-    """Obtener estadísticas básicas de reseñas"""
     total = db.session.query(Reseña).count()
     pendientes = db.session.query(Reseña).filter(
         Reseña.estado == EstadoReseña.PENDIENTE
@@ -206,8 +207,7 @@ def obtener_estadisticas_reseñas():
     rechazadas = db.session.query(Reseña).filter(
         Reseña.estado == EstadoReseña.RECHAZADA
     ).count()
-    
-    # Promedio de calificaciones aprobadas
+
     from sqlalchemy import func
     promedio_calificacion = db.session.query(
         func.avg(Reseña.calificacion)
@@ -223,8 +223,6 @@ def obtener_estadisticas_reseñas():
 
 
 def crear_reseña_ejemplo():
-    """Crear una reseña de ejemplo para testing"""
-    # Obtener el primer sitio disponible
     from src.models.sitios.sitio_historico import SitioHistorico
     sitio = db.session.query(SitioHistorico).first()
     
@@ -232,8 +230,8 @@ def crear_reseña_ejemplo():
         return None
     
     reseña = Reseña(
-        comentario="Visité este lugar y quedé impresionado por su historia y conservación. Muy recomendable para aprender sobre nuestro patrimonio.",
-        calificacion=5,
+        comentario="no me gusto.",
+        calificacion=2,
         sitio_id=sitio.id,
         email_usuario="visitante@example.com",
         nombre_usuario="María García"

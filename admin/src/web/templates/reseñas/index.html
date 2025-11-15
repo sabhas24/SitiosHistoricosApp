@@ -5,7 +5,9 @@
 {% endblock %}
 
 {% block content %}
-{% if not check_permission('review_moderate') %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/propuestas-reseñas.css') }}">
+
+{% if not check_permission('review_index') %}
     <div class="alert alert-danger">
         <i class="fas fa-lock"></i> No tienes permisos para moderar reseñas.
     </div>
@@ -136,6 +138,24 @@
                     </div>
                 </div>
                 
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="orden_campo" class="form-label">Ordenar por:</label>
+                        <select name="orden_campo" id="orden_campo" class="form-select">
+                            <option value="fecha" {{ 'selected' if filtros.orden_campo == 'fecha' or not filtros.orden_campo }}>Fecha de creación</option>
+                            <option value="calificacion" {{ 'selected' if filtros.orden_campo == 'calificacion' }}>Calificación</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="orden_direccion" class="form-label">Dirección:</label>
+                        <select name="orden_direccion" id="orden_direccion" class="form-select">
+                            <option value="desc" {{ 'selected' if filtros.orden_direccion == 'desc' or not filtros.orden_direccion }}>Descendente</option>
+                            <option value="asc" {{ 'selected' if filtros.orden_direccion == 'asc' }}>Ascendente</option>
+                        </select>
+                    </div>
+                </div>
+                
                 <div class="form-actions">
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-filter"></i> Filtrar
@@ -163,7 +183,7 @@
                         <div class="reseña-card">
                             <div class="reseña-header">
                                 <div class="reseña-info">
-                                    <h5 class="reseña-titulo">{{ reseña.titulo }}</h5>
+                                    <h5 class="reseña-titulo">Reseña de {{ reseña.sitio.nombre }}</h5>
                                     <div class="reseña-meta">
                                         <span class="reseña-sitio">
                                             <i class="fas fa-landmark"></i>
@@ -238,7 +258,8 @@
                             {% if reseñas_data.has_prev %}
                                 <a href="{{ url_for('reseñas.index', page=reseñas_data.prev_num, 
                                                   estado=filtros.estado, calificacion=filtros.calificacion, sitio=filtros.sitio,
-                                                  usuario=filtros.usuario, fecha_desde=filtros.fecha_desde, fecha_hasta=filtros.fecha_hasta) }}" 
+                                                  usuario=filtros.usuario, fecha_desde=filtros.fecha_desde, fecha_hasta=filtros.fecha_hasta,
+                                                  orden_campo=filtros.orden_campo, orden_direccion=filtros.orden_direccion) }}" 
                                    class="pagination-btn pagination-prev">
                                     <i class="fas fa-chevron-left"></i> Anterior
                                 </a>
@@ -249,7 +270,8 @@
                                     {% if page_num != reseñas_data.page %}
                                         <a href="{{ url_for('reseñas.index', page=page_num, 
                                                           estado=filtros.estado, calificacion=filtros.calificacion, sitio=filtros.sitio,
-                                                          usuario=filtros.usuario, fecha_desde=filtros.fecha_desde, fecha_hasta=filtros.fecha_hasta) }}" 
+                                                          usuario=filtros.usuario, fecha_desde=filtros.fecha_desde, fecha_hasta=filtros.fecha_hasta,
+                                                          orden_campo=filtros.orden_campo, orden_direccion=filtros.orden_direccion) }}" 
                                            class="pagination-btn">
                                             {{ page_num }}
                                         </a>
@@ -262,7 +284,8 @@
                             {% if reseñas_data.has_next %}
                                 <a href="{{ url_for('reseñas.index', page=reseñas_data.next_num, 
                                                   estado=filtros.estado, calificacion=filtros.calificacion, sitio=filtros.sitio,
-                                                  usuario=filtros.usuario, fecha_desde=filtros.fecha_desde, fecha_hasta=filtros.fecha_hasta) }}" 
+                                                  usuario=filtros.usuario, fecha_desde=filtros.fecha_desde, fecha_hasta=filtros.fecha_hasta,
+                                                  orden_campo=filtros.orden_campo, orden_direccion=filtros.orden_direccion) }}" 
                                    class="pagination-btn pagination-next">
                                     Siguiente <i class="fas fa-chevron-right"></i>
                                 </a>
