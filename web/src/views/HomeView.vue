@@ -49,11 +49,9 @@ import NavigationBar from '../components/NavigationBar.vue'
 import HeroSection from '../components/HeroSection.vue'
 import FeaturedSection from '../components/FeaturedSection.vue'
 
-// ESTADO AUTENTICACION MOCK
 const isAuthenticated = ref(false)
 
 onMounted(() => {
-  //VERIFICAR AUTENTICACION REAL CUANDO ESTE LA API, POR DEFECTO USUARIO NO AUTENTICADO
   isAuthenticated.value = false
 })
 </script>
