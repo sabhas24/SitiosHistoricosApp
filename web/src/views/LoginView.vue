@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
-import axios from 'axios'
+import api from '../config/api'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -17,11 +17,9 @@ async function handleLogin() {
   loading.value = true
   
   try {
-    const response = await axios.post('http://localhost:5000/api/user/login', {
+    const response = await api.post('/user/login', {
       email: email.value,
       password: password.value
-    }, {
-      withCredentials: true
     })
     authStore.setUser(response.data.user)
     router.push('/')
@@ -33,7 +31,7 @@ async function handleLogin() {
 }
 
 function handleGoogleLogin() {
-  window.location.href = 'http://localhost:5000/api/user/login/google'
+  window.location.href = `${api.defaults.baseURL}/user/login/google`
 }
 </script>
 

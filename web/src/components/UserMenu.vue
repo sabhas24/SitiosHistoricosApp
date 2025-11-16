@@ -53,6 +53,8 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
+import api from '../config/api'
+
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -72,7 +74,12 @@ const closeDropdown = () => {
   }, 200)
 }
 
-const handleLogout = () => {
+const handleLogout = async () => {
+  try {
+    await api.post('/user/logout', {}, { withCredentials: true })
+  } catch (e) {
+    println(e)
+  }
   authStore.clearUser()
   router.push('/login')
 }
