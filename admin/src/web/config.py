@@ -4,7 +4,12 @@ from datetime import timedelta
 
 
 class Config(object):
+    GOOGLE_CLIENT_ID = environ.get("GOOGLE_CLIENT_ID")
+    GOOGLE_CLIENT_SECRET = environ.get("GOOGLE_CLIENT_SECRET")
+    GOOGLE_DISCOVERY_URL = "https://accounts.google.com/.well-known/openid-configuration"
+    
     CORS_ORIGINS = ["*"]
+
     SECRET_KEY = "c413c4db1b08e3ef4e296c8d9643d378"
     SESSION_TYPE="filesystem"
     SESSION_PERMANENT = False
@@ -12,7 +17,7 @@ class Config(object):
     PERMANENT_SESSION_LIFETIME = timedelta(hours=2)
     SESSION_COOKIE_SECURE = False
     SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_SAMESITE = 'Lax'  
+    SESSION_COOKIE_SAMESITE = None  
     
     SQLALCHEMY_ENGINE_OPTIONS = {
         "poll_size": 10,
@@ -21,8 +26,13 @@ class Config(object):
     }
     DEBUG = False
     TESTING = False
+
     JWT_SECRET_KEY = environ.get("JWT_SECRET_KEY", "cambiar-en-produccion")
-    JWT_EXPIRATION= 3600 
+    JWT_TOKEN_LOCATION= ["cookies"]
+    JWT_COOKIE_SECURE= False
+    JWT_COOKIE_CSRF_PROTECT= False
+    JWT_ACCESS_TOKEN_EXPIRES= timedelta(hours=1)
+    JWT_COOKIE_SAMESITE= 'Lax'
 class DevelopmentConfig(Config):
     MINIO_SERVER = "localhost:9000"
     MINIO_ACCESS_KEY = "minioadmin"

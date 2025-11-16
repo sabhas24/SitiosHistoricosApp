@@ -237,7 +237,6 @@ def crear_sitios_ejemplo():
     """Crear sitios históricos de ejemplo para testing"""
     from src.models.sitios.sitio_historico import SitioHistorico, EstadoConservacion, Categoria
     from src.models.tags.tag import Tag
-    
     # Verificar si ya existen sitios
     if db.session.query(SitioHistorico).count() > 0:
         print("⏭️  Ya existen sitios históricos")
