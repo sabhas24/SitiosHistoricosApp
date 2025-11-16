@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import {ref,computed} from "vue";
-
+import api from "../config/api"
 export const useAuthStore = defineStore("auth", () => {
     const user = ref(null);
     const isAuthenticated = ref(false);
@@ -22,20 +22,21 @@ export const useAuthStore = defineStore("auth", () => {
         localStorage.removeItem('user');
         localStorage.removeItem('isAuthenticated');
     }
+    async function checkSession() {
+        loading.value = true;
+        try {
+            const response=await api.get('/me/');
+            setUser(response.data);
 
-    function loadUserFromStorage() {
-        const storedUser = localStorage.getItem('user');
-        const storedAuth = localStorage.getItem('isAuthenticated');
-        
-        if (storedUser && storedAuth === 'true') {
-            user.value = JSON.parse(storedUser);
-            isAuthenticated.value = true;
-        }
-    }
-
+            return true;
+         } catch (error) {
+            clearUser();
+            return false;
+         }finally {
+            loading.value = false;
+         }
     
-    loadUserFromStorage();
-   
+    }
     return {
         user,
         isAuthenticated,
@@ -44,6 +45,7 @@ export const useAuthStore = defineStore("auth", () => {
         userEmail,
         setUser,
         clearUser,
-        loadUserFromStorage
+        checkSession
+        
     }
 })

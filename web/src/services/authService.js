@@ -10,6 +10,7 @@ export const authService ={
         const response = await api.get('/user/login/google');
         return response.data;
     },
+    //modificar
     async register(name, email, password) {
         const response = await api.post('/user/register', { name, email, password });
         return response.data;
@@ -19,7 +20,7 @@ export const authService ={
         return response.data;
     },
     async getCurrentUser() {
-        const response = await api.get('/user/user');
+        const response = await api.get('/me');
         return response.data;
     },
     redirectToGoogleLogin() {
