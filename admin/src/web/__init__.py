@@ -14,8 +14,11 @@ from src.web.controllers.perfil.profile import bp as profile_bp
 from src.web.controllers.propuestas import propuestas_bp
 from src.web.controllers.reseñas import reseñas_bp
 from src.web.handlers.auth import is_authenticated, get_current_user, check_permission, check, get_session_info
-from src.web.api import api_bp  # Blueprint de la API REST
-
+from src.web.api import api_bp
+from authlib.integrations.flask_client import OAuth
+from dotenv import load_dotenv
+from os import environ
+from flask_jwt_extended import JWTManager
 
 def create_app(env="development", static_folder="../../static"):
     app = Flask(__name__, static_folder=static_folder)
@@ -23,20 +26,41 @@ def create_app(env="development", static_folder="../../static"):
     
     app.config.from_object(app_config[env])
 
-    # Configurar CORS primero, antes de cualquier cosa
+    # Configurar CORS
     CORS(app, resources={
         r"/api/*": {
-            "origins": "*",
+            "origins": "http://localhost:*",
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
-            "expose_headers": ["Content-Type", "Authorization"]
+            "expose_headers": ["Content-Type", "Authorization"],
+            "supports_credentials": True
         }
     })
 
     # Inicializar DB
-    database.init_app(app)
-
+    database.init_app(app)  
+    
+    # Cargar variables de entorno
+    load_dotenv()
+    
+    # Inicializar OAuth
+    CONF_URL = 'https://accounts.google.com/.well-known/openid-configuration'
+    oauth = OAuth(app)
+    oauth.register(
+        name='google',
+        client_id=environ.get("GOOGLE_CLIENT_ID"),
+        client_secret=environ.get("GOOGLE_CLIENT_SECRET"),
+        server_metadata_url=CONF_URL,
+        client_kwargs={
+            'scope': 'openid email profile',
+        }
+    )
+    # Inicializar JWT
+    jwt=JWTManager(app)
+    
+    # Inicializar sesión
     Session(app)
+
     # Middleware para verificar modo de mantenimiento
     @app.before_request
     def before_request():
