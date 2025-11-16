@@ -103,7 +103,30 @@ def obtener_reseña_por_id(reseña_id):
         joinedload(Reseña.usuario_moderador)
     ).filter(Reseña.id == reseña_id).first()
 
-
+def obtener_reseñas_por_sitio(sitio_id, page=1, per_page=25):
+    """Obtener reseñas de un sitio específico con paginación"""
+    query = db.session.query(Reseña).options(
+        joinedload(Reseña.sitio),
+        joinedload(Reseña.usuario_moderador)
+    ).filter(Reseña.sitio_id == sitio_id)
+    
+    query = query.order_by(Reseña.fecha_creacion.desc())
+    offset = (page - 1) * per_page
+    total = query.count()
+    
+    reseñas = query.offset(offset).limit(per_page).all()
+    total_pages = (total + per_page - 1) // per_page if total > 0 else 1
+    has_prev = page > 1
+    has_next = page < total_pages
+    return {
+        'reseñas': reseñas,
+        'total': total,
+        'page': page,
+        'per_page': per_page,
+        'pages': total_pages,
+        'has_prev': has_prev,
+        'has_next': has_next,
+    }
 def aprobar_reseña(reseña_id, usuario_moderador_id):
     """Aprobar una reseña"""
     reseña = obtener_reseña_por_id(reseña_id)
@@ -122,8 +145,20 @@ def aprobar_reseña(reseña_id, usuario_moderador_id):
     except Exception as e:
         db.session.rollback()
         return False, f"Error al aprobar reseña: {str(e)}"
-
-
+def create_reseña( comentario, calificacion, sitio_id, email_usuario, nombre_usuario):
+    """Crear una nueva reseña"""
+    reseña = Reseña(
+        comentario=comentario,
+        calificacion=calificacion,
+        sitio_id=sitio_id,
+        email_usuario=email_usuario,
+        nombre_usuario=nombre_usuario
+    )
+    
+    db.session.add(reseña)
+    db.session.commit()
+    
+    return reseña
 def rechazar_reseña(reseña_id, usuario_moderador_id, motivo_rechazo):
     """Rechazar una reseña con motivo"""
     reseña = obtener_reseña_por_id(reseña_id)
@@ -145,7 +180,20 @@ def rechazar_reseña(reseña_id, usuario_moderador_id, motivo_rechazo):
         db.session.rollback()
         return False, f"Error al rechazar reseña: {str(e)}"
 
-
+def eliminar_reseña(reseña_id):  
+    """Eliminar una reseña por ID"""
+    reseña = obtener_reseña_por_id(reseña_id)
+    
+    if not reseña:
+        return False, "Reseña no encontrada"
+    
+    try:
+        db.session.delete(reseña)
+        db.session.commit()
+        return True, "Reseña eliminada exitosamente"
+    except Exception as e:
+        db.session.rollback()
+        return False, f"Error al eliminar reseña: {str(e)}"
 def obtener_estadisticas_reseñas():
     """Obtener estadísticas básicas de reseñas"""
     total = db.session.query(Reseña).count()
@@ -184,13 +232,13 @@ def crear_reseña_ejemplo():
         return None
     
     reseña = Reseña(
-        titulo="Excelente sitio histórico",
         comentario="Visité este lugar y quedé impresionado por su historia y conservación. Muy recomendable para aprender sobre nuestro patrimonio.",
         calificacion=5,
         sitio_id=sitio.id,
         email_usuario="visitante@example.com",
         nombre_usuario="María García"
     )
+
     
     db.session.add(reseña)
     db.session.commit()
