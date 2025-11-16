@@ -46,7 +46,7 @@ def login_user():
         return jsonify(error="invalid_credentials", message="Correo o contraseña incorrectos"), 401
     
     user = user_show(login_data["email"])
-    access_token = create_access_token(identity=user.id)
+    access_token = create_access_token(identity=str(user.id))
     user_data = UserReadSchema().dump(user)
     
     response = jsonify({
@@ -91,7 +91,8 @@ def login_callback():
         else:
             user = user_show(email)
 
-        access_token = create_access_token(identity=user.id)
+        access_token = create_access_token(identity=str(user.id))
+        print(access_token)
         frontend_url = "http://localhost:5173/"
         response = make_response(redirect(frontend_url))
         set_access_cookies(response, access_token)

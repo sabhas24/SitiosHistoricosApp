@@ -26,18 +26,19 @@ def create_app(env="development", static_folder="../../static"):
     
     app.config.from_object(app_config[env])
 
-    # Configurar CORS 
+    # Configurar CORS
     CORS(app, resources={
         r"/api/*": {
-            "origins": "*",
+            "origins": "http://localhost:5173",
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
-            "expose_headers": ["Content-Type", "Authorization"]
+            "expose_headers": ["Content-Type", "Authorization"],
+            "supports_credentials": True
         }
     })
 
     # Inicializar DB
-    database.init_app(app)
+    database.init_app(app)  
     
     # Cargar variables de entorno
     load_dotenv()

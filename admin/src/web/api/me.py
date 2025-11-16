@@ -10,15 +10,19 @@ bp = Blueprint('me_api', __name__, url_prefix='/api/me')
 @jwt_required()
 def get_current_user():
     """Obtener información del usuario actual desde el JWT."""
-    user_id = get_jwt_identity()
+    try:
+        user_id = get_jwt_identity()
     
-    user = user_show_id(user_id)
+        user = user_show_id(user_id)
     
-    if not user:
-        return jsonify(error="user_not_found"), 404
+        if not user:
+            return jsonify(error="user_not_found"), 404
     
-    user_data = UserReadSchema().dump(user)
-    return jsonify(user_data), 200
+        user_data = UserReadSchema().dump(user)
+        return jsonify(user_data), 200
+    except Exception as e:
+        return jsonify(error="internal_error", message=f"Error al obtener información del usuario: {str(e)}"), 500
+    
 
 @bp.get('/favoritos')
 @jwt_required()
