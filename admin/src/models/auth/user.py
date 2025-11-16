@@ -23,7 +23,7 @@ class user(Base):
         default=lambda:datetime.now(timezone.utc),
         onupdate=lambda:datetime.now(timezone.utc)
     )
-    favoritos = relationship('Favorito', back_populates='usuario', cascade='all, delete-orphan')
+
 
     def __repr__(self):
         return f'<User {self.email}, {self.name}, {self.last_name} >'

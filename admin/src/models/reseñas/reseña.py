@@ -1,8 +1,8 @@
 from datetime import datetime, timezone
 from enum import Enum
-from sqlalchemy import DateTime, String, Text, Integer, ForeignKey, Column, func
+from sqlalchemy import DateTime, String, Text, Integer, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from src.models.database import Base, db
+from src.models.database import Base
 from src.models.sitios.sitio_historico import SitioHistorico
 from src.models.auth.user import user
 
@@ -20,6 +20,7 @@ class Reseña(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     
     # Información de la reseña
+    titulo: Mapped[str] = mapped_column(String(200), nullable=False)
     comentario: Mapped[str] = mapped_column(Text, nullable=False)
     calificacion: Mapped[int] = mapped_column(Integer, nullable=False)  # 1-5 estrellas
     
@@ -40,14 +41,14 @@ class Reseña(Base):
     # Moderación
     fecha_moderacion: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     usuario_moderador_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=True)
-    motivo_rechazo: Mapped[str] = mapped_column(String(200), nullable=True)  # Máx 200 caracteres
+    motivo_rechazo: Mapped[str] = mapped_column(Text, nullable=True)
     
     # Relaciones
     sitio: Mapped["SitioHistorico"] = relationship("SitioHistorico", back_populates="reseñas")
     usuario_moderador: Mapped["user"] = relationship("user", foreign_keys=[usuario_moderador_id])
     
     def __repr__(self):
-        return f'<Reseña id={self.id} - {self.estado.value}>'
+        return f'<Reseña {self.titulo} - {self.estado.value}>'
 
     @property
     def puede_ser_moderada(self):
