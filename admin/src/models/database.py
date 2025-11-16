@@ -8,8 +8,6 @@ class Base(DeclarativeBase):
 
 def init_app(app):
     db.init_app(app)
-    with app.app_context():
-        reset_db()
     return db
 
 def reset_db():
