@@ -33,6 +33,10 @@ async function handleLogin() {
 function handleGoogleLogin() {
   window.location.href = `${api.defaults.baseURL}/user/login/google`
 }
+
+function handleCancel() {
+  router.push('/')
+}
 </script>
 
 <template>
@@ -83,6 +87,10 @@ function handleGoogleLogin() {
       <p class="register-link">
         ¿No tenés cuenta? <router-link to="/register">Registrate</router-link>
       </p>
+
+      <button @click="handleCancel" class="btn-cancel">
+        Cancelar
+      </button>
     </div>
   </div>
 </template>
@@ -227,5 +235,23 @@ input:focus {
 .register-link a {
   color: #667eea;
   font-weight: 600;
+}
+
+.btn-cancel {
+  width: 100%;
+  padding: 12px;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 16px;
+}
+
+.btn-cancel:hover {
+  background: #e5e7eb;
+  border-color: #9ca3af;
 }
 </style>
