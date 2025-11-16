@@ -4,7 +4,7 @@ from src.web.schemas.user import UserCreateSchema, UserReadSchema, UserLoginSche
 from src.models.auth import email_exists, user_new, user_check_password, user_show
 from src.models.auth.role import Role
 from src.models.database import db
-from flask_jwt_extended import create_access_token, set_access_cookies
+from flask_jwt_extended import create_access_token, set_access_cookies, unset_jwt_cookies
 import secrets
 
 bp = Blueprint('user_api', __name__, url_prefix='/api/user')
@@ -92,8 +92,8 @@ def login_callback():
             user = user_show(email)
 
         access_token = create_access_token(identity=str(user.id))
-        print(access_token)
-        frontend_url = "http://localhost:5173/"
+        
+        frontend_url = "http://localhost:5173/login-success"
         response = make_response(redirect(frontend_url))
         set_access_cookies(response, access_token)
         
@@ -101,3 +101,12 @@ def login_callback():
         
     except Exception as e:
         return jsonify(error="oauth_error", message=str(e)), 400
+@bp.post('/logout')
+def logout_user():
+    """Cerrar sesión del usuario."""
+    try:
+        response = make_response(jsonify(message="Logout exitoso"))
+        unset_jwt_cookies(response)
+        return response, 200
+    except Exception as e:
+        return jsonify(error="logout_error", message=str(e)), 400

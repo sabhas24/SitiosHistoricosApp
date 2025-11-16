@@ -29,7 +29,7 @@ def create_app(env="development", static_folder="../../static"):
     # Configurar CORS
     CORS(app, resources={
         r"/api/*": {
-            "origins": "http://localhost:5173",
+            "origins": "http://localhost:*",
             "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
             "allow_headers": ["Content-Type", "Authorization"],
             "expose_headers": ["Content-Type", "Authorization"],
