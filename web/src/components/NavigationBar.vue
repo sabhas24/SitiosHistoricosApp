@@ -1,25 +1,24 @@
 <template>
-  <nav class="main-navigation" :class="{ 'nav-transparent': transparent }">
-    <div class="nav-container">
+  <nav :class="[transparent ? 'bg-white/80 backdrop-blur-sm border-b border-gray-200' : 'bg-white border-b border-gray-200', 'sticky top-0 z-50']">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
       <div class="nav-brand">
         <RouterLink to="/" class="brand-link">
           <span class="brand-name">PatrimonioBA</span>
         </RouterLink>
       </div>
       
-      <div class="nav-menu" :class="{ 'nav-menu-open': mobileMenuOpen }">
-        <RouterLink to="/" class="nav-link" @click="closeMobileMenu">Inicio</RouterLink>
-        <RouterLink to="/map" class="nav-link" @click="closeMobileMenu">Mapa</RouterLink>
+      <div :class="[mobileMenuOpen ? 'block' : 'hidden', 'sm:flex sm:items-center sm:gap-8']">
+        <RouterLink to="/" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium" @click="closeMobileMenu">Inicio</RouterLink>
+        <RouterLink to="/map" class="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium" @click="closeMobileMenu">Mapa</RouterLink>
       </div>
 
       <UserMenu />
       
-      <button 
-        class="mobile-menu-btn"
-        @click="toggleMobileMenu"
-        aria-label="Toggle menu"
-      >
-        <span class="hamburger" :class="{ 'hamburger-open': mobileMenuOpen }"></span>
+      <button class="sm:hidden p-2 rounded-md text-gray-500 hover:bg-gray-100" @click="toggleMobileMenu" aria-label="Toggle menu">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+          <path v-if="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          <path v-else stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
       </button>
     </div>
   </nav>
@@ -47,175 +46,6 @@ const closeMobileMenu = () => {
 }
 </script>
 
-<style scoped>
-.main-navigation {
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  transition: all 0.3s ease;
-}
+<!-- NavigationBar styles converted to Tailwind utilities -->
 
-.nav-transparent {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-}
 
-.nav-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 70px;
-}
-
-.nav-brand {
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.brand-link {
-  color: #1f2937;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.brand-link:hover {
-  color: #3b82f6;
-  text-decoration: none;
-}
-
-.brand-name {
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.nav-menu {
-  display: flex;
-  align-items: center;
-  gap: 32px;
-}
-
-.nav-link {
-  color: #6b7280;
-  text-decoration: none;
-  font-weight: 500;
-  padding: 8px 16px;
-  border-radius: 6px;
-  transition: all 0.2s;
-}
-
-.nav-link:hover {
-  color: #3b82f6;
-  background-color: rgba(59, 130, 246, 0.1);
-  text-decoration: none;
-}
-
-.nav-link.router-link-exact-active {
-  color: #3b82f6;
-  background-color: rgba(59, 130, 246, 0.1);
-}
-
-.mobile-menu-btn {
-  display: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 6px;
-  transition: background-color 0.2s;
-}
-
-.mobile-menu-btn:hover {
-  background-color: #f3f4f6;
-}
-
-.hamburger {
-  display: block;
-  width: 24px;
-  height: 2px;
-  background: #374151;
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.hamburger::before,
-.hamburger::after {
-  content: '';
-  display: block;
-  width: 24px;
-  height: 2px;
-  background: #374151;
-  position: absolute;
-  transition: all 0.3s ease;
-}
-
-.hamburger::before {
-  transform: translateY(-8px);
-}
-
-.hamburger::after {
-  transform: translateY(8px);
-}
-
-.hamburger-open {
-  background: transparent;
-}
-
-.hamburger-open::before {
-  transform: rotate(45deg);
-}
-
-.hamburger-open::after {
-  transform: rotate(-45deg);
-}
-
-/* Mobile responsive */
-@media (max-width: 768px) {
-  .nav-container {
-    padding: 0 16px;
-  }
-  
-  .nav-menu {
-    position: fixed;
-    top: 70px;
-    left: 0;
-    right: 0;
-    background: white;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0;
-    padding: 20px;
-    border-bottom: 1px solid #e5e7eb;
-    transform: translateY(-100%);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-  }
-  
-  .nav-menu-open {
-    transform: translateY(0);
-    opacity: 1;
-    visibility: visible;
-  }
-  
-  .nav-link {
-    padding: 16px;
-    text-align: center;
-    border-bottom: 1px solid #f3f4f6;
-  }
-  
-  .nav-link:last-child {
-    border-bottom: none;
-  }
-  
-  .mobile-menu-btn {
-    display: block;
-  }
-}
-</style>

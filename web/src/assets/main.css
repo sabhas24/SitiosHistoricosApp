@@ -1,3 +1,7 @@
-@import './base.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-/* Estilos específicos para el portal */
+/* Basic reset and global styles */
+* { box-sizing: border-box; }
+body { min-height:100vh; }

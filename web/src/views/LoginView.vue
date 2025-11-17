@@ -38,65 +38,7 @@ function handleCancel() {
   router.push('/')
 }
 </script>
-
-<template>
-  <div class="login-container">
-    <div class="login-card">
-      <h1>Iniciar Sesión</h1>
-      
-      <form @submit.prevent="handleLogin">
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input
-            id="email"
-            v-model="email"
-            type="email"
-            required
-            placeholder="tu@email.com"
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="password">Contraseña</label>
-          <input
-            id="password"
-            v-model="password"
-            type="password"
-            required
-            placeholder="••••••••"
-          />
-        </div>
-
-        <div v-if="error" class="error-message">
-          {{ error }}
-        </div>
-
-        <button type="submit" class="btn-primary" :disabled="loading">
-          {{ loading ? 'Iniciando...' : 'Iniciar Sesión' }}
-        </button>
-      </form>
-
-      <div class="divider">
-        <span>o</span>
-      </div>
-
-      <button @click="handleGoogleLogin" class="btn-google">
-        Continuar con Google
-      </button>
-
-      <p class="register-link">
-        ¿No tenés cuenta? <router-link to="/register">Registrate</router-link>
-      </p>
-
-      <button @click="handleCancel" class="btn-cancel">
-        Cancelar
-      </button>
-    </div>
-  </div>
-</template>
-
-<style scoped>
-.login-container {
+<!-- Styles moved to Tailwind / main.css utilities -->
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -255,3 +197,61 @@ input:focus {
   border-color: #9ca3af;
 }
 </style>
+
+<template>
+  <div class="login-container">
+    <div class="login-card">
+      <h1>Iniciar Sesión</h1>
+      
+      <form @submit.prevent="handleLogin">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input
+            id="email"
+            v-model="email"
+            type="email"
+            required
+            placeholder="tu@email.com"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input
+            id="password"
+            v-model="password"
+            type="password"
+            required
+            placeholder="••••••••"
+          />
+        </div>
+
+        <div v-if="error" class="error-message">
+          {{ error }}
+        </div>
+
+        <button type="submit" class="btn-primary" :disabled="loading">
+          {{ loading ? 'Iniciando...' : 'Iniciar Sesión' }}
+        </button>
+      </form>
+
+      <div class="divider">
+        <span>o</span>
+      </div>
+
+      <button @click="handleGoogleLogin" class="btn-google">
+        Continuar con Google
+      </button>
+
+      <p class="register-link">
+        ¿No tenés cuenta? <router-link to="/register">Registrate</router-link>
+      </p>
+
+      <button @click="handleCancel" class="btn-cancel">
+        Cancelar
+      </button>
+    </div>
+  </div>
+</template>
+
+

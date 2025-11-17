@@ -12,60 +12,15 @@ onMounted(() => {
 </script>
 
 <template>
-  <div id="app">
-    <RouterView />
+  <div id="app" class="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-blue-100 flex flex-col">
+    <div class="w-full sticky top-0 z-50">
+      <NavigationBar />
+    </div>
+    <main class="flex-1 w-full max-w-5xl mx-auto px-4 py-8">
+      <RouterView />
+    </main>
+    <footer class="w-full text-center py-6 text-gray-400 text-sm bg-transparent">
+      © 2025 PatrimonioBA. Todos los derechos reservados.
+    </footer>
   </div>
 </template>
-
-<style>
-
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: #f8fafc;
-  color: #1f2937;
-  line-height: 1.6;
-}
-
-#app {
-  min-height: 100vh;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-@media (max-width: 768px) {
-  .container {
-    padding: 0 16px;
-  }
-}
-
-button {
-  font-family: inherit;
-}
-
-input, select, textarea {
-  font-family: inherit;
-}
-
-a {
-  color: #3b82f6;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-</style>

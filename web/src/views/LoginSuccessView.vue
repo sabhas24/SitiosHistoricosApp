@@ -23,33 +23,6 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
-.login-success-view {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, #4ade80 0%, #38bdf8 100%);
-}
-.card {
-  background: #fff;
-  padding: 48px 32px;
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-svg {
-  margin-bottom: 16px;
-}
-h2 {
-  color: #16a34a;
-  margin-bottom: 12px;
-  font-size: 2rem;
-}
-p {
-  color: #334155;
-  font-size: 1.1rem;
-}
-</style>
+<!-- Styles moved to Tailwind / main.css utilities -->
+
+

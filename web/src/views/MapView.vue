@@ -91,11 +91,9 @@
   </div>
 </template>
 
-<script>
-import "leaflet/dist/leaflet.css";
-import { LMap, LTileLayer, LMarker, LPopup } from "@vue-leaflet/vue-leaflet";
-import NavigationBar from '../components/NavigationBar.vue';
+</script>
 
+<!-- Styles converted to Tailwind utilities; component uses Tailwind classes now -->
 import L from 'leaflet';
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -168,71 +166,10 @@ export default {
 };
 </script>
 
-<style scoped>
-.map-page {
-  min-height: 100vh;
-}
-
-.main-content {
-  padding: 40px 0;
-}
-
-.container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-.map-header {
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.map-header h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 16px;
-}
-
-.subtitle {
-  font-size: 1.1rem;
-  color: var(--text-secondary);
-}
-
-.map-container {
-  display: grid;
-  grid-template-columns: 1fr 350px;
-  gap: 24px;
-  height: 70vh;
-  min-height: 600px;
-}
-
-.map-wrapper {
-  background: white;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-md);
-}
-
-.leaflet-map {
-  width: 100%;
-  height: 100%;
-}
-
-.popup-content {
-  min-width: 200px;
-}
-
-.popup-content h4 {
-  margin: 0 0 8px 0;
-  font-size: 1.1rem;
-  color: var(--text-primary);
-}
-
+<!-- Styles moved to Tailwind / main.css utilities -->
 .popup-content p {
   margin: 0 0 8px 0;
-  color: var(--text-secondary);
+  color: #6b7280;
   font-size: 0.9rem;
 }
 
@@ -247,7 +184,7 @@ export default {
 .popup-link {
   display: inline-block;
   margin-top: 8px;
-  color: var(--primary-color);
+  color: #3b82f6;
   text-decoration: none;
   font-weight: 500;
 }
@@ -258,35 +195,35 @@ export default {
 
 .sites-sidebar {
   background: white;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column;
 }
 
 .sidebar-header {
   padding: 24px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .sidebar-header h3 {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #1f2937;
   margin-bottom: 16px;
 }
 
 .search-input {
   width: 100%;
   padding: 10px 16px;
-  border: 2px solid var(--border-color);
-  border-radius: var(--radius-md);
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
   font-size: 0.9rem;
 }
 
 .search-input:focus {
   outline: none;
-  border-color: var(--primary-color);
+  border-color: #3b82f6;
 }
 
 .sites-list {
@@ -296,7 +233,7 @@ export default {
 
 .site-item {
   padding: 16px 24px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid #e5e7eb;
   cursor: pointer;
   transition: background-color 0.2s;
   display: flex;
@@ -306,7 +243,7 @@ export default {
 
 .site-item:hover,
 .site-item.active {
-  background-color: var(--background-soft);
+  background-color: #f9fafb;
 }
 
 .site-info {
@@ -316,13 +253,13 @@ export default {
 .site-name {
   font-size: 1rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #1f2937;
   margin: 0 0 4px 0;
 }
 
 .site-address {
   font-size: 0.85rem;
-  color: var(--text-secondary);
+  color: #6b7280;
   margin: 0 0 8px 0;
 }
 
@@ -338,17 +275,17 @@ export default {
 }
 
 .rating-value {
-  color: var(--text-secondary);
+  color: #6b7280;
   font-weight: 500;
 }
 
 .view-btn {
-  color: var(--primary-color);
+  color: #3b82f6;
   text-decoration: none;
   font-size: 0.9rem;
   font-weight: 500;
   padding: 4px 8px;
-  border-radius: var(--radius-sm);
+  border-radius: 4px;
   transition: background-color 0.2s;
 }
 
@@ -393,3 +330,5 @@ export default {
   }
 }
 </style>
+
+

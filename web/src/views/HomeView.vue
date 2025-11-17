@@ -55,29 +55,3 @@ onMounted(() => {
   isAuthenticated.value = false
 })
 </script>
-
-<style scoped>
-.home-page {
-  min-height: 100vh;
-}
-
-.main-content {
-  padding: 40px 0 80px;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-@media (max-width: 768px) {
-  .main-content {
-    padding: 32px 0 60px;
-  }
-  
-  .container {
-    padding: 0 16px;
-  }
-}
-</style>

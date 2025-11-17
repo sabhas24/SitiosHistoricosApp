@@ -20,12 +20,6 @@ onMounted(() => {
 })
 </script>
 
-<style scoped>
-.login-success {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 60vh;
-}
-</style>
+<!-- Styles moved to Tailwind / main.css utilities -->
+
+
