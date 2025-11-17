@@ -1,10 +1,12 @@
 <script setup>
 import { RouterView } from 'vue-router'
+import FooterSection from './components/FooterSection.vue'
 </script>
 
 <template>
   <div id="app">
     <RouterView />
+    <FooterSection />
   </div>
 </template>
 

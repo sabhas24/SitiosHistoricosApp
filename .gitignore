@@ -291,4 +291,46 @@ node_modules/
 npm-debug.log
 yarn-error.log
 
+# Custom Project Ignores
+# ====================
+
+# Environment variables (credentials)
+.env
+.env.*
+!.env.example
+web/.env
+admin/.env
+
+# SSH Keys
+*.pub
+[B
+[B.pub
+id_rsa*
+id_ed25519*
+*.pem
+
+# Database credentials in config
+# Note: config.py should be parameterized via environment variables
+# admin/src/web/config.py contains hardcoded credentials
+
+# Flask sessions (may contain sensitive data)
+flask_session/
+admin/flask_session/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# MinIO/S3 credentials
+.minio/
+minio-data/
+
+# Logs with potential sensitive info
+*.log
+
+# IDE and OS files
+.DS_Store
+Thumbs.db
+
 # End of https://www.toptal.com/developers/gitignore/api/flask,visualstudiocode,vue,vuejs,python
