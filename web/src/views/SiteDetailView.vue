@@ -19,7 +19,7 @@
       <!-- Hero Section con imagen -->
       <div class="hero-section">
         <img 
-          :src="getPlaceholderImage()"
+          :src="getSiteImageUrl()"
           :alt="sitio.nombre"
           class="hero-image"
           @error="handleImageError"
@@ -188,12 +188,23 @@ const initMap = () => {
   }, 100)
 }
 
+const getSiteImageUrl = () => {
+  // Prioridad: imagen_principal > primera imagen del array > placeholder
+  if (sitio.value?.imagen_principal) {
+    return sitio.value.imagen_principal
+  }
+  if (sitio.value?.imagenes && sitio.value.imagenes.length > 0) {
+    return sitio.value.imagenes[0].url_publica
+  }
+  return 'https://via.placeholder.com/1200x600/4A90E2/ffffff?text=Sin+Imagen'
+}
+
 const handleImageError = (event) => {
-  event.target.src = minioImg('placeholder-image.jpg')
+  event.target.src = 'https://via.placeholder.com/1200x600/4A90E2/ffffff?text=Sin+Imagen'
 }
 
 const getPlaceholderImage = () => {
-  return minioImg('placeholder-image.jpg')
+  return getSiteImageUrl()
 }
 
 const formatLocation = (site) => {

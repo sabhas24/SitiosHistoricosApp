@@ -168,9 +168,10 @@
               >
                 <div class="card-image-wrapper">
                   <img 
-                    :src="sitio.imagen_principal || 'https://via.placeholder.com/400x300/17cf54/ffffff?text=Sin+Imagen'" 
+                    :src="getImageUrl(sitio)" 
                     :alt="sitio.nombre"
                     class="card-image"
+                    @error="handleImageError"
                   />
                   <button class="favorite-btn" @click.prevent="toggleFavorite(sitio.id)">
                     <svg class="heart-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -342,6 +343,21 @@ const toggleCategory = (category) => {
 const toggleFavorite = (sitioId) => {
   console.log('Toggle favorite:', sitioId)
   // Aquí implementar la lógica de favoritos
+}
+
+const getImageUrl = (sitio) => {
+  // Prioridad: imagen_principal > primera imagen del array > placeholder
+  if (sitio.imagen_principal) {
+    return sitio.imagen_principal
+  }
+  if (sitio.imagenes && sitio.imagenes.length > 0) {
+    return sitio.imagenes[0].url_publica
+  }
+  return 'https://via.placeholder.com/400x300/17cf54/ffffff?text=Sin+Imagen'
+}
+
+const handleImageError = (event) => {
+  event.target.src = 'https://via.placeholder.com/400x300/17cf54/ffffff?text=Sin+Imagen'
 }
 
 const clearFilters = () => {
