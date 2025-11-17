@@ -30,14 +30,14 @@ class Config(object):
 
 class DevelopmentConfig(Config):
     # Configuración MinIO
-    MINIO_ENDPOINT = environ.get("MINIO_ENDPOINT", "192.168.1.43:9000")
+    MINIO_ENDPOINT = environ.get("MINIO_ENDPOINT", "192.168.1.38:9000")
     MINIO_BUCKET_NAME = environ.get("MINIO_BUCKET_NAME", "grupo44")
     MINIO_ACCESS_KEY = environ.get("MINIO_ACCESS_KEY", "minioadmin")
     MINIO_SECRET_KEY = environ.get("MINIO_SECRET_KEY", "minioadmin")
     MINIO_SECURE = False
     
     # Legacy config
-    MINIO_SERVER = "192.168.1.43:9000"
+    MINIO_SERVER = "192.168.1.38:9000"
     
     DEBUG = True
     BD_USER = "postgres"
