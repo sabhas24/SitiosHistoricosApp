@@ -12,6 +12,8 @@
         <RouterLink to="/sitios" class="nav-link" @click="closeMobileMenu">Sitios</RouterLink>
         <RouterLink to="/map" class="nav-link" @click="closeMobileMenu">Mapa</RouterLink>
       </div>
+
+      <UserMenu />
       
       <button 
         class="mobile-menu-btn"
@@ -26,6 +28,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import UserMenu from './UserMenu.vue'
 
 defineProps({
   transparent: {

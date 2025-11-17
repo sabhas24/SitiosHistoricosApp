@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from marshmallow import ValidationError
 from src.web.schemas.sitios import SitioCreateSchema, SitioReadSchema
 from src.web.schemas.reseña import ReseñaCreateSchema, ReseñaReadSchema
-from src.web.utils.jwt_utils import jwt_required
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from src.web.handlers.auth import check_permission
 from src.models.sitios.sitios import sitio_exists, sitio_create, get_sitio_by_id, obtener_sitios
 from src.models.reseñas.reseña_services import create_reseña, obtener_reseña_por_id, eliminar_reseña, obtener_reseñas, obtener_reseñas_por_sitio
@@ -66,8 +66,6 @@ def list_sites():
         page=page,
         per_page=per_page
     )
-    
-    # Serializar los sitios usando el schema
     sitios_schema = SitioReadSchema(many=True)
     sitios_serializados = sitios_schema.dump(sitios_data['sitios'])
     
@@ -76,7 +74,7 @@ def list_sites():
         'meta': sitios_data['meta']
     }), 200
 @bp.post('/')
-@jwt_required
+@jwt_required()
 def create_sitio():
     """Crear un nuevo sitio histórico."""
     try: 
@@ -108,7 +106,7 @@ def get_sitio(id):
 
 
 @bp.post('/<int:sitio_id>/resenas')
-@jwt_required
+@jwt_required()
 def new_review(sitio_id):
     """Crear una nueva reseña para un sitio."""
    
@@ -123,7 +121,7 @@ def new_review(sitio_id):
         return jsonify(error="not_found", message="Sitio no encontrado"), 404
     
     
-    user_id = request.current_user_id
+    user_id = get_jwt_identity()
     user = user_show_id(user_id)
     if not user:
         return jsonify(error="usuario no encontrado"), 401
@@ -142,14 +140,14 @@ def new_review(sitio_id):
     return jsonify(ReseñaReadSchema().dump(reseña)), 201
 
 @bp.get('/<int:sitio_id>/resenas')
-@jwt_required
+@jwt_required()
 def list_sitio_reviews(sitio_id):
     """Lista las reseñas de un sitio con paginación."""
     sitio = get_sitio_by_id(sitio_id)
     if not sitio:
         return jsonify(error="not_found", message="Sitio no encontrado"), 404
     
-    if not check_permission('review_index', request.current_user_id):
+    if not check_permission('review_index', get_jwt_identity()):
         return jsonify(error="forbidden", message="No tienes permiso para ver reseñas"), 403
     
     page = request.args.get('page', 1, type=int)
@@ -166,11 +164,11 @@ def list_sitio_reviews(sitio_id):
     }), 200
 
 @bp.get('/<int:sitio_id>/resenas/<int:resena_id>')
-@jwt_required
+@jwt_required()
 def get_sitio_review(sitio_id, resena_id):
     """Obtiene una reseña específica de un sitio."""
     sitio = get_sitio_by_id(sitio_id)
-    if not check_permission('review_index', request.current_user_id):
+    if not check_permission('review_index', get_jwt_identity()):
         return jsonify(error="forbidden", message="No tienes permiso para ver reseñas"), 403
     if not sitio:
         return jsonify(error="not_found", message="Sitio no encontrado"), 404
@@ -189,10 +187,10 @@ def get_sitio_review(sitio_id, resena_id):
 
 
 @bp.delete('/<int:sitio_id>/resenas/<int:resena_id>')
-@jwt_required
+@jwt_required()
 def delete_sitio_review(sitio_id, resena_id):
     """Elimina una reseña específica de un sitio."""
-    user_id = request.current_user_id
+    user_id = get_jwt_identity()
     if not check_permission('review_destroy', user_id):
         return jsonify(error="forbidden", message="No tienes permiso para eliminar reseñas"), 403
    
@@ -216,10 +214,10 @@ def delete_sitio_review(sitio_id, resena_id):
 
 
 @bp.put('/<int:sitio_id>/favoritos')
-@jwt_required
+@jwt_required()
 def add_favorite_sitio(sitio_id):
     """Agrega un sitio a los favoritos del usuario."""
-    user_id = request.current_user_id
+    user_id = get_jwt_identity()
 
     sitio = get_sitio_by_id(sitio_id)
     if not sitio:
@@ -235,10 +233,10 @@ def add_favorite_sitio(sitio_id):
 
 
 @bp.delete('/<int:sitio_id>/favoritos')
-@jwt_required
+@jwt_required()
 def remove_favorite_sitio(sitio_id):
     """Elimina un sitio de los favoritos del usuario."""
-    user_id = request.current_user_id
+    user_id = get_jwt_identity()
 
     sitio = get_sitio_by_id(sitio_id)
     if not sitio:
