@@ -41,6 +41,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import SiteCard from './SiteCard.vue'
+import sitiosService from '../services/sitiosService'
 
 const props = defineProps({
   title: {
@@ -75,9 +76,14 @@ const loadSites = async () => {
     loading.value = true
     error.value = false
     
-    // DATOS MOCK TEMPORALES, REEMPLAZAR POR LA API
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    sites.value = generateMockSites()
+    // Llamar a la API con los parámetros del endpoint
+    const params = {
+      per_page: 8,
+      ...props.filterParams
+    }
+    
+    const response = await sitiosService.getSitios(params)
+    sites.value = response.sitios || []
     
   } catch (err) {
     console.error('Error loading sites:', err)
@@ -87,18 +93,15 @@ const loadSites = async () => {
   }
 }
 
-const generateMockSites = () => {
-  const mockSites = [
-    { id: 1, name: 'OBELISCO', city: 'Buenos Aires', province: 'CABA', rating: 4.5, image: null },
-    { id: 2, name: 'obelisco', city: 'Buenos Aires', province: 'CABA', rating: 4.8, image: null }
-  ]
-  
-  return mockSites
-}
-
 const handleViewAll = () => {
-  const queryParams = new URLSearchParams(props.filterParams).toString()
-  router.push(`/map${queryParams ? '?' + queryParams : ''}`)
+  // Construir query params para la vista de listado
+  const query = {}
+  
+  if (props.filterParams.sort) {
+    query.order_by = props.filterParams.sort
+  }
+  
+  router.push({ name: 'sitios-list', query })
 }
 
 const retry = () => {
@@ -112,42 +115,71 @@ onMounted(() => {
 
 <style scoped>
 .featured-section {
-  margin-bottom: 48px;
+  margin-bottom: 64px;
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #f3f4f6;
 }
 
 .section-title {
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.75rem;
+  font-weight: 700;
   color: #1f2937;
   margin: 0;
+  position: relative;
+}
+
+.section-title::before {
+  content: '';
+  position: absolute;
+  bottom: -16px;
+  left: 0;
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 2px;
 }
 
 .view-all-btn {
-  background: none;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
-  color: #3b82f6;
-  font-size: 1rem;
+  color: white;
+  font-size: 0.95rem;
+  font-weight: 500;
   cursor: pointer;
-  padding: 8px;
-  border-radius: 6px;
-  transition: background-color 0.2s;
+  padding: 10px 20px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .view-all-btn:hover {
-  background-color: #f3f4f6;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 
 .sites-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
+  gap: 28px;
 }
 
 .loading-state {

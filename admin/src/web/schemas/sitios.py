@@ -7,6 +7,17 @@ class BaseSchema(Schema):
         unknown = EXCLUDE
 
 
+class ImagenSitioSchema(BaseSchema):
+    """Schema para imágenes de sitios históricos."""
+    id = fields.Int(dump_only=True)
+    url_publica = fields.Str(required=True)
+    nombre_archivo = fields.Str(dump_only=True)
+    titulo_alt = fields.Str(required=True)
+    descripcion = fields.Str(required=False)
+    orden = fields.Int(dump_only=True)
+    es_portada = fields.Bool(dump_only=True)
+
+
 class SitioReadSchema(BaseSchema):
     """Schema para lectura de sitio histórico."""
     id = fields.Int(dump_only=True)
@@ -18,12 +29,14 @@ class SitioReadSchema(BaseSchema):
     estado_conservacion = fields.Str(required=True)
     anio_inauguracion = fields.Int(required=False)
     categoria = fields.Str(required=True)
-    latitud = fields.Float(required=True)
-    longitud = fields.Float(required=True)
+    latitud = fields.Method('get_latitud')
+    longitud = fields.Method('get_longitud')
     visible = fields.Bool(dump_only=True)
     fecha_registro = fields.DateTime(dump_only=True)
     fecha_ultima_modificacion = fields.DateTime(dump_only=True)
     tags = fields.List(fields.Str(), required=False)
+    imagenes = fields.Nested(ImagenSitioSchema, many=True, dump_only=True)
+    imagen_principal = fields.Method('get_imagen_principal')
 
 
 class SitioCreateSchema(BaseSchema):
@@ -78,3 +91,31 @@ class SitioUpdateSchema(BaseSchema):
     longitud = fields.Float(validate=validate.Range(min=-180, max=180))
     visible = fields.Bool()
     tags = fields.List(fields.Str())
+    
+    def get_latitud(self, obj):
+        """Obtener latitud desde la ubicación PostGIS."""
+        if hasattr(obj, 'ubicacion') and obj.ubicacion:
+            from geoalchemy2.functions import ST_Y
+            from src.models.database import db
+            result = db.session.query(ST_Y(obj.ubicacion)).scalar()
+            return float(result) if result else None
+        return None
+    
+    def get_longitud(self, obj):
+        """Obtener longitud desde la ubicación PostGIS."""
+        if hasattr(obj, 'ubicacion') and obj.ubicacion:
+            from geoalchemy2.functions import ST_X
+            from src.models.database import db
+            result = db.session.query(ST_X(obj.ubicacion)).scalar()
+            return float(result) if result else None
+        return None
+    
+    def get_imagen_principal(self, obj):
+        """Obtener la URL de la imagen principal (portada)."""
+        if hasattr(obj, 'imagen_portada') and obj.imagen_portada:
+            return obj.imagen_portada.url_publica
+        # Si no hay portada, usar la primera imagen
+        if hasattr(obj, 'imagenes') and obj.imagenes:
+            return obj.imagenes[0].url_publica
+        return None
+

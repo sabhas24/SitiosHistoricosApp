@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import MapView from '../views/MapView.vue'
+import SiteDetailView from '../views/SiteDetailView.vue'
+import SitiosListView from '../views/SitiosListView.vue'
 import LoginView from '../views/LoginView.vue'
 import { useAuthStore } from '../stores/auth';
 import loginSuccess from  '../views/LoginSuccessView.vue'
@@ -18,10 +20,20 @@ const router = createRouter({
       component: LoginView,
     },
     {
+      path: '/sitios',
+      name: 'sitios-list',
+      component: SitiosListView,
+    },
+    {
       path: '/map',
       name: 'map',
       component: MapView,
       meta: { requiresAuth: true },
+    },
+    {
+      path: '/sitio/:id',
+      name: 'sitio-detail',
+      component: SiteDetailView,
     },
     {
       path: '/login-success',

@@ -76,12 +76,13 @@ onMounted(() => {
 <style scoped>
 .hero-section {
   position: relative;
-  min-height: 60vh;
+  min-height: 70vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 80px 20px 60px;
+  padding: 100px 20px 80px;
   overflow: hidden;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .hero-background {
@@ -97,6 +98,12 @@ onMounted(() => {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  animation: kenburns 20s ease-in-out infinite alternate;
+}
+
+@keyframes kenburns {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.1); }
 }
 
 .hero-overlay {
@@ -105,29 +112,45 @@ onMounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%);
   z-index: -1;
 }
 
 .hero-content {
   text-align: center;
-  max-width: 600px;
+  max-width: 700px;
   z-index: 1;
+  animation: fadeInUp 0.8s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .hero-title {
-  font-size: 3rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 16px;
-  line-height: 1.2;
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 20px;
+  line-height: 1.1;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  letter-spacing: -0.02em;
 }
 
 .hero-subtitle {
-  font-size: 1.25rem;
-  color: #6b7280;
-  margin-bottom: 32px;
-  line-height: 1.5;
+  font-size: 1.35rem;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 40px;
+  line-height: 1.6;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  font-weight: 400;
 }
 
 .hero-section:has(.hero-background) .hero-title {
@@ -156,40 +179,49 @@ onMounted(() => {
 
 .search-input {
   width: 100%;
-  padding: 16px 60px 16px 20px;
+  padding: 18px 65px 18px 24px;
   font-size: 1.1rem;
-  border: 2px solid #e5e7eb;
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 50px;
-  background: white;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.search-input::placeholder {
+  color: #9ca3af;
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: rgba(255, 255, 255, 0.6);
+  background: white;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2), 0 15px 50px rgba(0, 0, 0, 0.2);
+  transform: translateY(-2px);
 }
 
 .search-button {
   position: absolute;
-  right: 8px;
+  right: 6px;
   top: 50%;
   transform: translateY(-50%);
-  background: #3b82f6;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
   border-radius: 50%;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
 }
 
 .search-button:hover {
-  background: #2563eb;
+  transform: translateY(-50%) scale(1.05);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
 }
 
 .search-icon {
@@ -237,26 +269,27 @@ onMounted(() => {
 /* Mobile responsive */
 @media (max-width: 768px) {
   .hero-section {
-    min-height: 50vh;
-    padding: 60px 16px 40px;
+    min-height: 60vh;
+    padding: 80px 16px 50px;
   }
   
   .hero-title {
-    font-size: 2.25rem;
+    font-size: 2.5rem;
   }
   
   .hero-subtitle {
-    font-size: 1.1rem;
+    font-size: 1.15rem;
+    margin-bottom: 32px;
   }
   
   .search-input {
     font-size: 1rem;
-    padding: 14px 55px 14px 18px;
+    padding: 16px 60px 16px 20px;
   }
   
   .search-button {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
   }
   
   .search-icon {
@@ -276,7 +309,11 @@ onMounted(() => {
 
 @media (max-width: 480px) {
   .hero-title {
-    font-size: 1.875rem;
+    font-size: 2rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1rem;
   }
   
   .quick-suggestions {
