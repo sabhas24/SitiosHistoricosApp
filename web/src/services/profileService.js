@@ -1,6 +1,6 @@
 import api from "@/config/api";
 export const profileService = {
-    async getReviews(page = 1, limit = 25, order = 'desc') {
+    async getReviews(page = 1, limit = 25, order = 'lasted') {
         try {
             const response = await api.get('/me/reviews', {
                 params: { page, per_page: limit, order }
@@ -16,7 +16,7 @@ export const profileService = {
         }
     },
 
-    async getFavorites(page = 1, limit = 25, order = 'desc') {
+    async getFavorites(page = 1, limit = 25, order = 'lasted') {
         try {
             const response = await api.get('/me/favoritos', {
                 params: { page, per_page: limit, order }
