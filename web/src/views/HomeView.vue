@@ -49,7 +49,7 @@
           Comienza tu recorrido
         </router-link>
       </div>
-    </section>
+    </main>
     
     <!-- Image Grid Section - Colecciones -->
     <section class="collections-section">
