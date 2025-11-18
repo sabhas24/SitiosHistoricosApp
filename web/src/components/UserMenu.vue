@@ -2,9 +2,9 @@
   <div class="user-menu">
    
     <div v-if="!authStore.isAuthenticated" class="auth-actions">
-      <RouterLink to="/login" class="btn-login">
+      <a href="#" @click.prevent="goToLogin" class="btn-login">
         Iniciar Sesión
-      </RouterLink>
+      </a>
     </div>
     
     
@@ -102,6 +102,10 @@ const handleLogout = async () => {
   }
   authStore.clearUser()
   router.push('/login')
+}
+
+const goToLogin = () => {
+  router.push({ name: 'login', query: { redirect: router.currentRoute.value.fullPath } })
 }
 </script>
 

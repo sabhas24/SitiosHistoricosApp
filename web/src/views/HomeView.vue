@@ -128,7 +128,7 @@ import NavigationBar from '../components/NavigationBar.vue'
 const isAuthenticated = ref(false)
 
 const handleMapError = (event) => {
-  event.target.src = 'https://via.placeholder.com/800x400/667eea/ffffff?text=Mapa+de+Buenos+Aires'
+  event.target.src = 'https://placehold.co/800x400/667eea/ffffff?text=Mapa+de+Buenos+Aires'
 }
 
 onMounted(() => {

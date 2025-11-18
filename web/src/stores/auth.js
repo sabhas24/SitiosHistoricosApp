@@ -27,7 +27,6 @@ export const useAuthStore = defineStore("auth", () => {
         loading.value = true;
         try {
             const response = await api.get('/me/');
-            console.log('AuthStore - /me response:', response.data);
             setUser(response.data);
 
             return true;

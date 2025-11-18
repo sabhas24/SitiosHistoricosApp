@@ -353,11 +353,11 @@ const getImageUrl = (sitio) => {
   if (sitio.imagenes && sitio.imagenes.length > 0) {
     return sitio.imagenes[0].url_publica
   }
-  return 'https://via.placeholder.com/400x300/17cf54/ffffff?text=Sin+Imagen'
+  return 'https://placehold.co/800x400/667eea/ffffff?text=Mapa+de+Buenos+Aires'
 }
 
 const handleImageError = (event) => {
-  event.target.src = 'https://via.placeholder.com/400x300/17cf54/ffffff?text=Sin+Imagen'
+  event.target.src = 'https://placehold.co/800x400/667eea/ffffff?text=Mapa+de+Buenos+Aires'
 }
 
 const clearFilters = () => {

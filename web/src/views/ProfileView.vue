@@ -77,7 +77,10 @@ const profileColor = ref('#8B7355')
 
 function getProfileColor(user) {
   const paleta = [
-    "#db4437", "#e91e63", "#9c27b0", "#673ab7", "#3f51b5", "#4285f4", "#039be5", "#0097a7", "#009688", "#0f9d58", "#689f38", "#ef6c00", "#ff5722", "#757575", "#607d8b"
+    "#d32f2f", "#c2185b", "#7b1fa2", "#512da8", "#303f9f", 
+    "#1976d2", "#0288d1", "#0097a7", "#00796b", "#388e3c", 
+    "#689f38", "#afb42b", "#fbc02d", "#ffa000", "#f57c00", 
+    "#e64a19", "#5d4037", "#616161"
   ];
   let name = user?.userName || user?.userEmail || "anonimo";
   let hash = 0;
@@ -89,7 +92,6 @@ function getProfileColor(user) {
 }
 
 const userProfilePicture = computed(() => {
-  // Accedemos directo a authStore.user
   const pic = authStore.user?.profile_picture || '' 
   console.log('URL de imagen detectada:', pic)
   return pic

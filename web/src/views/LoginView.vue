@@ -22,7 +22,8 @@ async function handleLogin() {
       password: password.value
     })
     authStore.setUser(response.data.user)
-    router.push('/')
+    const redirectPath = router.currentRoute.value.query.redirect || '/'
+    router.push(redirectPath)
   } catch (err) {
     error.value = err.response?.data?.message || 'Error al iniciar sesión'
   } finally {
@@ -31,7 +32,9 @@ async function handleLogin() {
 }
 
 function handleGoogleLogin() {
-  window.location.href = `${api.defaults.baseURL}/user/login/google`
+  const redirectPath = router.currentRoute.value.query.redirect || '/';
+  localStorage.setItem('redirectAfterLogin', redirectPath);
+  window.location.href = `${api.defaults.baseURL}/user/login/google`;
 }
 
 function handleCancel() {

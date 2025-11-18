@@ -1,5 +1,5 @@
 const DEFAULT_CONFIG = {
-  MINIO_ENDPOINT: 'http://192.168.1.43:9000',
+  MINIO_ENDPOINT: 'http://192.168.100.23:61294/',
   MINIO_BUCKET_NAME: 'grupo44',
   MINIO_ACCESS_KEY: 'minioadmin',
   MINIO_SECRET_KEY: 'minioadmin'

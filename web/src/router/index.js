@@ -54,10 +54,10 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore();
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    if (to.name !== 'login')
-      return next({ name: 'login' });
-  } else {
-    next();
+    if (to.name !== 'login') {
+      // Redirige al login y guarda la ruta original
+      return next({ name: 'login', query: { redirect: to.fullPath } });
+    }
   }
   next();
 });
