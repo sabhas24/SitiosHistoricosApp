@@ -2,10 +2,15 @@
   <div class="user-menu">
    
     <div v-if="!authStore.isAuthenticated" class="auth-actions">
-      <a href="#" @click.prevent="goToLogin" class="btn-login">
+      <RouterLink to="/login" class="btn-login">
         Iniciar Sesión
-      </a>
+      </RouterLink>
     </div>
+      <div v-if="!authStore.isAuthenticated" class="auth-actions">
+        <button class="btn-login" @click="goToLogin">
+          Iniciar Sesión
+        </button>
+      </div>
     
     
     <div v-else class="user-dropdown">

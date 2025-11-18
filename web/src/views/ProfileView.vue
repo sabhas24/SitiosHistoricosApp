@@ -127,7 +127,7 @@ const loadReviews = async () => {
   loading.value = true
   error.value = null
   try {
-    const data = await profileService.getReviews(currentPage.value, 25, 'lasted')
+    const data = await profileService.getReviews(currentPage.value, 25, 'latest')
     reviews.value = data.items
     totalPages.value = data.totalPages
   } catch (err) {
@@ -144,7 +144,7 @@ const loadFavorites = async () => {
   loadingFavorites.value = true
   errorFavorites.value = null
   try {
-    const data = await profileService.getFavorites(currentPageFavorites.value, 25, 'lasted')
+    const data = await profileService.getFavorites(currentPageFavorites.value, 25, 'latest')
     favorites.value = data.items
     totalPagesFavorites.value = data.totalPages
   } catch (err) {
