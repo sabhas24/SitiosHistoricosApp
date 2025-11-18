@@ -1,4 +1,4 @@
-import apiClient from './api'
+import api from '../config/api'
 
 /**
  * Servicio para manejar todas las operaciones relacionadas con sitios históricos
@@ -22,7 +22,7 @@ const sitiosService = {
    */
   async getSitios(params = {}) {
     try {
-      const response = await apiClient.get('/sitios', { params })
+      const response = await api.get('/sitios', { params })
       return response.data
     } catch (error) {
       console.error('Error al obtener sitios:', error)
@@ -37,7 +37,7 @@ const sitiosService = {
    */
   async getSitioById(id) {
     try {
-      const response = await apiClient.get(`/sitios/${id}`)
+      const response = await api.get(`/sitios/${id}`)
       return response.data
     } catch (error) {
       console.error(`Error al obtener sitio ${id}:`, error)

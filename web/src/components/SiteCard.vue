@@ -1,6 +1,6 @@
 <template>
-  <div class="site-card" @click="navigateToSite">
-    <div class="card-image">
+  <article class="site-card" @click="navigateToSite">
+    <div class="card-image-wrapper">
       <img 
         :src="minioImg(site.imagen_principal || site.image, 'placeholder-image.jpg')" 
         :alt="site.nombre || site.name"
@@ -11,16 +11,20 @@
     <div class="card-content">
       <h3 class="site-name">{{ site.nombre || site.name }}</h3>
       <p class="site-location">{{ formatLocation(site) }}</p>
+      <p v-if="site.descripcion_breve" class="site-description">
+        {{ site.descripcion_breve }}
+      </p>
       <div v-if="site.calificacion_promedio || site.rating" class="rating">
-        <div class="stars">
+        <div class="stars" aria-hidden="true">
           <span v-for="n in 5" :key="n" class="star" :class="{ filled: n <= (site.calificacion_promedio || site.rating) }">
-            ⭐
+            ★
           </span>
         </div>
         <span class="rating-value">{{ (site.calificacion_promedio || site.rating).toFixed(1) }}</span>
+        <span class="sr-only">Calificación: {{ (site.calificacion_promedio || site.rating).toFixed(1) }} de 5</span>
       </div>
     </div>
-  </div>
+  </article>
 </template>
 
 <script setup>
@@ -53,8 +57,8 @@ const formatLocation = (site) => {
 <style scoped>
 .site-card {
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb; /* Wireframe style border */
+  border-radius: 8px; /* Slightly sharper corners */
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
@@ -64,21 +68,29 @@ const formatLocation = (site) => {
 }
 
 .site-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-color: #d1d5db;
 }
 
-.card-image {
+.card-image-wrapper {
   position: relative;
   width: 100%;
-  height: 200px;
+  aspect-ratio: 4/3; /* Consistent aspect ratio */
   overflow: hidden;
+  background: #f3f4f6;
+  border-bottom: 1px solid #f3f4f6;
 }
 
-.card-image img {
+.card-image-wrapper img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.site-card:hover .card-image-wrapper img {
+  transform: scale(1.02);
 }
 
 .card-content {
@@ -93,56 +105,65 @@ const formatLocation = (site) => {
   font-size: 1.1rem;
   font-weight: 600;
   margin: 0;
-  color: #2c3e50;
-  line-height: 1.4;
+  color: #111827;
+  line-height: 1.3;
 }
 
 .site-location {
   color: #6b7280;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   margin: 0;
+}
+
+.site-description {
+  font-size: 0.875rem;
+  color: #4b5563;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.5;
 }
 
 .rating {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   margin-top: auto;
+  padding-top: 8px;
 }
 
 .stars {
   display: flex;
-  gap: 2px;
+  gap: 1px;
 }
 
 .star {
-  font-size: 0.8rem;
-  filter: grayscale(1);
-  opacity: 0.3;
+  font-size: 1rem;
+  color: #d1d5db;
+  line-height: 1;
 }
 
 .star.filled {
-  filter: none;
-  opacity: 1;
+  color: #fbbf24; /* Amber-400 */
 }
 
 .rating-value {
-  font-size: 0.9rem;
-  font-weight: 500;
+  font-size: 0.875rem;
+  font-weight: 600;
   color: #374151;
 }
 
-@media (max-width: 640px) {
-  .card-image {
-    height: 160px;
-  }
-  
-  .card-content {
-    padding: 12px;
-  }
-  
-  .site-name {
-    font-size: 1rem;
-  }
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 </style>

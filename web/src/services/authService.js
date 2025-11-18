@@ -1,7 +1,6 @@
 import api from '../config/api';
 
-
-export const authService ={
+export const authService = {
     async login(email, password) {
         const response = await api.post('/user/login', { email, password });
         return response.data;
@@ -24,6 +23,6 @@ export const authService ={
         return response.data;
     },
     redirectToGoogleLogin() {
-        window.location.href = 'http://localhost:5000/api/auth/google/login';
+        window.location.href = `${api.defaults.baseURL}/auth/google/login`;
     }
 }

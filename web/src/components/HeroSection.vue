@@ -22,6 +22,8 @@
           </div>
         </form>
       </div>
+      
+      
     </div>
     
     <div v-if="backgroundImage" class="hero-background">
@@ -58,10 +60,17 @@ const searchQuery = ref('')
 const handleSearch = () => {
   if (searchQuery.value.trim()) {
     router.push({
-      path: '/map',
-      query: { search: searchQuery.value.trim() }
+      name: 'sitios-list',
+      query: { name: searchQuery.value.trim() }
     })
   }
+}
+
+const handleQuickSearch = (query) => {
+  router.push({
+    name: 'sitios-list',
+    query: { name: query }
+  })
 }
 
 onMounted(() => {

@@ -3,11 +3,11 @@
     <div class="section-header">
       <h2 class="section-title">{{ title }}</h2>
       <button 
-        v-if="showViewAll && sites.length > 0" 
+        v-if="showViewAll" 
         @click="handleViewAll"
-        class="view-all-btn"
+        class="view-all-link"
       >
-        Ver todos →
+        Ver todos >
       </button>
     </div>
     
@@ -18,13 +18,12 @@
     </div>
     
     <div v-else-if="error" class="error-state">
-      <p>Error al cargar {{ title.toLowerCase() }}</p>
+      <p>Error al cargar contenido</p>
       <button @click="retry" class="retry-btn">Reintentar</button>
     </div>
     
-    <div v-else-if="sites.length === 0" class="empty-state">
-      <div class="empty-icon">📍</div>
-      <p>{{ emptyMessage }}</p>
+    <div v-else-if="sites.length === 0" class="empty-state-container">
+      <div class="empty-pill">No hay contenido</div>
     </div>
     
     <div v-else class="sites-grid">
@@ -115,7 +114,7 @@ onMounted(() => {
 
 <style scoped>
 .featured-section {
-  margin-bottom: 64px;
+  margin-bottom: 48px;
   animation: fadeIn 0.6s ease-out;
 }
 
@@ -134,14 +133,14 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 32px;
-  padding-bottom: 16px;
-  border-bottom: 2px solid #f3f4f6;
+  margin-bottom: 24px;
+  padding-bottom: 0;
+  border-bottom: none;
 }
 
 .section-title {
-  font-size: 1.75rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 600;
   color: #1f2937;
   margin: 0;
   position: relative;
@@ -158,44 +157,42 @@ onMounted(() => {
   border-radius: 2px;
 }
 
-.view-all-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+.view-all-link {
+  background: none;
   border: none;
-  color: white;
+  color: #374151;
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
-  padding: 10px 20px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  padding: 4px 8px;
+  transition: color 0.2s ease;
 }
 
-.view-all-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+.view-all-link:hover {
+  color: #000;
+  text-decoration: underline;
 }
 
 .sites-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 28px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
 }
 
 .loading-state {
-  margin: 24px 0;
+  margin: 0;
 }
 
 .skeleton-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
 }
 
 .skeleton-card {
-  height: 320px;
+  height: 280px;
   background: #f3f4f6;
-  border-radius: 12px;
+  border-radius: 8px;
   animation: pulse 1.5s ease-in-out infinite;
 }
 
@@ -206,30 +203,34 @@ onMounted(() => {
 
 .error-state {
   text-align: center;
-  padding: 48px 24px;
+  padding: 32px;
   color: #6b7280;
 }
 
 .retry-btn {
-  margin-top: 16px;
-  padding: 8px 16px;
-  background: #3b82f6;
-  color: white;
+  margin-top: 8px;
+  padding: 6px 12px;
+  background: #e5e7eb;
+  color: #374151;
   border: none;
-  border-radius: 6px;
+  border-radius: 4px;
   cursor: pointer;
 }
 
-.empty-state {
-  text-align: center;
-  padding: 48px 24px;
-  color: #6b7280;
+.empty-state-container {
+  display: flex;
+  justify-content: center;
+  padding: 32px 0;
 }
 
-.empty-icon {
-  font-size: 3rem;
-  margin-bottom: 16px;
-  opacity: 0.5;
+.empty-pill {
+  background: #f3f4f6;
+  color: #4b5563;
+  padding: 8px 24px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  border: 1px solid #e5e7eb;
 }
 
 /* Mobile responsive */
@@ -245,7 +246,7 @@ onMounted(() => {
   }
   
   .sites-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr; /* Mobile first: stack vertically */
     gap: 16px;
   }
   
