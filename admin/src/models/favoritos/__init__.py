@@ -39,9 +39,9 @@ def favorito_listar(
     """Lista todos los favoritos de un usuario."""
     favoritos = db.session.query(Favorito).filter_by(user_id=user_id)
     if order == "lasted":
-        favoritos = favoritos.order_by(Favorito.fecha_creacion.desc())
+        favoritos = favoritos.order_by(Favorito.fecha_agregado.desc())
     elif order == "oldest":
-        favoritos = favoritos.order_by(Favorito.fecha_creacion.asc())
+        favoritos = favoritos.order_by(Favorito.fecha_agregado.asc())
     ofset = (page - 1) * per_page
     total = favoritos.count()
     favoritos = favoritos.offset(ofset).limit(per_page).all()

@@ -96,6 +96,9 @@ def login_callback():
         email = user_info["email"]
         name = user_info.get("given_name", "")
         last_name = user_info.get("family_name", "")
+        picture_url = user_info.get("picture", "")
+        if picture_url:
+            picture_url = picture_url.replace("=s96-c", "")
 
         if not email_exists(email):
             public_role = db.session.query(Role).filter_by(name="public_user").first()
@@ -105,6 +108,7 @@ def login_callback():
                 last_name=last_name,
                 password=f"oauth_{email}",
                 role=public_role,
+                profile_picture=picture_url,
             )
         else:
             user = user_show(email)

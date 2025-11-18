@@ -50,7 +50,7 @@ def list_favorites():
 
 
 @bp.get("/reviews")
-@jwt_required
+@jwt_required()
 def get_my_reviews():
     """Obtener todas las reseñas del usuario autenticado."""
     user_id = get_jwt_identity()
@@ -60,9 +60,7 @@ def get_my_reviews():
     user = user_show_id(user_id)
     if user is None:
         return jsonify(error="usuario no encontrado"), 401
-    reviews = (
-        obtener_reseñas_por_usuario(
-            user.email, page=page, per_page=per_page, order=order
-        ),
+    reviews = obtener_reseñas_por_usuario(
+        user.email, page=page, per_page=per_page, order=order
     )
     return jsonify(reviews), 200

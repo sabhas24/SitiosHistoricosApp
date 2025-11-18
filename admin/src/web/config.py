@@ -60,7 +60,6 @@ class DevelopmentConfig(Config):
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
     JWT_COOKIE_SAMESITE = "Lax"
     JWT_COOKIE_DOMAIN = None
-
     FRONTEND_BASE_URL = "http://localhost:5173"
 
 
