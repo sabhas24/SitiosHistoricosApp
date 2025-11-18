@@ -1,5 +1,11 @@
 <template>
   <div class="profile-container" >
+    <button @click="goBack" class="back-button">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="back-icon">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+      </svg>
+      Volver
+    </button>
     <!-- Header con info del usuario -->
     <ProfileHeader 
       v-if="authStore.user"
@@ -74,6 +80,10 @@ const loadingFavorites = ref(false)
 const error = ref(null)
 const errorFavorites = ref(null)
 const profileColor = ref('#8B7355')
+
+const goBack = () => {
+  router.go(-1)
+}
 
 function getProfileColor(user) {
   const paleta = [
@@ -238,5 +248,32 @@ watch(activeTab, (newTab) => {
     padding: 10px 12px;
     font-size: 14px;
   }
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid #d0e7d7;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #0e1b12;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-bottom: 16px;
+}
+
+.back-button:hover {
+  background: #e7f3eb;
+  border-color: #a3d3b3;
+}
+
+.back-icon {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2;
 }
 </style>

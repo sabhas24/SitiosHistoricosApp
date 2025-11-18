@@ -1,7 +1,7 @@
 <template>
-  <div class="profile-header" :style="{ backgroundColor: profileColor  }">
+  <div class="profile-header" :style="{ backgroundColor: profileColor }">
     <div class="profile-header-content">
-      <div class="profile-avatar">
+      <div class="profile-avatar" @click="openModal">
         <template v-if="profilePicture">
           <img :src="profilePicture" alt="Foto de perfil" class="avatar-img" />
         </template>
@@ -16,10 +16,30 @@
       </div>
     </div>
   </div>
+
+  <div v-if="isModalOpen" class="modal-overlay" @click="closeModal">
+    <div class="modal-content" @click.stop>
+      <span class="close-button" @click="closeModal">&times;</span>
+      <img :src="profilePicture" alt="Foto de perfil ampliada" class="modal-image" />
+    </div>
+  </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+
+const isModalOpen = ref(false)
+
+const openModal = () => {
+  if (props.profilePicture) {
+    isModalOpen.value = true
+  }
+}
+
+const closeModal = () => {
+  isModalOpen.value = false
+}
+
 
 const props = defineProps({
   userName: {
@@ -73,6 +93,7 @@ const userInitial = computed(() => {
   font-size: 36px;
   font-weight: bold;
   flex-shrink: 0;
+  cursor: pointer;
 }
 
 .profile-info h1,
@@ -103,6 +124,48 @@ const userInitial = computed(() => {
   height: 100%;
   object-fit: cover;
   border-radius: 50%;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  position: relative;
+  background-color: white;
+  padding: 10px;
+  border-radius: 8px;
+  max-width: 90vw;
+  max-height: 90vh;
+
+}
+
+.close-button {
+  position: absolute;
+  top: 1px;
+  right: 20px;
+  font-size: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  color: rgb(252, 250, 250);
+  text-shadow: 0 0 9px rgba(0, 0, 0, 0.8);
+  z-index: 1;
+}
+
+.modal-image {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+  margin: 0 auto;
 }
 
 @media (max-width: 768px) {

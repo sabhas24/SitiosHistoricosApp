@@ -61,7 +61,7 @@
 .footer {
   background: #2C3E50;
   color: #E5E7EB;
-  padding: 60px 24px 40px;
+  padding: 40px 24px 20px;
 }
 
 .footer-content {
@@ -72,8 +72,8 @@
 .footer-grid {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr;
-  gap: 48px;
-  margin-bottom: 48px;
+  gap: 32px;
+  margin-bottom: 32px;
 }
 
 .footer-brand {
@@ -157,7 +157,7 @@
 }
 
 .footer-bottom {
-  padding-top: 32px;
+  padding-top: 24px;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   text-align: center;
 }
@@ -180,7 +180,7 @@
 
 @media (max-width: 640px) {
   .footer {
-    padding: 40px 16px 30px;
+    padding: 30px 16px 20px;
   }
   
   .footer-grid {
