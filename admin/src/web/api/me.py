@@ -39,7 +39,7 @@ def list_favorites():
     user_id = get_jwt_identity()
     page = request.args.get("page", 1, type=int)
     per_page = request.args.get("per_page", 25, type=int)
-    order = request.args.get("order", "lasted", type=str)
+    order = request.args.get("order", "latest", type=str)
 
     if user_show_id(user_id) is None:
         return jsonify(error="usuario no encontrado"), 401
@@ -56,7 +56,7 @@ def get_my_reviews():
     user_id = get_jwt_identity()
     page = request.args.get("page", 1, type=int)
     per_page = request.args.get("per_page", 25, type=int)
-    order = request.args.get("order", "lasted", type=str)
+    order = request.args.get("order", "latest", type=str)
     user = user_show_id(user_id)
     if user is None:
         return jsonify(error="usuario no encontrado"), 401

@@ -34,11 +34,11 @@ def favorito_eliminar(user_id: int, sitio_id: int):
 
 
 def favorito_listar(
-    user_id: int, page: int = 1, per_page: int = 25, order: str = "lasted"
+    user_id: int, page: int = 1, per_page: int = 25, order: str = "latest"
 ):
     """Lista todos los favoritos de un usuario."""
     favoritos = db.session.query(Favorito).filter_by(user_id=user_id)
-    if order == "lasted":
+    if order == "latest":
         favoritos = favoritos.order_by(Favorito.fecha_agregado.desc())
     elif order == "oldest":
         favoritos = favoritos.order_by(Favorito.fecha_agregado.asc())

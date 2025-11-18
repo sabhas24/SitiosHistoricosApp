@@ -259,7 +259,7 @@ def crear_reseña_ejemplo():
     return reseña
 
 
-def obtener_reseñas_por_usuario(idmail, page=1, per_page=25, order="lasted"):
+def obtener_reseñas_por_usuario(idmail, page=1, per_page=25, order="latest"):
     """Obtiene todas las reseñas de un usuario específico"""
     query = (
         db.session.query(Reseña)
@@ -267,7 +267,7 @@ def obtener_reseñas_por_usuario(idmail, page=1, per_page=25, order="lasted"):
         .filter(Reseña.email_usuario == idmail)
     )
 
-    if order == "lasted":
+    if order == "latest":
         query = query.order_by(Reseña.fecha_creacion.desc())
     else:
         query = query.order_by(Reseña.fecha_creacion.asc())

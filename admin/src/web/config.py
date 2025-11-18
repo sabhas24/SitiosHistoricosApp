@@ -40,10 +40,10 @@ class DevelopmentConfig(Config):
 
     # Legacy config
     MINIO_SERVER = "192.168.1.38:9000"
-    
+
     DEBUG = True
     BD_USER = "postgres"
-    BD_PASSWORD = "nico+1234"
+    BD_PASSWORD = "admin"
     BD_HOST = "localhost"
     BD_PORT = "5432"
     BD_NAME = "grupo44"

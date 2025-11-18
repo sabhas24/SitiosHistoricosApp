@@ -51,6 +51,7 @@ class SitioHistorico(Base):
 
     calificacion_promedio = Column(Float, default=0.0, nullable=False)
     total_resenas = Column(Integer, default=0, nullable=False)
+    visitas = Column(Integer, default=0, nullable=False)
 
     fecha_registro = Column(DateTime, default=func.now(), nullable=False)
     fecha_ultima_modificacion = Column(
