@@ -38,7 +38,27 @@
           </div>
         </div>
         <div class="dropdown-divider"></div>
-        <button @mousedown="handleLogout" class="dropdown-item">
+        <RouterLink to="/profile" class="dropdown-item" @click="closeDropdown">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 8C9.65685 8 11 6.65685 11 5C11 3.34315 9.65685 2 8 2C6.34315 2 5 3.34315 5 5C5 6.65685 6.34315 8 8 8Z" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M2.5 14C2.5 11.7909 5.13401 10 8 10C10.866 10 13.5 11.7909 13.5 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          Perfil
+        </RouterLink>
+        <RouterLink to="/profile" class="dropdown-item" @click="closeDropdown">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 2C5.33333 2 3.2 3.2 2.4 5M8 2C10.6667 2 12.8 3.2 13.6 5M3 8H13M6 10.5V12.5M10 10.5V12.5M3.5 13.5H12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Mis Reseñas
+        </RouterLink>
+        <RouterLink to="/profile" class="dropdown-item" @click="closeDropdown">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 2C4.68629 2 2 4.68629 2 8C2 11.3137 4.68629 14 8 14C11.3137 14 14 11.3137 14 8C14 4.68629 11.3137 2 8 2ZM8 10C6.89543 10 6 9.10457 6 8C6 6.89543 6.89543 6 8 6C9.10457 6 10 6.89543 10 8C10 9.10457 9.10457 10 8 10Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+          Sitios Favoritos
+        </RouterLink>
+        <div class="dropdown-divider"></div>
+        <button @mousedown="handleLogout" class="dropdown-item logout-item">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M6 14H3.33333C2.97971 14 2.64057 13.8595 2.39052 13.6095C2.14048 13.3594 2 13.0203 2 12.6667V3.33333C2 2.97971 2.14048 2.64057 2.39052 2.39052C2.64057 2.14048 2.97971 2 3.33333 2H6M10.6667 11.3333L14 8M14 8L10.6667 4.66667M14 8H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
@@ -78,7 +98,7 @@ const handleLogout = async () => {
   try {
     await api.post('/user/logout', {}, { withCredentials: true })
   } catch (e) {
-    println(e)
+    console.error('Logout error:', e)
   }
   authStore.clearUser()
   router.push('/login')
@@ -242,6 +262,10 @@ const handleLogout = async () => {
 
 .dropdown-item svg {
   flex-shrink: 0;
+}
+
+.logout-item {
+  color: #dc2626;
 }
 
 @media (max-width: 768px) {

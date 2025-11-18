@@ -2,15 +2,42 @@
   <div class="home-page">
     <NavigationBar />
     
-    <!-- Hero Section -->
-    <section class="hero-section">
-      <div class="hero-image-container">
-        <img 
-          src="https://images.unsplash.com/photo-1589909202802-8f4aadce1849?w=1920&h=1080&fit=crop" 
-          alt="Obelisco de Buenos Aires"
-          class="hero-image"
+    <HeroSection 
+      project-title="PatrimonioBA"
+      subtitle="Descubre y explora el patrimonio histórico de Buenos Aires"
+    />
+    
+    <main class="main-content">
+      <div class="container">
+        
+        <FeaturedSection
+          title="Más visitados"
+          endpoint="/sitios/mas-visitados"
+          empty-message="No hay datos de visitas disponibles"
+          :filter-params="{ sort: 'visits', order: 'lasted' }"
         />
-        <div class="hero-overlay"></div>
+        
+        <FeaturedSection
+          title="Mejor puntuados"
+          endpoint="/sitios/mejor-puntuados"
+          empty-message="No hay sitios puntuados aún"
+          :filter-params="{ sort: 'rating', order: 'lasted' }"
+        />
+        
+        <FeaturedSection
+          title="Favoritos"
+          endpoint="/sitios/favoritos"
+          empty-message="Aún no tienes sitios favoritos"
+          :filter-params="{ favorited: 'true' }"
+        />
+        
+        <FeaturedSection
+          title="Recientemente agregados"
+          endpoint="/sitios/recientes"
+          empty-message="No hay sitios agregados recientemente"
+          :filter-params="{ sort: 'created_at', order: 'lasted' }"
+        />
+        
       </div>
       <div class="hero-content">
         <h1 class="hero-title">Redescubre la Historia de Buenos Aires</h1>

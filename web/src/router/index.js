@@ -4,8 +4,10 @@ import MapView from '../views/MapView.vue'
 import SiteDetailView from '../views/SiteDetailView.vue'
 import SitiosListView from '../views/SitiosListView.vue'
 import LoginView from '../views/LoginView.vue'
+import ProfileView from '../views/ProfileView.vue'
 import { useAuthStore } from '../stores/auth';
-import loginSuccess from  '../views/LoginSuccessView.vue'
+import loginSuccess from '../views/LoginSuccessView.vue'
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -28,6 +30,12 @@ const router = createRouter({
       path: '/map',
       name: 'map',
       component: MapView,
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: ProfileView,
       meta: { requiresAuth: true },
     },
     {
@@ -54,6 +62,5 @@ router.beforeEach((to, from, next) => {
 
   next();
 });
-
 
 export default router
