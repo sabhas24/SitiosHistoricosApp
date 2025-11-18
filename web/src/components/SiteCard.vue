@@ -2,22 +2,22 @@
   <div class="site-card" @click="navigateToSite">
     <div class="card-image">
       <img 
-        :src="minioImg(site.image, 'placeholder-image.jpg')" 
-        :alt="site.name"
+        :src="minioImg(site.imagen_principal || site.image, 'placeholder-image.jpg')" 
+        :alt="site.nombre || site.name"
         loading="lazy"
         @error="handleImageError"
       />
     </div>
     <div class="card-content">
-      <h3 class="site-name">{{ site.name }}</h3>
+      <h3 class="site-name">{{ site.nombre || site.name }}</h3>
       <p class="site-location">{{ formatLocation(site) }}</p>
-      <div v-if="site.rating" class="rating">
+      <div v-if="site.calificacion_promedio || site.rating" class="rating">
         <div class="stars">
-          <span v-for="n in 5" :key="n" class="star" :class="{ filled: n <= site.rating }">
+          <span v-for="n in 5" :key="n" class="star" :class="{ filled: n <= (site.calificacion_promedio || site.rating) }">
             ⭐
           </span>
         </div>
-        <span class="rating-value">{{ site.rating.toFixed(1) }}</span>
+        <span class="rating-value">{{ (site.calificacion_promedio || site.rating).toFixed(1) }}</span>
       </div>
     </div>
   </div>
@@ -34,8 +34,8 @@ const props = defineProps({
 })
 
 const navigateToSite = () => {
-  // IMPLEMENTAR NAVEGACIONA DETALLE DEL SITIO CUANDO ESTE
-  console.log('Ver detalle del sitio:', props.site.name)
+  // Usar router de Vue en lugar de window.location
+  window.location.href = `/sitio/${props.site.id}`
 }
 
 const handleImageError = (event) => {
@@ -44,8 +44,8 @@ const handleImageError = (event) => {
 
 const formatLocation = (site) => {
   const parts = []
-  if (site.city) parts.push(site.city)
-  if (site.province) parts.push(site.province)
+  if (site.ciudad || site.city) parts.push(site.ciudad || site.city)
+  if (site.provincia || site.province) parts.push(site.provincia || site.province)
   return parts.join(', ')
 }
 </script>
