@@ -1,13 +1,18 @@
 <template>
-  <div class="profile-header">
+  <div class="profile-header" :style="{ backgroundColor: profileColor  }">
     <div class="profile-header-content">
       <div class="profile-avatar">
-        {{ userInitial }}
+        <template v-if="profilePicture">
+          <img :src="profilePicture" alt="Foto de perfil" class="avatar-img" />
+        </template>
+        <template v-else>
+          {{ userInitial }}
+        </template>
       </div>
       <div class="profile-info">
         <h1 class="profile-name">{{ userName }}</h1>
         <p class="profile-email">{{ userEmail }}</p>
-        <p class="profile-role">Explorador de Patrimonio Histórico</p>
+        <p class="profile-role">amante de la histiria</p>
       </div>
     </div>
   </div>
@@ -24,8 +29,18 @@ const props = defineProps({
   userEmail: {
     type: String,
     required: true
-  }
+  },
+  profilePicture: {
+    type: String,
+    default: ''
+  },
+  profileColor: {
+    type: String,
+    default: '#8B7355'
+  },
 })
+
+console.log('ProfileHeader - profilePicture:', props.profilePicture)
 
 const userInitial = computed(() => {
   return props.userName ? props.userName.charAt(0).toUpperCase() : 'U'
@@ -34,7 +49,7 @@ const userInitial = computed(() => {
 
 <style scoped>
 .profile-header {
-  background: linear-gradient(135deg, #8B7355 0%, #A0826D 100%);
+  
   border-radius: 12px;
   padding: 32px 24px;
   margin-bottom: 32px;
@@ -81,6 +96,13 @@ const userInitial = computed(() => {
   font-size: 14px;
   opacity: 0.8;
   font-style: italic;
+}
+
+.avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 @media (max-width: 768px) {

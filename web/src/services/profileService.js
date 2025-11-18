@@ -7,8 +7,8 @@ export const profileService = {
             });
 
             return {
-                items: response.data.data,
-                totalPages: Math.ceil(response.data.meta.total / limit)
+                items: response.data.reseñas,
+                totalPages: response.data.pages
             };
         } catch (error) {
             console.error("Error fetching reviews:", error);

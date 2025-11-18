@@ -98,7 +98,7 @@ const handleLogout = async () => {
   try {
     await api.post('/user/logout', {}, { withCredentials: true })
   } catch (e) {
-    console.error('[v0] Logout error:', e)
+    console.error('Logout error:', e)
   }
   authStore.clearUser()
   router.push('/login')

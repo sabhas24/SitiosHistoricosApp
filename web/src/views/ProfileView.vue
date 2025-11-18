@@ -1,9 +1,12 @@
 <template>
-  <div class="profile-container">
+  <div class="profile-container" >
     <!-- Header con info del usuario -->
     <ProfileHeader 
+      v-if="authStore.user"
       :user-name="authStore.userName" 
       :user-email="authStore.userEmail"
+      :profile-picture="userProfilePicture"
+      :profile-color="profileColor"
     />
 
     <!-- Tabs Navigation -->
@@ -48,7 +51,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { profileService } from '../services/profileService'
@@ -70,6 +73,33 @@ const loading = ref(false)
 const loadingFavorites = ref(false)
 const error = ref(null)
 const errorFavorites = ref(null)
+const profileColor = ref('#8B7355')
+
+function getProfileColor(user) {
+  const paleta = [
+    "#db4437", "#e91e63", "#9c27b0", "#673ab7", "#3f51b5", "#4285f4", "#039be5", "#0097a7", "#009688", "#0f9d58", "#689f38", "#ef6c00", "#ff5722", "#757575", "#607d8b"
+  ];
+  let name = user?.userName || user?.userEmail || "anonimo";
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash % paleta.length);
+  return paleta[index];
+}
+
+const userProfilePicture = computed(() => {
+  // Accedemos directo a authStore.user
+  const pic = authStore.user?.profile_picture || '' 
+  console.log('URL de imagen detectada:', pic)
+  return pic
+})
+onMounted(async () => {
+  profileColor.value = getProfileColor(authStore)
+  console.log('ProfileView - user:', authStore.user.value)
+  console.log('ProfileView - user profile_picture:', authStore.user.value?.profile_picture)
+  await loadReviews()
+})
 
 const tabs = [
   { id: 'reviews', label: 'Mis Reseñas' },
@@ -80,9 +110,6 @@ if (!authStore.isAuthenticated) {
   router.push('/login')
 }
 
-onMounted(async () => {
-  await loadReviews()
-})
 
 const loadReviews = async () => {
   loading.value = true
@@ -92,12 +119,14 @@ const loadReviews = async () => {
     reviews.value = data.items
     totalPages.value = data.totalPages
   } catch (err) {
-    console.error('[v0] Error loading reviews:', err)
+    console.error(' Error loading reviews:', err)
     error.value = 'No pudimos cargar tus reseñas. Intenta nuevamente.'
   } finally {
     loading.value = false
   }
 }
+
+
 
 const loadFavorites = async () => {
   loadingFavorites.value = true
@@ -107,7 +136,7 @@ const loadFavorites = async () => {
     favorites.value = data.items
     totalPagesFavorites.value = data.totalPages
   } catch (err) {
-    console.error('[v0] Error loading favorites:', err)
+    console.error('Error loading favorites:', err)
     errorFavorites.value = 'No pudimos cargar tus sitios favoritos. Intenta nuevamente.'
   } finally {
     loadingFavorites.value = false
@@ -171,13 +200,14 @@ watch(activeTab, (newTab) => {
   white-space: nowrap;
 }
 
+
 .tab-button:hover {
-  color: #8B7355;
+  color: v-bind(profileColor);
 }
 
 .tab-button.active {
-  color: #8B7355;
-  border-bottom-color: #8B7355;
+  color: v-bind(profileColor);
+  border-bottom-color: v-bind(profileColor);
 }
 
 .tabs-content {
