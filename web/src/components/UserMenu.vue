@@ -1,11 +1,7 @@
 <template>
   <div class="user-menu">
    
-    <div v-if="!authStore.isAuthenticated" class="auth-actions">
-      <RouterLink to="/login" class="btn-login">
-        Iniciar Sesión
-      </RouterLink>
-    </div>
+   
       <div v-if="!authStore.isAuthenticated" class="auth-actions">
         <button class="btn-login" @click="goToLogin">
           Iniciar Sesión
@@ -78,7 +74,7 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
-import api from '../config/api'
+import api from '../config/api' // Updated import to use default export
 
 
 const router = useRouter()

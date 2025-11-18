@@ -1,4 +1,5 @@
-import api from "@/config/api";
+import api from "../config/api";
+
 export const profileService = {
     async getReviews(page = 1, limit = 25, order = 'latest') {
         try {
