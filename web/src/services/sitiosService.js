@@ -14,7 +14,7 @@ const sitiosService = {
    * @param {string} params.city - Filtrar por ciudad
    * @param {string} params.province - Filtrar por provincia
    * @param {string[]} params.tags - Filtrar por tags
-   * @param {string} params.order_by - Campo para ordenar (default: 'name')
+   * @param {string} params.order_by - Campo para ordenar (fecha, rating, visits)
    * @param {number} params.lat - Latitud para búsqueda geográfica
    * @param {number} params.long - Longitud para búsqueda geográfica
    * @param {number} params.radius - Radio en km para búsqueda geográfica
