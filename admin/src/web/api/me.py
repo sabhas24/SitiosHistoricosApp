@@ -23,6 +23,8 @@ def show_env():
             "MINIO_ENDPOINT": config.MINIO_ENDPOINT,
             "MINIO_BUCKET_NAME": config.MINIO_BUCKET_NAME,
             "MINIO_ACCESS_KEY": config.MINIO_ACCESS_KEY,
+            "GOOGLE_CLIENT_ID": config.GOOGLE_CLIENT_ID,
+            "GOOGLE_CLIENT_SECRET": config.GOOGLE_CLIENT_SECRET,
             # Agrega aquí las variables que quieras ver
         }
     )
