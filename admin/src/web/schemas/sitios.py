@@ -26,15 +26,15 @@ class SitioReadSchema(BaseSchema):
     descripcion_completa = fields.Str(required=False)
     ciudad = fields.Str(required=True)
     provincia = fields.Str(required=True)
-    estado_conservacion = fields.Str(required=True)
+    estado_conservacion = fields.Method('get_estado_conservacion')
     anio_inauguracion = fields.Int(required=False)
-    categoria = fields.Str(required=True)
+    categoria = fields.Method('get_categoria')
     latitud = fields.Method('get_latitud')
     longitud = fields.Method('get_longitud')
     visible = fields.Bool(dump_only=True)
     fecha_registro = fields.DateTime(dump_only=True)
     fecha_ultima_modificacion = fields.DateTime(dump_only=True)
-    tags = fields.List(fields.Str(), required=False)
+    tags = fields.Method('get_tags')
     imagenes = fields.Nested(ImagenSitioSchema, many=True, dump_only=True)
     imagen_principal = fields.Method('get_imagen_principal')
     
@@ -63,6 +63,24 @@ class SitioReadSchema(BaseSchema):
         # Si no hay portada, usar la primera imagen
         if hasattr(obj, 'imagenes') and obj.imagenes:
             return obj.imagenes[0].url_publica
+        return None
+
+    def get_tags(self, obj):
+        """Obtener los nombres de los tags."""
+        if hasattr(obj, 'tags') and obj.tags:
+            return [tag.nombre for tag in obj.tags]
+        return []
+
+    def get_estado_conservacion(self, obj):
+        """Obtener el valor del estado de conservación."""
+        if hasattr(obj, 'estado_conservacion') and obj.estado_conservacion:
+            return obj.estado_conservacion.value
+        return None
+
+    def get_categoria(self, obj):
+        """Obtener el valor de la categoría."""
+        if hasattr(obj, 'categoria') and obj.categoria:
+            return obj.categoria.value
         return None
 
 

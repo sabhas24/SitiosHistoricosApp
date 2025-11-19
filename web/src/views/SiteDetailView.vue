@@ -53,6 +53,9 @@
                 <h2>Historia y Detalles</h2>
                 <p class="historia">{{ sitio.descripcion_completa }}</p>
               </section>
+
+              <!-- Reseñas y calificaciones -->
+              <SiteReviews v-if="sitio && sitio.id" :siteId="sitio.id" />
             </div>
             
             <!-- Sidebar -->
@@ -84,6 +87,15 @@
                     </span>
                   </span>
                 </div>
+              </div>
+              
+              <!-- Botón de Favoritos -->
+              <div class="info-card">
+                <FavoriteButton 
+                  v-if="sitio && sitio.id"
+                  :site-id="sitio.id"
+                  @favorite-changed="onFavoriteChanged"
+                />
               </div>
               
               <!-- Tags -->
@@ -128,6 +140,8 @@ import sitiosService from '../services/sitiosService'
 import { minioImg } from '../utils/minioImages'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import SiteReviews from '../components/SiteReviews.vue'
+import FavoriteButton from '../components/FavoriteButton.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -212,6 +226,11 @@ const formatLocation = (site) => {
   if (site.ciudad) parts.push(site.ciudad)
   if (site.provincia) parts.push(site.provincia)
   return parts.join(', ') || 'Ubicación no especificada'
+}
+
+const onFavoriteChanged = (event) => {
+  console.log(`Sitio ${event.siteId} ${event.isFavorite ? 'agregado a' : 'eliminado de'} favoritos`)
+  // Aquí podrías agregar notificaciones o actualizar algún estado si fuera necesario
 }
 
 onMounted(() => {
