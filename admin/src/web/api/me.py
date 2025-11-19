@@ -29,7 +29,6 @@ def show_env():
             "MINIO_ACCESS_KEY": config.MINIO_ACCESS_KEY,
             "MINIO_SECRET_KEY": config.MINIO_SECRET_KEY,
             "MINIO_SECURE": config.MINIO_SECURE,
-            "MINIO_SERVER": config.MINIO_SERVER,
             
             # Google OAuth Configuration
             "GOOGLE_CLIENT_ID": config.GOOGLE_CLIENT_ID,
