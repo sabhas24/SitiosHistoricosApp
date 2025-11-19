@@ -2,13 +2,15 @@
   <section class="featured-section">
     <div class="section-header">
       <h2 class="section-title">{{ title }}</h2>
-      <button 
-        v-if="showViewAll" 
-        @click="handleViewAll"
-        class="view-all-link"
-      >
-        Ver todos >
-      </button>
+      <div class="header-actions">
+        <button 
+          v-if="showViewAll" 
+          @click="handleViewAll"
+          class="view-all-link"
+        >
+          Ver todos
+        </button>
+      </div>
     </div>
     
     <div v-if="loading" class="loading-state">
@@ -26,12 +28,19 @@
       <div class="empty-pill">No hay contenido</div>
     </div>
     
-    <div v-else class="sites-grid">
-      <SiteCard 
-        v-for="site in sites" 
-        :key="site.id" 
-        :site="site"
-      />
+    <div v-else class="carousel-container">
+      <div class="sites-grid" ref="carouselTrack">
+        <SiteCard 
+          v-for="site in sites" 
+          :key="site.id" 
+          :site="site"
+        />
+      </div>
+      <!-- Navigation Buttons -->
+      <div class="carousel-nav">
+        <button @click="scrollLeft" class="nav-btn nav-btn--prev" aria-label="Anterior">‹</button>
+        <button @click="scrollRight" class="nav-btn nav-btn--next" aria-label="Siguiente">›</button>
+      </div>
     </div>
   </section>
 </template>
@@ -69,6 +78,7 @@ const router = useRouter()
 const sites = ref([])
 const loading = ref(true)
 const error = ref(false)
+const carouselTrack = ref(null)
 
 const loadSites = async () => {
   try {
@@ -107,6 +117,18 @@ const retry = () => {
   loadSites()
 }
 
+const scrollLeft = () => {
+  if (carouselTrack.value) {
+    carouselTrack.value.scrollBy({ left: -300, behavior: 'smooth' })
+  }
+}
+
+const scrollRight = () => {
+  if (carouselTrack.value) {
+    carouselTrack.value.scrollBy({ left: 300, behavior: 'smooth' })
+  }
+}
+
 onMounted(() => {
   loadSites()
 })
@@ -138,10 +160,16 @@ onMounted(() => {
   border-bottom: none;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
 .section-title {
   font-size: 1.5rem;
   font-weight: 600;
-  color: #1f2937;
+  color: #111827;
   margin: 0;
   position: relative;
 }
@@ -159,24 +187,80 @@ onMounted(() => {
 
 .view-all-link {
   background: none;
-  border: none;
-  color: #374151;
+  border: 1px solid #d1d5db;
+  color: #4b5563;
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
-  padding: 4px 8px;
-  transition: color 0.2s ease;
+  padding: 6px 16px;
+  border-radius: 999px;
+  transition: all 0.2s ease;
 }
 
 .view-all-link:hover {
-  color: #000;
-  text-decoration: underline;
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.carousel-container {
+  position: relative;
+}
+
+.carousel-container:hover .nav-btn {
+  opacity: 1;
+}
+
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: rgba(17, 24, 39, 0.5);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 1.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+  opacity: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-btn:hover {
+  background-color: rgba(17, 24, 39, 0.8);
+  transform: translateY(-50%) scale(1.05);
+}
+
+.nav-btn--prev {
+  left: -22px;
+}
+
+.nav-btn--next {
+  right: -22px;
 }
 
 .sites-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(280px, 1fr);
   gap: 20px;
+  overflow-x: auto;
+  padding-bottom: 20px;
+  /* Ocultar la barra de scroll */
+  scrollbar-width: none; /* Firefox */
+}
+.sites-grid::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, and Opera */
+}
+
+.sites-grid > * {
+  width: 280px; /* Ancho fijo para cada tarjeta */
 }
 
 .loading-state {

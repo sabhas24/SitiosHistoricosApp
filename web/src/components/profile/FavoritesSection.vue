@@ -13,7 +13,7 @@
     />
 
     <div v-else class="favorites-container">
-      <div class="favorites-grid">
+      <div class="favorites-carousel">
         <div v-for="site in favorites" :key="site.id" class="favorite-card">
           <div class="favorite-image">
             <img :src="site.image" :alt="site.name" loading="lazy"/>
@@ -87,11 +87,14 @@ defineEmits(['prev-page', 'next-page'])
   flex-direction: column;
 }
 
-.favorites-grid {
+.favorites-carousel {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-auto-flow: column;
+  grid-auto-columns: 280px;
   gap: 20px;
   margin-bottom: 32px;
+  overflow-x: auto;
+  padding-bottom: 16px;
 }
 
 .favorite-card {

@@ -21,8 +21,6 @@
         <img 
           :src="getSiteImageUrl()"
           :alt="sitio.nombre"
-          class="hero-image"
-          @error="handleImageError"
         />
         <div class="hero-overlay"></div>
         <div class="hero-content">
@@ -191,16 +189,12 @@ const initMap = () => {
 const getSiteImageUrl = () => {
   // Prioridad: imagen_principal > primera imagen del array > placeholder
   if (sitio.value?.imagen_principal) {
-    return sitio.value.imagen_principal
+    return minioImg(sitio.value.imagen_principal)
   }
   if (sitio.value?.imagenes && sitio.value.imagenes.length > 0) {
-    return sitio.value.imagenes[0].url_publica
+    return minioImg(sitio.value.imagenes[0].url_publica)
   }
-  return 'https://placehold.co/800x400/667eea/ffffff?text=Mapa+de+Buenos+Aires'
-}
-
-const handleImageError = (event) => {
-  event.target.src = 'https://placehold.co/800x400/667eea/ffffff?text=Mapa+de+Buenos+Aires'
+  return minioImg()
 }
 
 const getPlaceholderImage = () => {
@@ -561,6 +555,15 @@ onUnmounted(() => {
   
   .image-gallery {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
+  .content-grid {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    order: -1;
   }
 }
 </style>

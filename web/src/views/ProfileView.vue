@@ -1,5 +1,5 @@
 <template>
-  <div class="profile-container" >
+  <div class="profile-container container" >
     <button @click="goBack" class="back-button">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="back-icon">
         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
@@ -186,7 +186,6 @@ watch(activeTab, (newTab) => {
 
 <style scoped>
 .profile-container {
-  max-width: 1200px;
   margin: 0 auto;
   padding: 24px 16px;
 }

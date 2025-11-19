@@ -1,14 +1,11 @@
 <template>
-  <div class="home-page">
-    <NavigationBar />
-    
-    <HeroSection 
-      project-title="PatrimonioBA"
-      subtitle="Descubre y explora el patrimonio histórico de Buenos Aires"
-    />
-    
+  <div class="home-view">
+    <NavigationBar :transparent="true" />
+
+    <HeroSection />
+
     <main class="main-content">
-      <div class="container">
+      <div class="container content-wrapper">
         
         <FeaturedSection
           title="Más visitados"
@@ -45,7 +42,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import NavigationBar from '../components/NavigationBar.vue'
 import HeroSection from '../components/HeroSection.vue'
 import FeaturedSection from '../components/FeaturedSection.vue'
@@ -58,20 +55,19 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.home-page {
+.home-view {
   min-height: 100vh;
-  background: #FDFBF7;
 }
 
 .main-content {
-  padding-bottom: 60px;
+  padding-bottom: 5rem;
 }
 
-.container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 24px;
+.content-wrapper {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
 }
-
-/* Removed styles for deleted sections (collections, map-preview, about) */
 </style>

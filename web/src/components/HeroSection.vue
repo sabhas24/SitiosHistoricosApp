@@ -3,7 +3,7 @@
     <div class="hero-content">
       <h1 class="hero-title">
         Descubrí la historia <br>
-        <span class="italic-text">de Buenos Aires</span>
+        <span class="italic-text">de Argentina</span>
       </h1>
       
       <div class="search-container">
@@ -31,7 +31,7 @@
     </div>
     
     <div class="hero-background">
-      <!-- Abstract/Minimalist background shapes or image could go here -->
+      <div class="hero-overlay"></div>
     </div>
   </section>
 </template>
@@ -65,11 +65,14 @@ const handleSearch = () => {
   margin-top: -80px; /* Pull behind nav */
   padding-top: 80px;
   overflow: hidden;
+  background-image: url('https://turismo.buenosaires.gob.ar/sites/turismo/files/field/image/congreso_nacional_fuente_1200.jpg');
+  background-size: cover;
+  background-position: center;
 }
 
 .hero-content {
   position: relative;
-  z-index: 10;
+  z-index: 2;
   text-align: center;
   max-width: 800px;
   width: 100%;
@@ -78,8 +81,8 @@ const handleSearch = () => {
 .hero-title {
   font-family: var(--font-heading);
   font-size: 4rem;
-  line-height: 1.1;
-  color: var(--text-primary);
+  line-height: 1.2;
+  color: white;
   margin-bottom: 3rem;
   font-weight: 400;
   letter-spacing: -0.02em;
@@ -88,7 +91,14 @@ const handleSearch = () => {
 .italic-text {
   font-style: italic;
   font-weight: 300;
-  color: var(--text-secondary);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1;
 }
 
 .search-container {
@@ -100,8 +110,8 @@ const handleSearch = () => {
   position: relative;
   display: flex;
   align-items: center;
-  background: var(--background-white);
-  border: 1px solid var(--border-color);
+  background: white;
+  border: 2px solid black;
   border-radius: var(--radius-full);
   padding: 8px;
   transition: all 0.3s ease;
@@ -129,8 +139,8 @@ const handleSearch = () => {
 }
 
 .search-button {
-  background: var(--primary-color);
-  color: var(--background-white);
+  background: #3b82f6; /* Azul para el círculo */
+  color: white;
   border: none;
   width: 44px;
   height: 44px;

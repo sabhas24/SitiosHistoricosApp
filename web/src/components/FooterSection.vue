@@ -18,9 +18,9 @@
         <!-- Enlaces -->
         <div class="footer-links">
           <h4>Enlaces</h4>
-          <router-link to="/contacto">Contacto</router-link>
-          <router-link to="/terminos">Términos de Servicio</router-link>
-          <router-link to="/privacidad">Política de Privacidad</router-link>
+          <p>contacto</p>
+          <p>términos de servicio</p>
+          <p>política de privacidad</p>
         </div>
         
         <!-- Redes Sociales -->
