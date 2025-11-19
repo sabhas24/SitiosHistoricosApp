@@ -93,6 +93,20 @@ const sitiosService = {
       ...additionalParams,
     })
   },
+
+  /**
+   * Obtiene las opciones disponibles para filtros
+   * @returns {Promise<{provincias: Array, ciudades: Array, categorias: Array, estados_conservacion: Array, tags: Array}>}
+   */
+  async getFilterOptions() {
+    try {
+      const response = await api.get('/sitios/filters')
+      return response.data
+    } catch (error) {
+      console.error('Error al obtener opciones de filtros:', error)
+      throw error
+    }
+  },
 }
 
 export default sitiosService

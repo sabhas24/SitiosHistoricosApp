@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class Permisos(Enum):
     USER_INDEX = "user_index"
     USER_SHOW = "user_show"
@@ -23,8 +24,12 @@ class Permisos(Enum):
     PROPOSAL_VALIDATE = "proposal_validate"
     REVIEW_INDEX = "review_index"
     REVIEW_MODERATE = "review_moderate"
+    REVIEW_DESTROY = "review_destroy"
     FEATURE_FLAGS = "feature_flags"
     REPORT_VIEW = "report_view"
+    SITE_VIEW = "site_view"
+    REVIEW_CREATE = "review_create"
+    FAVORITE_MANAGE = "favorite_manage"
 
 
 _VALUES = {p.value for p in Permisos}

@@ -2,7 +2,6 @@ from flask import Flask, render_template
 from src.web.config import config as app_config
 from src.models import database
 from flask_session import Session
-from flask_swagger_ui import get_swaggerui_blueprint
 from flask_cors import CORS
 from src.web.controllers.auth import bp as auth_bp
 from src.web.controllers.sitios import (
@@ -41,7 +40,11 @@ def create_app(env="development", static_folder="../../static"):
         app,
         resources={
             r"/api/*": {
-                "origins": "http://localhost:*",
+                "origins": [
+                    "http://localhost:*",
+                    "http://127.0.0.1:*",
+                    "https://grupo44.proyecto2025.linti.unlp.edu.ar"
+                ],
                 "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
                 "allow_headers": ["Content-Type", "Authorization"],
                 "expose_headers": ["Content-Type", "Authorization"],
@@ -87,32 +90,6 @@ def create_app(env="development", static_folder="../../static"):
     def home():
         return render_template("home.html")
 
-    # Configurar Swagger UI
-    SWAGGER_URL = "/api/docs"
-    API_URL = "/api/swagger.json"
-
-    swaggerui_blueprint = get_swaggerui_blueprint(
-        SWAGGER_URL,
-        API_URL,
-        config={
-            "app_name": "API Sitios Históricos",
-            "deepLinking": True,
-            "displayRequestDuration": True,
-            "docExpansion": "list",
-            "filter": True,
-            "showExtensions": True,
-            "showCommonExtensions": True,
-            "syntaxHighlight.theme": "monokai",
-        },
-    )
-
-    # Endpoint para servir el JSON de OpenAPI
-    @app.route(API_URL)
-    def swagger_json():
-        from src.web.utils.openapi_spec import get_openapi_spec
-
-        return jsonify(get_openapi_spec())
-
     # Registrar blueprints
     app.register_blueprint(auth_bp)
     app.register_blueprint(sitios_bp)
@@ -126,9 +103,6 @@ def create_app(env="development", static_folder="../../static"):
 
     # Registrar blueprint de la API REST
     app.register_blueprint(api_bp, url_prefix="/api")
-
-    # Registrar Swagger UI
-    app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
     app.jinja_env.globals["is_authenticated"] = is_authenticated
     app.jinja_env.globals["get_current_user"] = get_current_user

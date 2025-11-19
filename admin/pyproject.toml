@@ -6,11 +6,16 @@ authors = [
     {name = "Your Name",email = "you@example.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<4"
 dependencies = [
     "flask (>=3.1.2,<4.0.0)",
     "flask-session",
     "flask-sqlalchemy-lite",
+    "flask-cors",
+    "flask-jwt-extended (>=4.6.0)",
+    "authlib",
+    "python-dotenv",
+    "marshmallow",
     "psycopg2-binary (==2.9.11)",
     "geoalchemy2 (>=0.18.0,<0.19.0)",
     "shapely (>=2.1.2,<3.0.0)"
@@ -22,8 +27,7 @@ packages = [{include = "web", from = "src"}]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.2"
-pylint = "^3.2.5"
-coverage = "^7.5.4"
+
 
 [tool.pyright]
 include = ["src"]

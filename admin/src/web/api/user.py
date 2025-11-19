@@ -115,7 +115,7 @@ def login_callback():
 
         access_token = create_access_token(identity=str(user.id))
 
-        frontend_base = current_app.config["FRONTEND_BASE_URL"]
+        frontend_base = current_app.config.get("FRONTEND_BASE_URL", "")
         frontend_url = f"{frontend_base}/login-success"
         response = make_response(redirect(frontend_url))
         set_access_cookies(response, access_token)
