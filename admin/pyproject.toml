@@ -27,8 +27,7 @@ packages = [{include = "web", from = "src"}]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.4.2"
-pylint = "^3.2.5"
-coverage = "^7.5.4"
+
 
 [tool.pyright]
 include = ["src"]
