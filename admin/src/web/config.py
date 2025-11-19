@@ -59,24 +59,21 @@ class DevelopmentConfig(Config):
 
 
 class ProductionConfig(Config):
-    BD_USER = environ.get("DB_USER", "postgres")
-    BD_PASSWORD = environ.get("DB_PASSWORD", "admin")
-    BD_HOST = environ.get("DB_HOST", "localhost")
-    BD_PORT = environ.get("DB_PORT", "5432")
-    BD_NAME = environ.get("DB_NAME", "grupo44")
-    BD_SCHEME = environ.get("DB_SCHEME", "postgresql")
-    MINIO_ENDPOINT = environ.get("MINIO_ENDPOINT", "127.0.0.1:9000")
-    MINIO_BUCKET_NAME = environ.get("MINIO_BUCKET_NAME", "grupo44")
-    MINIO_ACCESS_KEY = environ.get("MINIO_ACCESS_KEY", "minioadmin")
-    MINIO_SECRET_KEY = environ.get("MINIO_SECRET_KEY", "minioadmin")
+    BD_USER = environ.get("DB_USER")
+    BD_PASSWORD = environ.get("DB_PASSWORD")
+    BD_HOST = environ.get("DB_HOST")
+    BD_PORT = environ.get("DB_PORT")
+    BD_NAME = environ.get("DB_NAME")
+    BD_SCHEME = environ.get("DB_SCHEME")
+    MINIO_ENDPOINT = environ.get("MINIO_ENDPOINT")
+    MINIO_BUCKET_NAME = environ.get("MINIO_BUCKET_NAME")
+    MINIO_ACCESS_KEY = environ.get("MINIO_ACCESS_KEY")
+    MINIO_SECRET_KEY = environ.get("MINIO_SECRET_KEY")
     MINIO_SECURE = True
-    MINIO_SERVER = "127.0.0.1:9000"
-    SQLALCHEMY_ENGINES = {
-        "default": environ.get("DATABASE_URL")
-        or f"{BD_SCHEME}://{BD_USER}:{BD_PASSWORD}@{BD_HOST}:{BD_PORT}/{BD_NAME}?client_encoding=utf8"
-    }
+
+    SQLALCHEMY_ENGINES = {"default": environ.get("DATABASE_URL")}
     DEBUG = False
-    JWT_SECRET_KEY = environ.get("JWT_SECRET_KEY", "cambiar-en-produccion")
+    JWT_SECRET_KEY = environ.get("JWT_SECRET_KEY")
     JWT_TOKEN_LOCATION = ["cookies"]
     JWT_COOKIE_SECURE = True
     JWT_COOKIE_CSRF_PROTECT = True
