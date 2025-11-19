@@ -253,7 +253,6 @@ def crear_reseña_ejemplo():
         email_usuario="visitante@example.com",
         nombre_usuario="María García",
     )
-
     db.session.add(reseña)
     db.session.commit()
     return reseña
@@ -296,10 +295,7 @@ def obtener_reseña_por_usuario_y_sitio(email_usuario, sitio_id):
         db.session.query(Reseña)
         .options(joinedload(Reseña.sitio), joinedload(Reseña.usuario_moderador))
         .filter(
-            and_(
-                Reseña.email_usuario == email_usuario,
-                Reseña.sitio_id == sitio_id
-            )
+            and_(Reseña.email_usuario == email_usuario, Reseña.sitio_id == sitio_id)
         )
         .first()
     )
@@ -308,26 +304,26 @@ def obtener_reseña_por_usuario_y_sitio(email_usuario, sitio_id):
 def actualizar_reseña(reseña_id, email_usuario, comentario=None, calificacion=None):
     """Actualiza una reseña existente del usuario"""
     reseña = obtener_reseña_por_id(reseña_id)
-    
+
     if not reseña:
         return False, "Reseña no encontrada"
-    
+
     if reseña.email_usuario != email_usuario:
         return False, "No tienes permisos para editar esta reseña"
-    
+
     try:
         # Al actualizar, vuelve a estado pendiente para moderación
         if comentario is not None:
             reseña.comentario = comentario
         if calificacion is not None:
             reseña.calificacion = calificacion
-            
+
         # Reset moderation fields when editing
         reseña.estado = EstadoReseña.PENDIENTE
         reseña.fecha_moderacion = None
         reseña.usuario_moderador_id = None
         reseña.motivo_rechazo = None
-        
+
         db.session.commit()
         return True, "Reseña actualizada exitosamente. Será revisada por moderación."
     except Exception as e:

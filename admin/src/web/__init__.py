@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template
 from src.web.config import config as app_config
 from src.models import database
 from flask_session import Session

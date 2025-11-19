@@ -16,13 +16,12 @@ class Config(object):
     SESSION_PERMANENT = False
     SESSION_USE_SIGNER = True
     PERMANENT_SESSION_LIFETIME = timedelta(hours=2)
-
     SESSION_COOKIE_SECURE = False
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = None
 
     SQLALCHEMY_ENGINE_OPTIONS = {
-        "poll_size": 10,
+        "pool_size": 10,
         "pool_pre_ping": True,
         "pool_recycle": 60,
     }
@@ -31,7 +30,7 @@ class Config(object):
 
 
 class DevelopmentConfig(Config):
-    # Configuración MinIO
+
     MINIO_ENDPOINT = environ.get("MINIO_ENDPOINT", "127.0.0.1:9000")
     MINIO_BUCKET_NAME = environ.get("MINIO_BUCKET_NAME", "grupo44")
     MINIO_ACCESS_KEY = environ.get("MINIO_ACCESS_KEY", "minioadmin")
@@ -64,8 +63,6 @@ class DevelopmentConfig(Config):
 
 
 class ProductionConfig(Config):
-    CORS_ORIGINS = ["https://grupo44.proyecto2025.linti.unlp.edu.ar/"]
-
     SQLALCHEMY_ENGINES = {"default": environ.get("DATABASE_URL")}
     DEBUG = False
 
