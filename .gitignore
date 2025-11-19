@@ -303,8 +303,8 @@ admin/.env
 
 # SSH Keys
 *.pub
-[B
-[B.pub
+#[B
+#[B.pub
 id_rsa*
 id_ed25519*
 *.pem
