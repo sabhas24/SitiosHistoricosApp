@@ -76,7 +76,9 @@ class ProductionConfig(Config):
     JWT_COOKIE_HTTPONLY = True
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
 
-    FRONTEND_BASE_URL = "https://grupo44.proyecto2025.linti.unlp.edu.ar"
+    FRONTEND_BASE_URL = environ.get(
+        "FRONTEND_BASE_URL", "https://grupo44.proyecto2025.linti.unlp.edu.ar"
+    )
 
 
 config = {
