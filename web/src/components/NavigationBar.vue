@@ -1,33 +1,86 @@
 <template>
-  <nav class="main-navigation" :class="{ 'nav-transparent': transparent }">
-    <div class="nav-container">
-      <div class="nav-brand">
+  <nav 
+    class="navbar"
+    :class="{ 'navbar--scrolled': isScrolled, 'navbar--transparent': transparent && !isScrolled }"
+  >
+    <div class="container navbar__content">
+      <!-- Brand -->
+      <div class="navbar__brand">
         <RouterLink to="/" class="brand-link">
-          <span class="brand-name">PatrimonioBA</span>
+          <span class="brand-text">PatrimonioBA</span>
         </RouterLink>
       </div>
       
-      <div class="nav-menu" :class="{ 'nav-menu-open': mobileMenuOpen }">
-        <RouterLink to="/" class="nav-link" @click="closeMobileMenu">Inicio</RouterLink>
-        <RouterLink to="/sitios" class="nav-link" @click="closeMobileMenu">Sitios</RouterLink>
-        <RouterLink to="/map" class="nav-link" @click="closeMobileMenu">Mapa</RouterLink>
+      <!-- Desktop Menu -->
+      <div class="navbar__menu">
+        <RouterLink 
+          v-for="item in navItems" 
+          :key="item.path" 
+          :to="item.path"
+          class="nav-link"
+          active-class="nav-link--active"
+        >
+          {{ item.name }}
+        </RouterLink>
       </div>
 
-      <UserMenu />
-      
-      <button 
-        class="mobile-menu-btn"
-        @click="toggleMobileMenu"
-        aria-label="Toggle menu"
-      >
-        <span class="hamburger" :class="{ 'hamburger-open': mobileMenuOpen }"></span>
-      </button>
+      <!-- User Menu & Mobile Toggle -->
+      <div class="navbar__actions">
+        <UserMenu />
+        
+        <!-- Mobile Menu Button -->
+        <button 
+          class="mobile-toggle"
+          @click="toggleMobileMenu"
+          aria-label="Toggle menu"
+        >
+          <svg 
+            class="icon" 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path 
+              v-if="!mobileMenuOpen" 
+              stroke-linecap="round" 
+              stroke-linejoin="round" 
+              stroke-width="2" 
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+            <path 
+              v-else 
+              stroke-linecap="round" 
+              stroke-linejoin="round" 
+              stroke-width="2" 
+              d="M6 18L18 6M6 6l12 12"
+            />
+          </svg>
+        </button>
+      </div>
     </div>
+
+    <!-- Mobile Menu -->
+    <Transition name="slide-fade">
+      <div v-if="mobileMenuOpen" class="mobile-menu">
+        <div class="mobile-menu__content">
+          <RouterLink 
+            v-for="item in navItems" 
+            :key="item.path" 
+            :to="item.path"
+            class="mobile-link"
+            active-class="mobile-link--active"
+            @click="closeMobileMenu"
+          >
+            {{ item.name }}
+          </RouterLink>
+        </div>
+      </div>
+    </Transition>
   </nav>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import UserMenu from './UserMenu.vue'
 
 defineProps({
@@ -38,6 +91,13 @@ defineProps({
 })
 
 const mobileMenuOpen = ref(false)
+const isScrolled = ref(false)
+
+const navItems = [
+  { name: 'Inicio', path: '/' },
+  { name: 'Sitios', path: '/sitios' },
+  { name: 'Mapa', path: '/map' }
+]
 
 const toggleMobileMenu = () => {
   mobileMenuOpen.value = !mobileMenuOpen.value
@@ -46,201 +106,175 @@ const toggleMobileMenu = () => {
 const closeMobileMenu = () => {
   mobileMenuOpen.value = false
 }
+
+const handleScroll = () => {
+  isScrolled.value = window.scrollY > 20
+}
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll)
+})
 </script>
 
 <style scoped>
-.main-navigation {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+.navbar {
   position: sticky;
   top: 0;
-  z-index: 100;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  z-index: 1000;
+  width: 100%;
+  transition: background-color var(--transition-normal), box-shadow var(--transition-normal);
+  background-color: rgba(17, 24, 39, 0.8); 
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.nav-transparent {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(20px);
+.navbar--transparent {
+  border-bottom-color: transparent;
 }
 
-.nav-container {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 0 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 75px;
-}
-
-.nav-brand {
-  font-size: 1.6rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-}
-
-.brand-link {
-  color: #1f2937;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.brand-link:hover {
-  color: #3b82f6;
-  text-decoration: none;
-}
-
-.brand-name {
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+.navbar--scrolled .brand-text {
+  background: linear-gradient(to right, var(--color-blue-600), var(--color-blue-800));
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
+  color: transparent;
 }
 
-.nav-menu {
+.navbar__content {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 32px;
+  height: 4rem;
+}
+
+.navbar__brand {
+  flex-shrink: 0;
+}
+
+.brand-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  /* Se quita el degradado para que sea blanco sólido */
+  color: white;
+  text-shadow: 0 0 2px white, 0 0 2px white, 0 0 2px white, 0 0 2px white;
+  transition: opacity var(--transition-fast);
+}
+
+.navbar__menu {
+  display: none;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+@media (min-width: 768px) {
+  .navbar__menu {
+    display: flex;
+  }
 }
 
 .nav-link {
-  color: #6b7280;
-  text-decoration: none;
-  font-weight: 600;
-  padding: 10px 20px;
-  border-radius: 10px;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.nav-link::after {
-  content: '';
-  position: absolute;
-  bottom: 8px;
-  left: 20px;
-  right: 20px;
-  height: 2px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  transform: scaleX(0);
-  transition: transform 0.3s ease;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
+  transition: all var(--transition-fast);
 }
 
 .nav-link:hover {
-  color: #667eea;
-  background-color: rgba(102, 126, 234, 0.08);
-  text-decoration: none;
+  background-color: rgba(255, 255, 255, 0.15);
+  color: white;
 }
 
-.nav-link:hover::after {
-  transform: scaleX(1);
+.nav-link--active {
+  background-color: white !important;
+  color: #1f2937 !important; /* Color oscuro para el texto */
+  font-weight: 600;
 }
 
-.nav-link.router-link-exact-active {
-  color: #667eea;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.12) 0%, rgba(118, 75, 162, 0.12) 100%);
+.navbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
-.nav-link.router-link-exact-active::after {
-  transform: scaleX(1);
-}
-
-.mobile-menu-btn {
-  display: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 6px;
-  transition: background-color 0.2s;
-}
-
-.mobile-menu-btn:hover {
-  background-color: #f3f4f6;
-}
-
-.hamburger {
+.mobile-toggle {
   display: block;
-  width: 24px;
-  height: 2px;
-  background: #374151;
-  position: relative;
-  transition: all 0.3s ease;
+  padding: 0.5rem;
+  border-radius: var(--radius-md);
+  color: var(--color-slate-600);
+  transition: background-color var(--transition-fast);
 }
 
-.hamburger::before,
-.hamburger::after {
-  content: '';
-  display: block;
-  width: 24px;
-  height: 2px;
-  background: #374151;
+@media (min-width: 768px) {
+  .mobile-toggle {
+    display: none;
+  }
+}
+
+.mobile-toggle:hover {
+  background-color: var(--color-slate-100);
+}
+
+.icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+/* Mobile Menu */
+.mobile-menu {
   position: absolute;
-  transition: all 0.3s ease;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background-color: white;
+  border-bottom: 1px solid var(--color-slate-200);
+  box-shadow: var(--shadow-lg);
 }
 
-.hamburger::before {
-  transform: translateY(-8px);
+.mobile-menu__content {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
-.hamburger::after {
-  transform: translateY(8px);
+.mobile-link {
+  display: block;
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-slate-600);
+  transition: all var(--transition-fast);
 }
 
-.hamburger-open {
-  background: transparent;
+.mobile-link:hover {
+  background-color: var(--color-slate-50);
+  color: var(--color-blue-600);
 }
 
-.hamburger-open::before {
-  transform: rotate(45deg);
+.mobile-link--active {
+  background-color: var(--color-blue-50);
+  color: var(--color-blue-700);
 }
 
-.hamburger-open::after {
-  transform: rotate(-45deg);
+/* Transitions */
+.slide-fade-enter-active {
+  transition: all 0.2s ease-out;
 }
 
-/* Mobile responsive */
-@media (max-width: 768px) {
-  .nav-container {
-    padding: 0 16px;
-  }
-  
-  .nav-menu {
-    position: fixed;
-    top: 70px;
-    left: 0;
-    right: 0;
-    background: white;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0;
-    padding: 20px;
-    border-bottom: 1px solid #e5e7eb;
-    transform: translateY(-100%);
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
-  }
-  
-  .nav-menu-open {
-    transform: translateY(0);
-    opacity: 1;
-    visibility: visible;
-  }
-  
-  .nav-link {
-    padding: 16px;
-    text-align: center;
-    border-bottom: 1px solid #f3f4f6;
-  }
-  
-  .nav-link:last-child {
-    border-bottom: none;
-  }
-  
-  .mobile-menu-btn {
-    display: block;
-  }
+.slide-fade-leave-active {
+  transition: all 0.15s cubic-bezier(1, 0.5, 0.8, 1);
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  transform: translateY(-10px);
+  opacity: 0;
 }
 </style>

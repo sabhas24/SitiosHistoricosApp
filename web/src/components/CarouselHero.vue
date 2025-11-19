@@ -33,25 +33,28 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 
+// Assuming minioImg can construct URLs for assets in the public folder
+import { minioImg } from '../utils/minioImages.js'
+
 const slides = ref([
   {
     title: 'PatrimonioBA',
     subtitle: 'Descubre y explora el patrimonio histórico de Buenos Aires',
-    image: '/placeholder-site.jpg',
+    image: 'https://turismo.buenosaires.gob.ar/sites/turismo/files/field/image/congreso_nacional_fuente_1200.jpg',
     ctaText: 'Explorar mapa',
     ctaHref: '/map'
   },
   {
     title: 'Sitios emblemáticos',
     subtitle: 'Recorré los lugares más visitados y mejor puntuados',
-    image: '/placeholder-image.jpg',
+    image: 'https://turismo.buenosaires.gob.ar/sites/turismo/files/field/image/congreso_nacional_fuente_1200.jpg',
     ctaText: 'Ver destacados',
     ctaHref: '/map?sort=visits'
   },
   {
     title: 'Tu guía cultural',
     subtitle: 'Museos, arquitectura, monumentos y mucho más',
-    image: '/placeholder-site.jpg',
+    image: 'https://turismo.buenosaires.gob.ar/sites/turismo/files/field/image/congreso_nacional_fuente_1200.jpg',
     ctaText: 'Buscar categorías',
     ctaHref: '/map?category=all'
   }
