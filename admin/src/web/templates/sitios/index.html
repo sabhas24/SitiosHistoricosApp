@@ -227,6 +227,7 @@
         <table class="sitios-table">
           <thead>
             <tr>
+              <th>Imagen</th>
               <th>Nombre</th>
               <th>Ubicación</th>
               <th>Categoría</th>
@@ -239,6 +240,17 @@
           <tbody>
             {% for sitio in sitios %}
             <tr>
+              <td>
+                <div class="sitio-imagen">
+                  {% if sitio.imagen_portada %}
+                    <img src="{{ sitio.imagen_portada.url_publica }}" alt="{{ sitio.imagen_portada.titulo_alt }}" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
+                  {% else %}
+                    <div class="sin-imagen" style="width: 60px; height: 60px; background: #f8f9fa; border: 1px solid #dee2e6; display: flex; align-items: center; justify-content: center; border-radius: 4px;">
+                      <i class="fas fa-image text-muted"></i>
+                    </div>
+                  {% endif %}
+                </div>
+              </td>
               <td>
                 <div class="sitio-info">
                   <h4 class="sitio-nombre">{{ sitio.nombre }}</h4>

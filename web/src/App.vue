@@ -1,10 +1,20 @@
 <script setup>
 import { RouterView } from 'vue-router'
+import { onMounted }  from 'vue';
+import { useAuthStore } from './stores/auth';
+import FooterSection from './components/FooterSection.vue'
+
+const authStore = useAuthStore();
+
+onMounted(() => {
+  authStore.checkSession();
+});
 </script>
 
 <template>
   <div id="app">
     <RouterView />
+    <FooterSection />
   </div>
 </template>
 

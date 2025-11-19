@@ -14,17 +14,18 @@
           title="Más visitados"
           endpoint="/sitios/mas-visitados"
           empty-message="No hay datos de visitas disponibles"
-          :filter-params="{ sort: 'visits', order: 'desc' }"
+          :filter-params="{ sort: 'visits', order: 'latest' }"
         />
         
         <FeaturedSection
           title="Mejor puntuados"
           endpoint="/sitios/mejor-puntuados"
           empty-message="No hay sitios puntuados aún"
-          :filter-params="{ sort: 'rating', order: 'desc' }"
+          :filter-params="{ sort: 'rating', order: 'latest' }"
         />
         
         <FeaturedSection
+          v-if="authStore.isAuthenticated"
           title="Favoritos"
           endpoint="/sitios/favoritos"
           empty-message="Aún no tienes sitios favoritos"
@@ -35,7 +36,7 @@
           title="Recientemente agregados"
           endpoint="/sitios/recientes"
           empty-message="No hay sitios agregados recientemente"
-          :filter-params="{ sort: 'created_at', order: 'desc' }"
+          :filter-params="{ sort: 'created_at', order: 'latest' }"
         />
         
       </div>
@@ -48,38 +49,29 @@ import { ref, onMounted } from 'vue'
 import NavigationBar from '../components/NavigationBar.vue'
 import HeroSection from '../components/HeroSection.vue'
 import FeaturedSection from '../components/FeaturedSection.vue'
+import { useAuthStore } from '../stores/auth'
 
-// ESTADO AUTENTICACION MOCK
-const isAuthenticated = ref(false)
+const authStore = useAuthStore()
 
 onMounted(() => {
-  //VERIFICAR AUTENTICACION REAL CUANDO ESTE LA API, POR DEFECTO USUARIO NO AUTENTICADO
-  isAuthenticated.value = false
 })
 </script>
 
 <style scoped>
 .home-page {
   min-height: 100vh;
+  background: #FDFBF7;
 }
 
 .main-content {
-  padding: 40px 0 80px;
+  padding-bottom: 60px;
 }
 
 .container {
-  max-width: 1200px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 24px;
 }
 
-@media (max-width: 768px) {
-  .main-content {
-    padding: 32px 0 60px;
-  }
-  
-  .container {
-    padding: 0 16px;
-  }
-}
+/* Removed styles for deleted sections (collections, map-preview, about) */
 </style>

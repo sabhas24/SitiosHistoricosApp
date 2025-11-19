@@ -26,6 +26,7 @@ ADMIN_PERMISSIONS = [
     "site_export",
     "site_set_visibility",
     "proposal_validate",
+    "review_index",
     "review_moderate"
 ]
 
@@ -39,6 +40,12 @@ EDITOR_PERMISSIONS = [
     "site_export",
     "site_set_visibility",
     "proposal_validate",
+    "review_index",
+    "review_moderate"
+]
+
+MODERATOR_PERMISSIONS = [
+    "review_index",
     "review_moderate"
 ]
 
@@ -123,6 +130,7 @@ def run():
     # Crear roles
     admin_role = create_role("admin")
     editor_role = create_role("editor")
+    moderator_role = create_role("moderator")
     public_role = create_role("public_user")
     
     # Permisos públicos
@@ -144,6 +152,10 @@ def run():
     for perm in EDITOR_PERMISSIONS:
         create_permission(perm)
         assign_permission_to_role("editor", perm)
+
+    for perm in MODERATOR_PERMISSIONS:
+        create_permission(perm)
+        assign_permission_to_role("moderator", perm)
 
     from src.models.feature_flag.feature_flag_services import create_default_feature_flags
     create_default_feature_flags()
@@ -203,6 +215,13 @@ def run():
             "role_id": editor_role.id,
         },
         {
+            "email": "moderador@example.com",
+            "name": "María",
+            "last_name": "Moderadora",
+            "password": "mod1234",
+            "role_id": moderator_role.id,
+        },
+        {
             "email": "carlos@example.com",
             "name": "Carlos",
             "last_name": "García",
@@ -223,9 +242,10 @@ def run():
             print(f"⚠️  Conflicto al crear usuario: {data['email']}")
 
     print("📊 Resumen seeding:")
-    print(f"  Roles: admin, editor")
+    print(f"  Roles: admin, editor, moderator")
     print(f"  Permisos admin: {len(ADMIN_PERMISSIONS)}")
-    print(f"  Permisos editor:  {len(EDITOR_PERMISSIONS)}")
+    print(f"  Permisos editor: {len(EDITOR_PERMISSIONS)}")
+    print(f"  Permisos moderator: {len(MODERATOR_PERMISSIONS)}")
     print("  Usuarios actuales:")
     for u in user_index():
         print(f"   - {u.email} (role_id={u.role_id})")
@@ -237,7 +257,6 @@ def crear_sitios_ejemplo():
     """Crear sitios históricos de ejemplo para testing"""
     from src.models.sitios.sitio_historico import SitioHistorico, EstadoConservacion, Categoria
     from src.models.tags.tag import Tag
-    
     # Verificar si ya existen sitios
     if db.session.query(SitioHistorico).count() > 0:
         print("⏭️  Ya existen sitios históricos")

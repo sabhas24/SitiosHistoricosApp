@@ -156,6 +156,27 @@ def get_schemas():
                 "motivo_rechazo": {"type": "string"}
             }
         },
+        "Review": {
+            "type": "object",
+            "properties": {
+                "id": {"type": "integer", "description": "ID único de la reseña"},
+                "site_id": {"type": "integer", "description": "ID del sitio histórico"},
+                "rating": {"type": "integer", "minimum": 1, "maximum": 5, "description": "Calificación de 1 a 5"},
+                "comment": {"type": "string", "description": "Comentario de la reseña"},
+                "inserted_at": {"type": "string", "format": "date-time", "description": "Fecha de creación"},
+                "updated_at": {"type": "string", "format": "date-time", "description": "Fecha de actualización"}
+            },
+            "required": ["id", "site_id", "rating", "inserted_at", "updated_at"]
+        },
+        "PaginationMeta": {
+            "type": "object",
+            "properties": {
+                "page": {"type": "integer", "description": "Página actual"},
+                "per_page": {"type": "integer", "description": "Elementos por página"},
+                "total": {"type": "integer", "description": "Total de elementos"}
+            },
+            "required": ["page", "per_page", "total"]
+        },
         "Error": {
             "type": "object",
             "properties": {
@@ -358,78 +379,142 @@ def get_paths():
                 }
             }
         },
-        "/api/sitios/{sitio_id}/resenas": {
-            "post": {
+        "/api/sites/{site_id}/reviews": {
+            "get": {
                 "tags": ["Reseñas"],
-                "summary": "Crear una reseña",
-                "description": "Crea una nueva reseña para un sitio. Requiere JWT",
+                "summary": "Listar reseñas de un sitio",
+                "description": "Obtiene lista paginada de reseñas para un sitio histórico específico",
                 "security": [{"bearerAuth": []}],
                 "parameters": [
-                    {
-                        "name": "sitio_id",
-                        "in": "path",
-                        "required": True,
-                        "schema": {"type": "integer"}
-                    }
+                    {"name": "site_id", "in": "path", "required": True, "schema": {"type": "integer"}, "description": "ID del sitio histórico"},
+                    {"name": "page", "in": "query", "required": False, "schema": {"type": "integer", "minimum": 1, "default": 1}, "description": "Número de página"},
+                    {"name": "per_page", "in": "query", "required": False, "schema": {"type": "integer", "minimum": 1, "maximum": 100, "default": 10}, "description": "Elementos por página"}
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de reseñas obtenida exitosamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {"type": "array", "items": {"$ref": "#/components/schemas/Review"}},
+                                        "meta": {"$ref": "#/components/schemas/PaginationMeta"}
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {"description": "Parámetros inválidos"},
+                    "401": {"description": "No autenticado"},
+                    "404": {"description": "Sitio no encontrado"}
+                }
+            },
+            "post": {
+                "tags": ["Reseñas"],
+                "summary": "Crear reseña",
+                "description": "Crea una nueva reseña para un sitio histórico específico",
+                "security": [{"bearerAuth": []}],
+                "parameters": [
+                    {"name": "site_id", "in": "path", "required": True, "schema": {"type": "integer"}, "description": "ID del sitio histórico"}
                 ],
                 "requestBody": {
                     "required": True,
                     "content": {
                         "application/json": {
-                            "schema": {"$ref": "#/components/schemas/ReseñaCreate"}
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "rating": {"type": "integer", "minimum": 1, "maximum": 5, "description": "Calificación de 1 a 5"},
+                                    "site_id": {"type": "integer", "description": "ID del sitio (debe coincidir con URL)"},
+                                    "comment": {"type": "string", "description": "Comentario opcional"}
+                                },
+                                "required": ["rating", "site_id"]
+                            }
                         }
                     }
                 },
                 "responses": {
                     "201": {
-                        "description": "Reseña creada",
+                        "description": "Reseña creada exitosamente",
                         "content": {
                             "application/json": {
-                                "schema": {"$ref": "#/components/schemas/ReseñaRead"}
+                                "schema": {"$ref": "#/components/schemas/Review"}
                             }
                         }
                     },
-                    "400": {"description": "Error de validación"},
+                    "400": {"description": "Datos inválidos"},
                     "401": {"description": "No autenticado"},
                     "404": {"description": "Sitio no encontrado"}
                 }
             }
         },
-        "/api/sitios/{sitio_id}/favoritos": {
-            "put": {
-                "tags": ["Favoritos"],
-                "summary": "Agregar a favoritos",
-                "description": "Agrega un sitio a los favoritos del usuario autenticado",
+        "/api/sites/{site_id}/reviews/{review_id}": {
+            "get": {
+                "tags": ["Reseñas"],
+                "summary": "Obtener reseña específica",
+                "description": "Obtiene una reseña existente por su ID",
                 "security": [{"bearerAuth": []}],
                 "parameters": [
-                    {
-                        "name": "sitio_id",
-                        "in": "path",
-                        "required": True,
-                        "schema": {"type": "integer"}
-                    }
+                    {"name": "site_id", "in": "path", "required": True, "schema": {"type": "integer"}, "description": "ID del sitio histórico"},
+                    {"name": "review_id", "in": "path", "required": True, "schema": {"type": "integer"}, "description": "ID de la reseña"}
                 ],
                 "responses": {
-                    "200": {"description": "Sitio agregado a favoritos"},
+                    "200": {
+                        "description": "Reseña obtenida exitosamente",
+                        "content": {
+                            "application/json": {
+                                "schema": {"$ref": "#/components/schemas/Review"}
+                            }
+                        }
+                    },
+                    "400": {"description": "ID inválido"},
+                    "401": {"description": "No autenticado"},
+                    "404": {"description": "Sitio o reseña no encontrada"}
+                }
+            },
+            "delete": {
+                "tags": ["Reseñas"],
+                "summary": "Eliminar reseña propia",
+                "description": "Elimina una reseña existente por su ID (solo el autor)",
+                "security": [{"bearerAuth": []}],
+                "parameters": [
+                    {"name": "site_id", "in": "path", "required": True, "schema": {"type": "integer"}, "description": "ID del sitio histórico"},
+                    {"name": "review_id", "in": "path", "required": True, "schema": {"type": "integer"}, "description": "ID de la reseña"}
+                ],
+                "responses": {
+                    "204": {"description": "Reseña eliminada exitosamente"},
+                    "401": {"description": "No autenticado"},
+                    "403": {"description": "Sin permisos para eliminar"},
+                    "404": {"description": "Sitio o reseña no encontrada"}
+                }
+            }
+        },
+        "/api/sites/{site_id}/favorite": {
+            "put": {
+                "tags": ["Favoritos"],
+                "summary": "Marcar como favorito",
+                "description": "Marca un sitio como favorito del usuario autenticado",
+                "security": [{"bearerAuth": []}],
+                "parameters": [
+                    {"name": "site_id", "in": "path", "required": True, "schema": {"type": "integer"}, "description": "ID del sitio histórico"}
+                ],
+                "responses": {
+                    "204": {"description": "Sitio marcado como favorito"},
                     "401": {"description": "No autenticado"},
                     "404": {"description": "Sitio no encontrado"}
                 }
             },
             "delete": {
                 "tags": ["Favoritos"],
-                "summary": "Eliminar de favoritos",
+                "summary": "Desmarcar como favorito",
                 "description": "Elimina un sitio de los favoritos del usuario autenticado",
                 "security": [{"bearerAuth": []}],
                 "parameters": [
-                    {
-                        "name": "sitio_id",
-                        "in": "path",
-                        "required": True,
-                        "schema": {"type": "integer"}
-                    }
+                    {"name": "site_id", "in": "path", "required": True, "schema": {"type": "integer"}, "description": "ID del sitio histórico"}
                 ],
                 "responses": {
-                    "200": {"description": "Sitio eliminado de favoritos"},
+                    "204": {"description": "Sitio desmarcado como favorito"},
                     "401": {"description": "No autenticado"},
                     "404": {"description": "Sitio no encontrado"}
                 }
@@ -441,21 +526,9 @@ def get_paths():
                 "summary": "Listar mis favoritos",
                 "description": "Retorna la lista de sitios favoritos del usuario autenticado",
                 "security": [{"bearerAuth": []}],
-                "parameters": [
-                    {
-                        "name": "page",
-                        "in": "query",
-                        "schema": {"type": "integer", "default": 1}
-                    },
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "schema": {"type": "integer", "default": 25}
-                    }
-                ],
                 "responses": {
                     "200": {
-                        "description": "Lista de favoritos",
+                        "description": "Lista de favoritos del usuario",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -466,44 +539,6 @@ def get_paths():
                         }
                     },
                     "401": {"description": "No autenticado"}
-                }
-            }
-        },
-        "/api/sitios/{sitio_id}/resenas/{resena_id}": {
-            "get": {
-                "tags": ["Reseñas"],
-                "summary": "Obtener reseña específica",
-                "description": "Obtiene una reseña por su ID",
-                "security": [{"bearerAuth": []}],
-                "parameters": [
-                    {"name": "sitio_id", "in": "path", "required": True, "schema": {"type": "integer"}},
-                    {"name": "resena_id", "in": "path", "required": True, "schema": {"type": "integer"}}
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Reseña encontrada",
-                        "content": {
-                            "application/json": {
-                                "schema": {"$ref": "#/components/schemas/ReseñaRead"}
-                            }
-                        }
-                    },
-                    "404": {"description": "Reseña no encontrada"}
-                }
-            },
-            "delete": {
-                "tags": ["Reseñas"],
-                "summary": "Eliminar reseña",
-                "description": "Elimina una reseña (requiere permisos)",
-                "security": [{"bearerAuth": []}],
-                "parameters": [
-                    {"name": "sitio_id", "in": "path", "required": True, "schema": {"type": "integer"}},
-                    {"name": "resena_id", "in": "path", "required": True, "schema": {"type": "integer"}}
-                ],
-                "responses": {
-                    "200": {"description": "Reseña eliminada exitosamente"},
-                    "403": {"description": "Sin permisos"},
-                    "404": {"description": "Reseña no encontrada"}
                 }
             }
         }

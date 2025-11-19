@@ -208,6 +208,16 @@
                 <div class="accion-description">Modificar información</div>
               </div>
             </a>
+            
+            <a href="{{ url_for('sitios.gestionar_imagenes', sitio_id=sitio.id) }}" class="accion-item">
+              <div class="accion-icon">
+                <i class="fas fa-images"></i>
+              </div>
+              <div class="accion-content">
+                <div class="accion-title">Gestionar Imágenes</div>
+                <div class="accion-description">Subir y organizar fotos</div>
+              </div>
+            </a>
             {% endif %}
             
             {% if check('site_destroy') %}
