@@ -1,8 +1,8 @@
 from datetime import datetime, timezone
 from enum import Enum
-from sqlalchemy import DateTime, String, Text, Integer, ForeignKey
+from sqlalchemy import DateTime, String, Text, Integer, ForeignKey, Column, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from src.models.database import Base
+from src.models.database import Base, db
 from src.models.sitios.sitio_historico import SitioHistorico
 from src.models.auth.user import user
 
@@ -51,7 +51,7 @@ class Reseña(Base):
     )
 
     def __repr__(self):
-        return f"<Reseña {self.titulo} - {self.estado.value}>"
+        return f"<Reseña id={self.id} - {self.estado.value}>"
 
     @property
     def puede_ser_moderada(self):
