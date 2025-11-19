@@ -31,79 +31,57 @@
             </div>
             
             <!-- Filtrar por provincia -->
-            <div class="filter-group">
+            <div class="filter-group" v-if="availableProvinces.length > 0">
               <h4 class="filter-subtitle">Provincia</h4>
               <div class="checkbox-list">
-                <label class="checkbox-item">
+                <label 
+                  v-for="provincia in availableProvinces" 
+                  :key="provincia"
+                  class="checkbox-item"
+                >
                   <input 
                     type="checkbox" 
-                    value="Buenos Aires"
-                    @change="toggleProvince('Buenos Aires')"
-                    :checked="selectedProvinces.includes('Buenos Aires')"
+                    :value="provincia"
+                    @change="toggleProvince(provincia)"
+                    :checked="selectedProvinces.includes(provincia)"
                   />
-                  <span>Buenos Aires</span>
-                </label>
-                <label class="checkbox-item">
-                  <input 
-                    type="checkbox" 
-                    value="Córdoba"
-                    @change="toggleProvince('Córdoba')"
-                    :checked="selectedProvinces.includes('Córdoba')"
-                  />
-                  <span>Córdoba</span>
-                </label>
-                <label class="checkbox-item">
-                  <input 
-                    type="checkbox" 
-                    value="Salta"
-                    @change="toggleProvince('Salta')"
-                    :checked="selectedProvinces.includes('Salta')"
-                  />
-                  <span>Salta</span>
+                  <span>{{ provincia }}</span>
                 </label>
               </div>
             </div>
             
             <!-- Filtrar por tipo -->
-            <div class="filter-group">
+            <div class="filter-group" v-if="availableCategories.length > 0">
               <h4 class="filter-subtitle">Tipo de Patrimonio</h4>
               <div class="checkbox-list">
-                <label class="checkbox-item">
+                <label 
+                  v-for="categoria in availableCategories" 
+                  :key="categoria"
+                  class="checkbox-item"
+                >
                   <input 
                     type="checkbox" 
-                    value="Arquitectónico"
-                    @change="toggleCategory('Arquitectónico')"
-                    :checked="selectedCategories.includes('Arquitectónico')"
+                    :value="categoria"
+                    @change="toggleCategory(categoria)"
+                    :checked="selectedCategories.includes(categoria)"
                   />
-                  <span>Arquitectónico</span>
+                  <span>{{ categoria }}</span>
                 </label>
-                <label class="checkbox-item">
-                  <input 
-                    type="checkbox" 
-                    value="Natural"
-                    @change="toggleCategory('Natural')"
-                    :checked="selectedCategories.includes('Natural')"
-                  />
-                  <span>Natural</span>
-                </label>
-                <label class="checkbox-item">
-                  <input 
-                    type="checkbox" 
-                    value="Arqueológico"
-                    @change="toggleCategory('Arqueológico')"
-                    :checked="selectedCategories.includes('Arqueológico')"
-                  />
-                  <span>Arqueológico</span>
-                </label>
-                <label class="checkbox-item">
-                  <input 
-                    type="checkbox" 
-                    value="Cultural"
-                    @change="toggleCategory('Cultural')"
-                    :checked="selectedCategories.includes('Cultural')"
-                  />
-                  <span>Cultural</span>
-                </label>
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <h4 class="filter-subtitle">Estado de conservación</h4>
+              <div class="pill-group">
+                <button
+                  v-for="estado in estadoOptions"
+                  :key="estado"
+                  type="button"
+                  :class="['pill-option', { active: filters.estado_conservacion === estado }]"
+                  @click="setEstadoConservacion(estado)"
+                >
+                  {{ estado }}
+                </button>
               </div>
             </div>
             
@@ -242,10 +220,9 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import NavigationBar from '../components/NavigationBar.vue'
-import SiteCard from '../components/SiteCard.vue'
 import sitiosService from '../services/sitiosService'
 
 const route = useRoute()
@@ -262,11 +239,16 @@ const filters = ref({
   province: '',
   order_by: 'name',
   page: 1,
-  per_page: 12
+  per_page: 12,
+  estado_conservacion: ''
 })
 
 const selectedProvinces = ref([])
-const selectedCategories = ref(['Arquitectónico', 'Cultural'])
+const selectedCategories = ref([])
+const estadoOptions = ['Bueno', 'Regular', 'Malo']
+
+const availableProvinces = ref([])
+const availableCategories = ref([])
 
 const meta = ref({
   total: 0,
@@ -295,10 +277,18 @@ const loadSitios = async () => {
       per_page: filters.value.per_page,
       order_by: filters.value.order_by,
     }
+    if (filters.value.estado_conservacion) {
+      params.estado_conservacion = filters.value.estado_conservacion
+    }
     
     if (filters.value.name) params.name = filters.value.name
     if (filters.value.city) params.city = filters.value.city
-    if (filters.value.province) params.province = filters.value.province
+    if (selectedProvinces.value.length > 0) {
+      params.province = selectedProvinces.value[0]
+    }
+    if (selectedCategories.value.length > 0) {
+      params.category = selectedCategories.value[0]
+    }
     
     const response = await sitiosService.getSitios(params)
     sitios.value = response.sitios || []
@@ -327,8 +317,9 @@ const toggleProvince = (province) => {
   if (index > -1) {
     selectedProvinces.value.splice(index, 1)
   } else {
-    selectedProvinces.value.push(province)
+    selectedProvinces.value = [province]
   }
+  applyFilters()
 }
 
 const toggleCategory = (category) => {
@@ -336,8 +327,15 @@ const toggleCategory = (category) => {
   if (index > -1) {
     selectedCategories.value.splice(index, 1)
   } else {
-    selectedCategories.value.push(category)
+    selectedCategories.value = [category]
   }
+  applyFilters()
+}
+
+const setEstadoConservacion = (estado) => {
+  filters.value.estado_conservacion =
+    filters.value.estado_conservacion === estado ? '' : estado
+  applyFilters()
 }
 
 const toggleFavorite = (sitioId) => {
@@ -367,7 +365,8 @@ const clearFilters = () => {
     province: '',
     order_by: 'name',
     page: 1,
-    per_page: 12
+    per_page: 12,
+    estado_conservacion: '',
   }
   selectedProvinces.value = []
   selectedCategories.value = []
@@ -387,6 +386,9 @@ const updateURL = () => {
   if (filters.value.name) query.name = filters.value.name
   if (filters.value.city) query.city = filters.value.city
   if (filters.value.province) query.province = filters.value.province
+  if (filters.value.estado_conservacion) {
+    query.estado_conservacion = filters.value.estado_conservacion
+  }
   if (filters.value.order_by !== 'name') query.order_by = filters.value.order_by
   if (filters.value.page > 1) query.page = filters.value.page
   
@@ -397,6 +399,9 @@ const loadFiltersFromURL = () => {
   if (route.query.name) filters.value.name = route.query.name
   if (route.query.city) filters.value.city = route.query.city
   if (route.query.province) filters.value.province = route.query.province
+  if (route.query.estado_conservacion) {
+    filters.value.estado_conservacion = route.query.estado_conservacion
+  }
   if (route.query.order_by) filters.value.order_by = route.query.order_by
   if (route.query.page) filters.value.page = parseInt(route.query.page)
 }
@@ -432,8 +437,22 @@ const visiblePages = computed(() => {
   return pages
 })
 
+const loadFilterOptions = async () => {
+  try {
+    const options = await sitiosService.getFilterOptions()
+    console.log('Filter options received:', options)
+    availableProvinces.value = options.provincias || []
+    availableCategories.value = options.categorias || []
+    console.log('Available provinces:', availableProvinces.value)
+    console.log('Available categories:', availableCategories.value)
+  } catch (err) {
+    console.error('Error al cargar opciones de filtros:', err)
+  }
+}
+
 onMounted(() => {
   loadFiltersFromURL()
+  loadFilterOptions()
   loadSitios()
 })
 </script>
@@ -468,7 +487,7 @@ onMounted(() => {
   top: 96px;
   background: white;
   border-radius: 12px;
-  border: 1px solid #e7f3eb;
+  border: 1px solid #bfdbfe;
   padding: 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
@@ -490,7 +509,7 @@ onMounted(() => {
 .clear-link {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #17cf54;
+  color: #2563eb;
   background: none;
   border: none;
   cursor: pointer;
@@ -499,7 +518,7 @@ onMounted(() => {
 }
 
 .clear-link:hover {
-  color: #12a842;
+  color: #1d4ed8;
 }
 
 .filter-group {
@@ -525,7 +544,7 @@ onMounted(() => {
   left: 12px;
   width: 20px;
   height: 20px;
-  color: #4e9767;
+  color: #60a5fa;
   stroke-width: 2;
 }
 
@@ -533,7 +552,7 @@ onMounted(() => {
   width: 100%;
   height: 44px;
   padding: 0 12px 0 40px;
-  background: #e7f3eb;
+  background: #dbeafe;
   border: none;
   border-radius: 8px;
   font-size: 0.875rem;
@@ -541,12 +560,12 @@ onMounted(() => {
 }
 
 .filter-search-input::placeholder {
-  color: #4e9767;
+  color: #60a5fa;
 }
 
 .filter-search-input:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(23, 207, 84, 0.2);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
 .filter-subtitle {
@@ -572,10 +591,10 @@ onMounted(() => {
 .checkbox-item input[type="checkbox"] {
   width: 20px;
   height: 20px;
-  border: 2px solid #d0e7d7;
+  border: 2px solid #bfdbfe;
   border-radius: 4px;
   cursor: pointer;
-  accent-color: #17cf54;
+  accent-color: #2563eb;
 }
 
 .checkbox-item span {
@@ -583,11 +602,42 @@ onMounted(() => {
   color: #0e1b12;
 }
 
+.pill-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill-option {
+  flex: 1 1 45%;
+  min-width: 100px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 1px solid #bfdbfe;
+  background: white;
+  color: #0e1b12;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pill-option.active {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+}
+
+.pill-option:hover {
+  border-color: #3b82f6;
+  color: #2563eb;
+}
+
 .apply-filters-btn {
   width: 100%;
   height: 44px;
-  background: #17cf54;
-  color: #0e1b12;
+  background: #2563eb;
+  color: #ffffff;
   border: none;
   border-radius: 8px;
   font-size: 0.875rem;
@@ -597,7 +647,7 @@ onMounted(() => {
 }
 
 .apply-filters-btn:hover {
-  background: #12a842;
+  background: #1d4ed8;
 }
 
 /* Results Section */
@@ -623,7 +673,7 @@ onMounted(() => {
 
 .results-count {
   font-size: 1rem;
-  color: #4e9767;
+  color: #60a5fa;
   margin: 0;
 }
 
@@ -641,7 +691,7 @@ onMounted(() => {
 }
 
 .sort-select {
-  background: #e7f3eb;
+  background: #dbeafe;
   border: none;
   border-radius: 8px;
   padding: 8px 12px;
@@ -652,7 +702,7 @@ onMounted(() => {
 
 .sort-select:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(23, 207, 84, 0.2);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
 }
 
 .loading-state,
@@ -709,7 +759,7 @@ onMounted(() => {
   background: white;
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid #e7f3eb;
+  border: 1px solid #bfdbfe;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   transition: all 0.3s ease;
   text-decoration: none;
@@ -780,12 +830,12 @@ onMounted(() => {
 }
 
 .site-card:hover .card-title {
-  color: #17cf54;
+  color: #2563eb;
 }
 
 .card-location {
   font-size: 0.875rem;
-  color: #4e9767;
+  color: #60a5fa;
   margin: 0;
 }
 
@@ -810,8 +860,8 @@ onMounted(() => {
 .tag {
   font-size: 0.75rem;
   font-weight: 500;
-  background: rgba(23, 207, 84, 0.15);
-  color: #17cf54;
+  background: rgba(37, 99, 235, 0.15);
+  color: #2563eb;
   padding: 4px 12px;
   border-radius: 999px;
 }
@@ -841,8 +891,8 @@ onMounted(() => {
   height: 40px;
   padding: 0 16px;
   background: white;
-  border: 1px solid #e7f3eb;
-  color: #4e9767;
+  border: 1px solid #bfdbfe;
+  color: #60a5fa;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
@@ -880,9 +930,9 @@ onMounted(() => {
 }
 
 .pagination-number.active {
-  background: #17cf54;
+  background: #2563eb;
   color: white;
-  border-color: #17cf54;
+  border-color: #2563eb;
   z-index: 1;
 }
 
@@ -893,7 +943,7 @@ onMounted(() => {
   min-width: 40px;
   height: 40px;
   padding: 0 8px;
-  color: #4e9767;
+  color: #60a5fa;
   border: none;
   background: transparent;
 }

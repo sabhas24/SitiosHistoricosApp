@@ -1,230 +1,254 @@
 <template>
   <div class="site-detail-page">
     <NavigationBar />
-    
-    <div v-if="loading" class="loading-container">
-      <div class="spinner"></div>
-      <p>Cargando sitio...</p>
-    </div>
-    
-    <div v-else-if="error" class="error-container">
-      <div class="error-icon">⚠️</div>
-      <h2>Error al cargar el sitio</h2>
-      <p>{{ errorMessage }}</p>
-      <button @click="loadSitio" class="retry-btn">Reintentar</button>
-      <router-link to="/" class="back-btn">Volver al inicio</router-link>
-    </div>
-    
-    <div v-else-if="sitio" class="site-detail">
-      <!-- Hero Section con imagen -->
-      <div class="hero-section">
-        <img 
-          :src="getSiteImageUrl()"
-          :alt="sitio.nombre"
-        />
-        <div class="hero-overlay"></div>
-        <div class="hero-content">
-          <div class="container">
-            <h1 class="site-title">{{ sitio.nombre }}</h1>
-            <p class="site-location">
-              <span class="icon">📍</span>
-              {{ formatLocation(sitio) }}
-            </p>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Contenido principal -->
-      <div class="main-content">
-        <div class="container">
-          <div class="content-grid">
-            <!-- Columna principal -->
-            <div class="main-column">
-              <!-- Descripción Breve -->
-              <section v-if="sitio.descripcion_breve" class="section">
-                <h2>Descripción</h2>
-                <p class="description">{{ sitio.descripcion_breve }}</p>
-              </section>
-              
-              <!-- Descripción Completa -->
-              <section v-if="sitio.descripcion_completa" class="section">
-                <h2>Historia y Detalles</h2>
-                <p class="historia">{{ sitio.descripcion_completa }}</p>
-              </section>
 
-              <!-- Reseñas y calificaciones -->
-              <SiteReviews v-if="sitio && sitio.id" :siteId="sitio.id" />
-            </div>
-            
-            <!-- Sidebar -->
-            <div class="sidebar">
-              <!-- Información básica -->
-              <div class="info-card">
-                <h3>Información</h3>
-                <div class="info-item">
-                  <span class="label">Ciudad:</span>
-                  <span class="value">{{ sitio.ciudad }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="label">Provincia:</span>
-                  <span class="value">{{ sitio.provincia }}</span>
-                </div>
-                <div class="info-item" v-if="sitio.categoria">
-                  <span class="label">Categoría:</span>
-                  <span class="value">{{ sitio.categoria }}</span>
-                </div>
-                <div class="info-item" v-if="sitio.anio_inauguracion">
-                  <span class="label">Año inauguración:</span>
-                  <span class="value">{{ sitio.anio_inauguracion }}</span>
-                </div>
-                <div class="info-item" v-if="sitio.estado_conservacion">
-                  <span class="label">Estado:</span>
-                  <span class="value">
-                    <span :class="['badge', `badge-${sitio.estado_conservacion.toLowerCase()}`]">
-                      {{ sitio.estado_conservacion }}
-                    </span>
-                  </span>
-                </div>
-              </div>
-              
-              <!-- Botón de Favoritos -->
-              <div class="info-card">
-                <FavoriteButton 
-                  v-if="sitio && sitio.id"
-                  :site-id="sitio.id"
-                  @favorite-changed="onFavoriteChanged"
-                />
-              </div>
-              
-              <!-- Tags -->
-              <div v-if="sitio.tags && sitio.tags.length > 0" class="info-card">
-                <h3>Etiquetas</h3>
-                <div class="tags-list">
-                  <span 
-                    v-for="(tag, index) in sitio.tags" 
-                    :key="index"
-                    class="tag"
-                  >
-                    {{ tag }}
-                  </span>
-                </div>
-              </div>
-              
-              <!-- Mapa Leaflet -->
-              <div v-if="sitio.latitud && sitio.longitud" class="info-card">
-                <h3>Ubicación en el Mapa</h3>
-                <div id="map" class="leaflet-map"></div>
-                <a 
-                  :href="`https://www.google.com/maps?q=${sitio.latitud},${sitio.longitud}`"
-                  target="_blank"
-                  class="map-link"
-                >
-                  Abrir en Google Maps →
-                </a>
-              </div>
-            </div>
-          </div>
+    <section v-if="loading" class="state-card">
+      <div class="spinner" />
+      <p>Cargando sitio...</p>
+    </section>
+
+    <section v-else-if="error" class="state-card">
+      <div class="error-icon">⚠️</div>
+      <h2>No pudimos cargar el sitio</h2>
+      <p>{{ errorMessage }}</p>
+      <button class="primary-btn" @click="loadSitio">Reintentar</button>
+      <router-link class="ghost-btn" to="/">Volver al inicio</router-link>
+    </section>
+
+    <section v-else-if="sitio" class="site-detail">
+      <article class="hero-card">
+        <img :src="heroImage" :alt="sitio.nombre" class="hero-img" />
+        <div class="hero-overlay" />
+        <div class="hero-text">
+          <p class="hero-eyebrow">{{ sitio.categoria || 'Sitio histórico' }}</p>
+          <h1>{{ sitio.nombre }}</h1>
+          <p class="hero-subtitle">{{ sitio.descripcion_breve }}</p>
         </div>
-      </div>
-    </div>
+        <button 
+          class="hero-favorite-btn" 
+          type="button" 
+          v-if="sitio && sitio.id" 
+          :class="{ 'is-favorite': isFavorite }"
+          @click="toggleFavorite"
+          title="Favoritos"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            :fill="isFavorite ? 'currentColor' : 'none'"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+            />
+          </svg>
+        </button>
+      </article>
+
+      <main class="detail-body">
+        <div class="body-grid">
+          <section class="narrative">
+            <p class="lede">{{ sitio.descripcion_breve }}</p>
+
+            <article class="info-block" v-if="sitio.descripcion_completa">
+              <h2>Historia</h2>
+              <p>{{ sitio.descripcion_completa }}</p>
+            </article>
+
+            <article class="info-block" v-if="sitio.descripcion_completa">
+              <h2>Arquitectura y Simbolismo</h2>
+              <p>{{ sitio.descripcion_completa }}</p>
+            </article>
+          </section>
+
+          <aside class="sidebar">
+            <div class="card datos-clave">
+              <h3>Datos Clave</h3>
+              <dl>
+                <div class="dato" v-for="item in datosClave" :key="item.label">
+                  <dt>{{ item.label }}</dt>
+                  <dd>{{ item.value }}</dd>
+                </div>
+              </dl>
+            </div>
+
+            <div class="card info-practica">
+              <h3>Información Práctica</h3>
+              <div class="info-row" v-for="item in infoPractica" :key="item.label">
+                <div class="info-icon">{{ item.icon }}</div>
+                <div>
+                  <p class="info-label">{{ item.label }}</p>
+                  <p class="info-value">
+                    <template v-if="item.href">
+                      <a :href="item.href" target="_blank" rel="noopener">{{ item.value }}</a>
+                    </template>
+                    <template v-else>
+                      {{ item.value }}
+                    </template>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+          </aside>
+        </div>
+      </main>
+
+      <section v-if="galleryImages.length" class="gallery-section">
+        <h2>Galería</h2>
+        <div class="gallery-grid">
+          <figure
+            v-for="(imagen, index) in galleryImages"
+            :key="imagen.id || index"
+            :class="['gallery-item', { featured: index === 0 }]"
+          >
+            <img :src="minioImg(imagen.url_publica)" :alt="imagen.titulo_alt || sitio.nombre" />
+          </figure>
+        </div>
+      </section>
+
+      <section v-if="sitio.latitud && sitio.longitud" class="map-section">
+        <h2>Ubicación</h2>
+        <div class="map-card">
+          <div id="map" class="map-canvas" />
+          <button class="map-btn" type="button" @click="openDirections">
+            Abrir en Mapas
+          </button>
+        </div>
+      </section>
+    </section>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, nextTick } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
 import NavigationBar from '../components/NavigationBar.vue'
 import sitiosService from '../services/sitiosService'
 import { minioImg } from '../utils/minioImages'
-import L from 'leaflet'
-import 'leaflet/dist/leaflet.css'
-import SiteReviews from '../components/SiteReviews.vue'
-import FavoriteButton from '../components/FavoriteButton.vue'
+import api from '../config/api'
 
 const route = useRoute()
-const router = useRouter()
 
 const sitio = ref(null)
 const loading = ref(true)
 const error = ref(false)
-const errorMessage = ref('')
+const errorMessage = ref('Ocurrió un error inesperado.')
+const isFavorite = ref(false)
 let map = null
+
+const heroImage = computed(() => {
+  if (!sitio.value) return minioImg()
+  if (sitio.value.imagen_principal) return minioImg(sitio.value.imagen_principal)
+  const fallback = sitio.value.imagenes?.[0]?.url_publica
+  return minioImg(fallback)
+})
+
+const galleryImages = computed(() => sitio.value?.imagenes || [])
+
+const datosClave = computed(() => {
+  if (!sitio.value) return []
+  return [
+    { label: 'Año de construcción', value: sitio.value.anio_inauguracion },
+    { label: 'Estilo arquitectónico', value: sitio.value.categoria },
+    {
+      label: 'Estado',
+      value: sitio.value.estado_conservacion || 'Monumento Histórico Nacional',
+    },
+  ].filter((item) => Boolean(item.value))
+})
+
+const infoPractica = computed(() => {
+  if (!sitio.value) return []
+  return [
+    {
+      icon: '📍',
+      label: 'Dirección',
+      value: `${sitio.value.ciudad || 'Ciudad'}, ${sitio.value.provincia || 'Provincia'}`,
+    },
+    {
+      icon: '🕐',
+      label: 'Horarios',
+      value: 'Visitas guiadas: Lunes a Sábado, 10:00-18:00',
+    },
+    {
+      icon: '🌐',
+      label: 'Sitio Web',
+      value: 'palaciobarolo.com.ar',
+      href: '#',
+    },
+  ]
+})
 
 const loadSitio = async () => {
   try {
     loading.value = true
     error.value = false
-    
-    const sitioId = parseInt(route.params.id)
-    
-    if (isNaN(sitioId)) {
+
+    const sitioId = Number(route.params.id)
+    if (Number.isNaN(sitioId)) {
       throw new Error('ID de sitio inválido')
     }
-    
+
     const response = await sitiosService.getSitioById(sitioId)
     sitio.value = response
-    
-    // Inicializar mapa después de cargar el sitio
+
     await nextTick()
     if (sitio.value.latitud && sitio.value.longitud) {
       initMap()
     }
-    
   } catch (err) {
-    console.error('Error al cargar sitio:', err)
+    console.error('Error al cargar sitio', err)
     error.value = true
-    errorMessage.value = err.response?.data?.message || 'No se pudo cargar el sitio'
+    errorMessage.value = err.response?.data?.message || err.message
   } finally {
     loading.value = false
   }
 }
 
 const initMap = () => {
-  // Esperar un poco para asegurar que el DOM está listo
   setTimeout(() => {
     const mapElement = document.getElementById('map')
     if (!mapElement || map) return
-    
-    // Crear mapa
-    map = L.map('map').setView([sitio.value.latitud, sitio.value.longitud], 15)
-    
-    // Agregar tiles de OpenStreetMap
+
+    map = L.map('map', { scrollWheelZoom: false }).setView(
+      [sitio.value.latitud, sitio.value.longitud],
+      15,
+    )
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap contributors',
-      maxZoom: 19
     }).addTo(map)
-    
-    // Agregar marcador
-    const marker = L.marker([sitio.value.latitud, sitio.value.longitud]).addTo(map)
-    marker.bindPopup(`<b>${sitio.value.nombre}</b><br>${sitio.value.ciudad}, ${sitio.value.provincia}`)
-  }, 100)
+
+    L.marker([sitio.value.latitud, sitio.value.longitud])
+      .addTo(map)
+      .bindPopup(`<b>${sitio.value.nombre}</b><br>${sitio.value.ciudad || ''}`)
+  }, 150)
 }
 
-const getSiteImageUrl = () => {
-  // Prioridad: imagen_principal > primera imagen del array > placeholder
-  if (sitio.value?.imagen_principal) {
-    return minioImg(sitio.value.imagen_principal)
+const openDirections = () => {
+  if (!sitio.value?.latitud || !sitio.value?.longitud) return
+  const url = `https://www.google.com/maps/dir/?api=1&destination=${sitio.value.latitud},${sitio.value.longitud}`
+  window.open(url, '_blank')
+}
+
+const toggleFavorite = async () => {
+  try {
+    if (isFavorite.value) {
+      await api.delete(`/sitios/${sitio.value.id}/favoritos`)
+      isFavorite.value = false
+    } else {
+      await api.put(`/sitios/${sitio.value.id}/favoritos`)
+      isFavorite.value = true
+    }
+  } catch (err) {
+    console.error('Error toggling favorite:', err)
   }
-  if (sitio.value?.imagenes && sitio.value.imagenes.length > 0) {
-    return minioImg(sitio.value.imagenes[0].url_publica)
-  }
-  return minioImg()
-}
-
-const getPlaceholderImage = () => {
-  return getSiteImageUrl()
-}
-
-const formatLocation = (site) => {
-  const parts = []
-  if (site.ciudad) parts.push(site.ciudad)
-  if (site.provincia) parts.push(site.provincia)
-  return parts.join(', ') || 'Ubicación no especificada'
-}
-
-const onFavoriteChanged = (event) => {
-  console.log(`Sitio ${event.siteId} ${event.isFavorite ? 'agregado a' : 'eliminado de'} favoritos`)
-  // Aquí podrías agregar notificaciones o actualizar algún estado si fuera necesario
 }
 
 onMounted(() => {
@@ -240,27 +264,36 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.site-detail-page {
-  min-height: 100vh;
-  background: #f9fafb;
+:global(body) {
+  background: #f9f5ef;
 }
 
-.loading-container,
-.error-container {
+.site-detail-page {
+  min-height: 100vh;
+  background: #f9f5ef;
+  padding-bottom: 80px;
+}
+
+.state-card {
+  max-width: 960px;
+  margin: 80px auto;
+  padding: 48px;
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 15px 45px rgba(15, 23, 42, 0.08);
+  text-align: center;
   display: flex;
   flex-direction: column;
+  gap: 16px;
   align-items: center;
-  justify-content: center;
-  min-height: 60vh;
-  padding: 40px 20px;
 }
 
 .spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid #e5e7eb;
-  border-top-color: #667eea;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
+  border: 4px solid #e5e7eb;
+  border-top-color: #2563eb;
   animation: spin 1s linear infinite;
 }
 
@@ -268,147 +301,116 @@ onUnmounted(() => {
   to { transform: rotate(360deg); }
 }
 
-.error-icon {
-  font-size: 4rem;
-  margin-bottom: 16px;
-}
-
-.error-container h2 {
-  color: #1f2937;
-  margin-bottom: 8px;
-}
-
-.error-container p {
-  color: #6b7280;
-  margin-bottom: 24px;
-}
-
-.retry-btn,
-.back-btn {
-  padding: 12px 24px;
-  border-radius: 8px;
+.primary-btn,
+.ghost-btn {
+  padding: 12px 32px;
+  border-radius: 999px;
   font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-decoration: none;
-  display: inline-block;
-  margin: 8px;
-}
-
-.retry-btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
   border: none;
+  cursor: pointer;
+  text-decoration: none;
 }
 
-.back-btn {
-  background: white;
-  color: #667eea;
-  border: 2px solid #667eea;
+.primary-btn {
+  background: #2563eb;
+  color: #fff;
 }
 
-.hero-section {
+.ghost-btn {
+  border: 1px solid #d1d5db;
+  color: #1f2937;
+}
+
+.hero-card {
   position: relative;
-  height: 50vh;
-  min-height: 400px;
+  max-width: 1100px;
+  margin: 48px auto;
+  border-radius: 28px;
   overflow: hidden;
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.2);
 }
 
-.hero-image {
+.hero-img {
   width: 100%;
-  height: 100%;
+  height: 480px;
   object-fit: cover;
+  display: block;
 }
 
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.7) 0%, rgba(118, 75, 162, 0.7) 100%);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.05) 0%, rgba(0, 0, 0, 0.75) 100%);
 }
 
-.hero-content {
+.hero-text {
   position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: flex-end;
-  padding: 60px 0;
+  bottom: 32px;
+  left: 48px;
+  right: 48px;
+  color: #fff;
 }
 
-.site-title {
-  font-size: 3rem;
-  font-weight: 800;
-  color: white;
-  margin: 0 0 16px 0;
-  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+.hero-eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.8rem;
+  margin-bottom: 12px;
 }
 
-.site-location {
-  font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.95);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+.hero-text h1 {
+  font-size: clamp(2.5rem, 5vw, 3.4rem);
+  margin: 0 0 12px;
+  font-weight: 600;
 }
 
-.main-content {
-  padding: 60px 0 100px;
+.hero-subtitle {
+  font-size: 1.1rem;
+  max-width: 60ch;
+  margin: 0;
 }
 
-.container {
-  max-width: 1280px;
+.detail-body {
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 0 24px;
 }
 
-.content-grid {
+.body-grid {
   display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: 40px;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 1.4fr);
+  gap: 32px;
 }
 
-.main-column {
+.narrative {
   display: flex;
   flex-direction: column;
-  gap: 40px;
+  gap: 32px;
 }
 
-.section h2 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 16px;
+.lede {
+  font-size: 1.15rem;
+  line-height: 1.8;
+  color: #374151;
+  margin: 0;
 }
 
-.description,
-.historia {
-  font-size: 1.1rem;
+.info-block {
+  background: #fff;
+  border-radius: 20px;
+  padding: 32px;
+  box-shadow: inset 0 0 0 1px #f3f4f6;
+}
+
+.info-block h2 {
+  margin: 0 0 16px;
+  font-size: 1.8rem;
+  color: #111827;
+}
+
+.info-block p {
+  margin: 0;
   line-height: 1.7;
   color: #4b5563;
-}
-
-.image-gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
-}
-
-.gallery-item {
-  aspect-ratio: 1;
-  border-radius: 12px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.gallery-item:hover {
-  transform: scale(1.05);
-}
-
-.gallery-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
 }
 
 .sidebar {
@@ -417,172 +419,193 @@ onUnmounted(() => {
   gap: 24px;
 }
 
-.info-card {
-  background: white;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+.card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 28px;
+  box-shadow: inset 0 0 0 1px #f1f5f9;
 }
 
-.info-card h3 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0 0 16px 0;
+.card h3 {
+  margin: 0 0 16px;
+  font-size: 1.2rem;
+  color: #111827;
 }
 
-.rating-display {
+.datos-clave dl {
+  margin: 0;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 12px;
+  gap: 18px;
 }
 
-.rating-stars {
+.dato dt {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #9ca3af;
+  margin-bottom: 4px;
+}
+
+.dato dd {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #111827;
+  font-weight: 600;
+}
+
+.info-row {
   display: flex;
-  gap: 4px;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid #f1f5f9;
 }
 
-.star {
-  font-size: 1.5rem;
-  filter: grayscale(1);
-  opacity: 0.3;
-}
-
-.star.filled {
-  filter: none;
-  opacity: 1;
-}
-
-.rating-number {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #667eea;
-}
-
-.info-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid #f3f4f6;
-}
-
-.info-item:last-child {
+.info-row:last-child {
   border-bottom: none;
 }
 
-.info-item .label {
-  font-weight: 600;
-  color: #6b7280;
+.info-icon {
+  font-size: 1.4rem;
 }
 
-.info-item .value {
-  color: #1f2937;
-  text-align: right;
-}
-
-.tags-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.tag {
-  padding: 6px 16px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-  color: #667eea;
-  border-radius: 20px;
-  font-size: 0.9rem;
-  font-weight: 500;
-}
-
-.leaflet-map {
-  height: 300px;
-  width: 100%;
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 12px;
-}
-
-.map-link {
-  display: block;
-  text-align: center;
-  margin-top: 12px;
-  color: #667eea;
-  font-weight: 600;
-  text-decoration: none;
-  padding: 10px;
-  background: rgba(102, 126, 234, 0.08);
-  border-radius: 6px;
-  transition: all 0.2s;
-}
-
-.map-link:hover {
-  background: rgba(102, 126, 234, 0.15);
-  text-decoration: none;
-}
-
-.badge {
-  padding: 4px 12px;
-  border-radius: 12px;
+.info-label {
   font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin: 0;
+  color: #9ca3af;
+}
+
+.info-value {
+  margin: 4px 0 0;
+  color: #1f2937;
+}
+
+.info-value a {
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.hero-favorite-btn {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+  z-index: 10;
+  color: #64748b;
+}
+
+.hero-favorite-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+.hero-favorite-btn.is-favorite {
+  color: #e11d48;
+  background: rgba(255, 255, 255, 1);
+}
+
+.hero-favorite-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+.gallery-section,
+.map-section {
+  max-width: 1100px;
+  margin: 48px auto 0;
+}
+
+.gallery-section h2,
+.map-section h2 {
+  font-size: 1.6rem;
+  margin-bottom: 20px;
+  color: #111827;
+}
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.gallery-item {
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.1);
+}
+
+.gallery-item.featured {
+  grid-row: span 2;
+  grid-column: span 2;
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.map-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: inset 0 0 0 1px #f1f5f9;
+}
+
+.map-canvas {
+  height: 320px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.map-btn {
+  margin-top: 16px;
+  padding: 12px 20px;
+  background: #0f172a;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
   font-weight: 600;
 }
 
-.badge-bueno {
-  background: #d1fae5;
-  color: #065f46;
-}
-
-.badge-regular {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.badge-malo {
-  background: #fee2e2;
-  color: #991b1b;
-}
-
-@media (max-width: 1024px) {
-  .content-grid {
+@media (max-width: 960px) {
+  .body-grid {
     grid-template-columns: 1fr;
   }
-  
-  .sidebar {
-    order: -1;
+
+  .action-buttons {
+    flex-direction: column;
   }
 }
 
-@media (max-width: 768px) {
-  .hero-section {
-    height: 40vh;
-    min-height: 300px;
+@media (max-width: 640px) {
+  .hero-text {
+    left: 24px;
+    right: 24px;
   }
-  
-  .site-title {
-    font-size: 2rem;
-  }
-  
-  .site-location {
-    font-size: 1rem;
-  }
-  
-  .main-content {
-    padding: 40px 0 60px;
-  }
-  
-  .image-gallery {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
 
-@media (max-width: 1024px) {
-  .content-grid {
-    grid-template-columns: 1fr;
+  .hero-img {
+    height: 360px;
   }
-  .sidebar {
-    order: -1;
+
+  .gallery-item.featured {
+    grid-column: span 1;
+    grid-row: span 1;
   }
 }
 </style>

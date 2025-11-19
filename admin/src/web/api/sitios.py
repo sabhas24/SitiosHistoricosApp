@@ -10,6 +10,7 @@ from src.models.sitios.sitios import (
     get_sitio_by_id,
     obtener_sitios,
     sitio_incrementar_visita,
+    get_search_options,
 )
 from src.models.reseñas.reseña_services import (
     create_reseña,
@@ -23,6 +24,13 @@ from src.models.favoritos import favorito_agregar, favorito_eliminar
 from src.models.database import db
 
 bp = Blueprint("sitios_api", __name__, url_prefix="/api/sitios")
+
+
+@bp.get("/filters")
+def get_filters():
+    """Obtener opciones disponibles para los filtros de búsqueda."""
+    options = get_search_options()
+    return jsonify(options), 200
 
 
 @bp.get("/")
@@ -41,8 +49,10 @@ def list_sites():
     description = request.args.get("description", "", type=str)
     city = request.args.get("city", "", type=str)
     province = request.args.get("province", "", type=str)
+    category = request.args.get("category", "", type=str)
     tags = request.args.getlist("tags")
     order_by = request.args.get("order_by", "latest", type=str)
+    estado_conservacion = request.args.get("estado_conservacion", "", type=str)
     lat = request.args.get("lat", type=float)
     long = request.args.get("long", type=float)
     radius = request.args.get("radius", type=float)
@@ -74,8 +84,10 @@ def list_sites():
         descripcion=description,
         city=city,
         province=province,
+        category=category,
         tag=tags,
         order_by=order_by,
+        estado_conservacion=estado_conservacion,
         lat=lat,
         long=long,
         radius=radius,
