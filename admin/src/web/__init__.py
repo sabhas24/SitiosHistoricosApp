@@ -40,7 +40,11 @@ def create_app(env="development", static_folder="../../static"):
         app,
         resources={
             r"/api/*": {
-                "origins": "http://localhost:*",
+                "origins": [
+                    "http://localhost:*",
+                    "http://127.0.0.1:*",
+                    "https://grupo44.proyecto2025.linti.unlp.edu.ar"
+                ],
                 "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
                 "allow_headers": ["Content-Type", "Authorization"],
                 "expose_headers": ["Content-Type", "Authorization"],
