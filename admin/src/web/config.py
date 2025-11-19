@@ -42,15 +42,15 @@ class DevelopmentConfig(Config):
     MINIO_SERVER = "127.0.0.1:9000"
 
     DEBUG = True
-    BD_USER = "postgres"
-    BD_PASSWORD = "admin"
-    BD_HOST = "localhost"
-    BD_PORT = "5432"
-    BD_NAME = "grupo44"
-    BD_SCHEME = "postgresql"
+    BD_USER = environ.get("DB_USER", "postgres")
+    BD_PASSWORD = environ.get("DB_PASSWORD", "admin")
+    BD_HOST = environ.get("DB_HOST", "localhost")
+    BD_PORT = environ.get("DB_PORT", "5432")
+    BD_NAME = environ.get("DB_NAME", "grupo44")
+    BD_SCHEME = environ.get("DB_SCHEME", "postgresql")
 
     SQLALCHEMY_ENGINES = {
-        "default": f"{BD_SCHEME}://{BD_USER}:{BD_PASSWORD}@{BD_HOST}:{BD_PORT}/{BD_NAME}?client_encoding=utf8"
+        "default": environ.get("DATABASE_URL") or f"{BD_SCHEME}://{BD_USER}:{BD_PASSWORD}@{BD_HOST}:{BD_PORT}/{BD_NAME}?client_encoding=utf8"
     }
 
     JWT_SECRET_KEY = environ.get("JWT_SECRET_KEY", "cambiar-en-produccion")

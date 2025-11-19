@@ -395,8 +395,10 @@ def obtener_sitios(
     descripcion=None,
     city=None,
     province=None,
+    category=None,
     tag=None,
     order_by="latest",
+    estado_conservacion=None,
     lat=None,
     long=None,
     radius=None,
@@ -413,6 +415,12 @@ def obtener_sitios(
         query = query.filter(SitioHistorico.ciudad.ilike(f"%{city}%"))
     if province:
         query = query.filter(SitioHistorico.provincia.ilike(f"%{province}%"))
+    if category:
+        query = query.filter(SitioHistorico.categoria == Categoria(category))
+    if estado_conservacion:
+        query = query.filter(
+            SitioHistorico.estado_conservacion == EstadoConservacion(estado_conservacion)
+        )
     if tag:
         from src.models.tags.tag import Tags
 
@@ -494,7 +502,7 @@ def get_search_options():
         "ciudades": ciudades,
         "categorias": [cat.value for cat in Categoria],
         "estados_conservacion": [estado.value for estado in EstadoConservacion],
-        "tags": tags,
+        "tags": [{"id": tag.id, "nombre": tag.nombre} for tag in tags],
     }
 
 
