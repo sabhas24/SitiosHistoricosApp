@@ -12,7 +12,7 @@ dependencies = [
     "flask-session",
     "flask-sqlalchemy-lite",
     "flask-cors",
-    "flask-jwt-extended",
+    "flask-jwt-extended (>=4.6.0)",
     "authlib",
     "python-dotenv",
     "marshmallow",
