@@ -1,8 +1,31 @@
+import os
+from dotenv import load_dotenv
+
+# --- DEBUG PRINTS ---
+print("--- GEMINI CLI DEBUG PRINTS ---")
+print(f"SECRET_KEY: {os.getenv('SECRET_KEY')}")
+print(f"GOOGLE_CLIENT_ID: {os.getenv('GOOGLE_CLIENT_ID')}")
+print(f"GOOGLE_CLIENT_SECRET: {os.getenv('GOOGLE_CLIENT_SECRET')}")
+print("--- END GEMINI CLI DEBUG PRINTS ---")
+
+
 from os import environ
 from datetime import timedelta
 
 
-class Config(object):
+load_dotenv()
+
+# --- DEBUG PRINTS ---
+print("--- Loading Environment Variables ---")
+print(f"DB_URL: {os.environ.get('DB_URL')}")
+print(f"GOOGLE_CLIENT_ID: {os.environ.get('GOOGLE_CLIENT_ID')}")
+print(
+    f"GOOGLE_CLIENT_SECRET: {'*' * 10 if os.environ.get('GOOGLE_CLIENT_SECRET') else None}"
+)  # Avoid printing secrets
+print("------------------------------------")
+
+
+class Config:
     GOOGLE_CLIENT_ID = environ.get("GOOGLE_CLIENT_ID")
     GOOGLE_CLIENT_SECRET = environ.get("GOOGLE_CLIENT_SECRET")
     GOOGLE_DISCOVERY_URL = (
@@ -37,7 +60,6 @@ class DevelopmentConfig(Config):
     MINIO_SECRET_KEY = environ.get("MINIO_SECRET_KEY", "minioadmin")
     MINIO_SECURE = False
 
-    # Legacy config
     MINIO_SERVER = "127.0.0.1:9000"
 
     DEBUG = True
@@ -49,7 +71,8 @@ class DevelopmentConfig(Config):
     BD_SCHEME = environ.get("DB_SCHEME", "postgresql")
 
     SQLALCHEMY_ENGINES = {
-        "default": environ.get("DATABASE_URL") or f"{BD_SCHEME}://{BD_USER}:{BD_PASSWORD}@{BD_HOST}:{BD_PORT}/{BD_NAME}?client_encoding=utf8"
+        "default": environ.get("DATABASE_URL")
+        or f"{BD_SCHEME}://{BD_USER}:{BD_PASSWORD}@{BD_HOST}:{BD_PORT}/{BD_NAME}?client_encoding=utf8"
     }
 
     JWT_SECRET_KEY = environ.get("JWT_SECRET_KEY", "cambiar-en-produccion")
@@ -63,8 +86,11 @@ class DevelopmentConfig(Config):
 
 
 class ProductionConfig(Config):
+
     SQLALCHEMY_ENGINES = {"default": environ.get("DATABASE_URL")}
     DEBUG = False
+
+    JWT_SECRET_KEY = environ.get("JWT_SECRET_KEY")
 
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_SAMESITE = "Lax"
@@ -76,9 +102,7 @@ class ProductionConfig(Config):
     JWT_COOKIE_HTTPONLY = True
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
 
-    FRONTEND_BASE_URL = environ.get(
-        "FRONTEND_BASE_URL", "https://grupo44.proyecto2025.linti.unlp.edu.ar"
-    )
+    FRONTEND_BASE_URL = "https://grupo44.proyecto2025.linti.unlp.edu.ar"
 
 
 config = {

@@ -4,8 +4,27 @@ from src.models.favoritos import favorito_listar
 from src.models.auth import user_show_id
 from src.web.schemas.user import UserReadSchema
 from src.models.reseñas.reseña_services import obtener_reseñas_por_usuario
+from src.web.config import DevelopmentConfig
 
 bp = Blueprint("me_api", __name__, url_prefix="/api/me")
+
+
+@bp.route("/debug/env")
+def show_env():
+    config = DevelopmentConfig()
+    return jsonify(
+        {
+            "BD_USER": config.BD_USER,
+            "BD_PASSWORD": config.BD_PASSWORD,
+            "BD_HOST": config.BD_HOST,
+            "BD_PORT": config.BD_PORT,
+            "BD_NAME": config.BD_NAME,
+            "BD_SCHEME": config.BD_SCHEME,
+            "MINIO_ENDPOINT": config.MINIO_ENDPOINT,
+            "MINIO_BUCKET_NAME": config.MINIO_BUCKET_NAME,
+            # Agrega aquí las variables que quieras ver
+        }
+    )
 
 
 @bp.get("/")
