@@ -30,7 +30,6 @@ const router = createRouter({
       path: '/map',
       name: 'map',
       component: MapView,
-      meta: { requiresAuth: true },
     },
     {
       path: '/profile',
