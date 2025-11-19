@@ -27,7 +27,7 @@ ADMIN_PERMISSIONS = [
     "site_set_visibility",
     "proposal_validate",
     "review_index",
-    "review_moderate"
+    "review_moderate",
 ]
 
 
@@ -41,17 +41,10 @@ EDITOR_PERMISSIONS = [
     "site_set_visibility",
     "proposal_validate",
     "review_index",
-    "review_moderate"
+    "review_moderate",
 ]
 
-MODERATOR_PERMISSIONS = [
-    "review_index",
-    "review_moderate"
-]
-
-
-
-
+MODERATOR_PERMISSIONS = ["review_index", "review_moderate"]
 
 
 def _ensure_tables():
@@ -74,9 +67,11 @@ def _ensure_tables():
         with db.engine.begin() as conn:
             conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis"))
             conn.execute(text("CREATE EXTENSION IF NOT EXISTS postgis_topology"))
-            
+
             # Crear trigger para actualizar ranking de sitios
-            conn.execute(text("""
+            conn.execute(
+                text(
+                    """
                 -- Función que actualiza el ranking de un sitio
                 CREATE OR REPLACE FUNCTION actualizar_ranking_sitio()
                 RETURNS TRIGGER AS $$
@@ -109,8 +104,10 @@ def _ensure_tables():
                 AFTER INSERT OR UPDATE OR DELETE ON reseñas
                 FOR EACH ROW
                 EXECUTE FUNCTION actualizar_ranking_sitio();
-            """))
-            
+            """
+                )
+            )
+
             print("✅ Trigger de ranking creado correctamente")
     except Exception as e:
         print(f"⚠️  No se pudo crear la extensión PostGIS o trigger: {e}")
@@ -124,27 +121,27 @@ def _ensure_tables():
 
 
 def run():
-    
+
     _ensure_tables()
-    
+
     # Crear roles
     admin_role = create_role("admin")
     editor_role = create_role("editor")
     moderator_role = create_role("moderator")
     public_role = create_role("public_user")
-    
+
     # Permisos públicos
     PUBLIC_PERMISSIONS = [
         "site_show",
         "review_create",
         "favorite_manage",
     ]
-    
+
     # Asignar permisos a public_user
     for perm_name in PUBLIC_PERMISSIONS:
         create_permission(perm_name)
         assign_permission_to_role("public_user", perm_name)
-    
+
     for perm in ADMIN_PERMISSIONS:
         create_permission(perm)
         assign_permission_to_role("admin", perm)
@@ -157,9 +154,12 @@ def run():
         create_permission(perm)
         assign_permission_to_role("moderator", perm)
 
-    from src.models.feature_flag.feature_flag_services import create_default_feature_flags
+    from src.models.feature_flag.feature_flag_services import (
+        create_default_feature_flags,
+    )
+
     create_default_feature_flags()
-    
+
     # Crear sitios históricos de ejemplo primero
     print("📍 Creando sitios históricos de ejemplo...")
     try:
@@ -167,17 +167,17 @@ def run():
         print("✅ Sitios históricos de ejemplo creados")
     except Exception as e:
         print(f"⚠️  Error al crear sitios de ejemplo: {e}")
-    
+
     # Luego crear propuestas y reseñas
     from src.models.propuestas.propuesta_services import crear_propuesta_ejemplo
     from src.models.reseñas.reseña_services import crear_reseña_ejemplo
-    
+
     try:
         crear_propuesta_ejemplo()
         print("✅ Propuesta de ejemplo creada")
     except Exception as e:
         print(f"⚠️  Error al crear propuesta de ejemplo: {e}")
-    
+
     try:
         crear_reseñas_y_favoritos_ejemplo()
         print("✅ Reseñas y favoritos de ejemplo creados")
@@ -255,23 +255,35 @@ def run():
 
 def crear_sitios_ejemplo():
     """Crear sitios históricos de ejemplo para testing"""
-    from src.models.sitios.sitio_historico import SitioHistorico, EstadoConservacion, Categoria
+    from src.models.sitios.sitio_historico import (
+        SitioHistorico,
+        EstadoConservacion,
+        Categoria,
+    )
     from src.models.tags.tag import Tag
+
     # Verificar si ya existen sitios
     if db.session.query(SitioHistorico).count() > 0:
         print("⏭️  Ya existen sitios históricos")
         return
-    
+
     # Crear tags
     tags_dict = {}
-    for tag_nombre in ["Colonial", "Arquitectura", "Histórico", "Turístico", "Patrimonio", "Cultural"]:
+    for tag_nombre in [
+        "Colonial",
+        "Arquitectura",
+        "Histórico",
+        "Turístico",
+        "Patrimonio",
+        "Cultural",
+    ]:
         tag = db.session.query(Tag).filter_by(nombre=tag_nombre).first()
         if not tag:
             tag = Tag(nombre=tag_nombre)
             db.session.add(tag)
             db.session.flush()
         tags_dict[tag_nombre] = tag
-    
+
     sitios_ejemplo = [
         {
             "nombre": "Cabildo de Buenos Aires",
@@ -285,7 +297,11 @@ def crear_sitios_ejemplo():
             "anio_inauguracion": 1751,
             "categoria": Categoria.EDIFICIO_HISTORICO,
             "visible": True,
-            "tags": [tags_dict["Colonial"], tags_dict["Histórico"], tags_dict["Turístico"]]
+            "tags": [
+                tags_dict["Colonial"],
+                tags_dict["Histórico"],
+                tags_dict["Turístico"],
+            ],
         },
         {
             "nombre": "Casa Rosada",
@@ -299,7 +315,11 @@ def crear_sitios_ejemplo():
             "anio_inauguracion": 1898,
             "categoria": Categoria.EDIFICIO_HISTORICO,
             "visible": True,
-            "tags": [tags_dict["Arquitectura"], tags_dict["Histórico"], tags_dict["Turístico"]]
+            "tags": [
+                tags_dict["Arquitectura"],
+                tags_dict["Histórico"],
+                tags_dict["Turístico"],
+            ],
         },
         {
             "nombre": "Teatro Colón",
@@ -313,7 +333,11 @@ def crear_sitios_ejemplo():
             "anio_inauguracion": 1908,
             "categoria": Categoria.ARQUITECTURA,
             "visible": True,
-            "tags": [tags_dict["Arquitectura"], tags_dict["Cultural"], tags_dict["Patrimonio"]]
+            "tags": [
+                tags_dict["Arquitectura"],
+                tags_dict["Cultural"],
+                tags_dict["Patrimonio"],
+            ],
         },
         {
             "nombre": "Ruinas de San Ignacio Miní",
@@ -327,7 +351,11 @@ def crear_sitios_ejemplo():
             "anio_inauguracion": 1632,
             "categoria": Categoria.SITIO_ARQUEOLOGICO,
             "visible": True,
-            "tags": [tags_dict["Histórico"], tags_dict["Patrimonio"], tags_dict["Turístico"]]
+            "tags": [
+                tags_dict["Histórico"],
+                tags_dict["Patrimonio"],
+                tags_dict["Turístico"],
+            ],
         },
         {
             "nombre": "Monumento a la Bandera",
@@ -341,23 +369,26 @@ def crear_sitios_ejemplo():
             "anio_inauguracion": 1957,
             "categoria": Categoria.MONUMENTO,
             "visible": True,
-            "tags": [tags_dict["Histórico"], tags_dict["Turístico"], tags_dict["Patrimonio"]]
-        }
+            "tags": [
+                tags_dict["Histórico"],
+                tags_dict["Turístico"],
+                tags_dict["Patrimonio"],
+            ],
+        },
     ]
-    
+
     for sitio_data in sitios_ejemplo:
-        tags = sitio_data.pop('tags')
-        latitud = sitio_data.pop('latitud')
-        longitud = sitio_data.pop('longitud')
-        
+        tags = sitio_data.pop("tags")
+        latitud = sitio_data.pop("latitud")
+        longitud = sitio_data.pop("longitud")
+
         # Crear el punto geográfico con SRID=4326
         sitio = SitioHistorico(
-            **sitio_data,
-            ubicacion=f'SRID=4326;POINT({longitud} {latitud})'
+            **sitio_data, ubicacion=f"SRID=4326;POINT({longitud} {latitud})"
         )
         sitio.tags = tags
         db.session.add(sitio)
-    
+
     db.session.commit()
     print(f"✅ Creados {len(sitios_ejemplo)} sitios históricos de ejemplo")
 
@@ -368,15 +399,21 @@ def crear_reseñas_y_favoritos_ejemplo():
     from src.models.favoritos.favoritos import Favorito
     from src.models.sitios.sitio_historico import SitioHistorico
     from src.models.auth.user import user
-    
+
     # Obtener sitios y usuarios
     sitios = db.session.query(SitioHistorico).limit(3).all()
-    usuarios = db.session.query(user).filter(user.email.in_(['user@user.com', 'ana@example.com', 'carlos@example.com'])).all()
-    
+    usuarios = (
+        db.session.query(user)
+        .filter(
+            user.email.in_(["user@user.com", "ana@example.com", "carlos@example.com"])
+        )
+        .all()
+    )
+
     if not sitios:
         print("⚠️  No hay sitios para crear reseñas")
         return
-    
+
     # Crear reseñas de ejemplo
     reseñas_ejemplo = [
         {
@@ -384,39 +421,41 @@ def crear_reseñas_y_favoritos_ejemplo():
             "calificacion": 5,
             "sitio_id": sitios[0].id,
             "email_usuario": "visitante1@example.com",
-            "nombre_usuario": "María García"
+            "nombre_usuario": "María García",
         },
         {
             "comentario": "Interesante desde el punto de vista histórico, pero le falta mantenimiento en algunas áreas.",
             "calificacion": 3,
             "sitio_id": sitios[0].id,
             "email_usuario": "visitante2@example.com",
-            "nombre_usuario": "Juan Pérez"
+            "nombre_usuario": "Juan Pérez",
         },
     ]
-    
+
     if len(sitios) > 1:
-        reseñas_ejemplo.extend([
-            {
-                "comentario": "Un lugar emblemático que todos deberían visitar. La arquitectura es impresionante.",
-                "calificacion": 5,
-                "sitio_id": sitios[1].id,
-                "email_usuario": "turista@example.com",
-                "nombre_usuario": "Laura Fernández"
-            },
-            {
-                "comentario": "Muy lindo, pero hay mucha gente. Recomiendo ir temprano.",
-                "calificacion": 4,
-                "sitio_id": sitios[1].id,
-                "email_usuario": "viajero@example.com",
-                "nombre_usuario": "Carlos Rodríguez"
-            }
-        ])
-    
+        reseñas_ejemplo.extend(
+            [
+                {
+                    "comentario": "Un lugar emblemático que todos deberían visitar. La arquitectura es impresionante.",
+                    "calificacion": 5,
+                    "sitio_id": sitios[1].id,
+                    "email_usuario": "turista@example.com",
+                    "nombre_usuario": "Laura Fernández",
+                },
+                {
+                    "comentario": "Muy lindo, pero hay mucha gente. Recomiendo ir temprano.",
+                    "calificacion": 4,
+                    "sitio_id": sitios[1].id,
+                    "email_usuario": "viajero@example.com",
+                    "nombre_usuario": "Carlos Rodríguez",
+                },
+            ]
+        )
+
     for reseña_data in reseñas_ejemplo:
         reseña = Reseña(**reseña_data)
         db.session.add(reseña)
-    
+
     # Crear favoritos de ejemplo
     if usuarios and sitios:
         try:
@@ -427,21 +466,19 @@ def crear_reseñas_y_favoritos_ejemplo():
                 if len(sitios) > 1:
                     fav2 = Favorito(user_id=usuarios[0].id, sitio_id=sitios[1].id)
                     db.session.add(fav2)
-            
+
             # Usuario 2 tiene 1 favorito
             if len(usuarios) > 1 and len(sitios) > 1:
                 fav3 = Favorito(user_id=usuarios[1].id, sitio_id=sitios[1].id)
                 db.session.add(fav3)
-            
+
             # Usuario 3 tiene 1 favorito
             if len(usuarios) > 2 and len(sitios) > 2:
                 fav4 = Favorito(user_id=usuarios[2].id, sitio_id=sitios[2].id)
                 db.session.add(fav4)
         except Exception as e:
             print(f"⚠️  Error al crear favoritos: {e}")
-    
+
     db.session.commit()
     print(f"✅ Creadas {len(reseñas_ejemplo)} reseñas de ejemplo")
     print("✅ Creados favoritos de ejemplo")
-
-
