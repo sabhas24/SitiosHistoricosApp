@@ -5,6 +5,7 @@ from src.models.reseñas.reseña_services import (
     obtener_reseña_por_id, 
     aprobar_reseña, 
     rechazar_reseña,
+    eliminar_reseña,
     obtener_estadisticas_reseñas
 )
 from flask import session
@@ -30,6 +31,8 @@ def index():
     usuario = request.args.get('usuario', '', type=str)
     fecha_desde = request.args.get('fecha_desde', '', type=str)
     fecha_hasta = request.args.get('fecha_hasta', '', type=str)
+    orden_campo = request.args.get('orden_campo', 'fecha', type=str)
+    orden_direccion = request.args.get('orden_direccion', 'desc', type=str)
     
     # Preparar filtros
     filters = {}
@@ -45,6 +48,10 @@ def index():
         filters['fecha_desde'] = fecha_desde
     if fecha_hasta:
         filters['fecha_hasta'] = fecha_hasta
+    if orden_campo:
+        filters['orden_campo'] = orden_campo
+    if orden_direccion:
+        filters['orden_direccion'] = orden_direccion
     
     # Obtener reseñas con filtros
     reseñas_data = obtener_reseñas(
@@ -66,7 +73,9 @@ def index():
             'sitio': sitio,
             'usuario': usuario,
             'fecha_desde': fecha_desde,
-            'fecha_hasta': fecha_hasta
+            'fecha_hasta': fecha_hasta,
+            'orden_campo': orden_campo,
+            'orden_direccion': orden_direccion
         }
     )
 
@@ -97,12 +106,13 @@ def aprobar(resena_id):
         from flask import abort
         abort(403)
     
-    usuario_id = session.get('user_id')
-    if not usuario_id:
+    from src.web.handlers.auth import get_current_user
+    current_user = get_current_user()
+    if not current_user:
         flash("Error de sesión", "error")
         return redirect(url_for('auth.login'))
     
-    success, message = aprobar_reseña(resena_id, usuario_id)
+    success, message = aprobar_reseña(resena_id, current_user.id)
     
     if success:
         flash(message, "success")
@@ -121,8 +131,9 @@ def rechazar(resena_id):
         from flask import abort
         abort(403)
     
-    usuario_id = session.get('user_id')
-    if not usuario_id:
+    from src.web.handlers.auth import get_current_user
+    current_user = get_current_user()
+    if not current_user:
         flash("Error de sesión", "error")
         return redirect(url_for('auth.login'))
     
@@ -131,7 +142,7 @@ def rechazar(resena_id):
         flash("Debe proporcionar un motivo para el rechazo", "error")
         return redirect(url_for('reseñas.detalle', resena_id=resena_id))
     
-    success, message = rechazar_reseña(resena_id, usuario_id, motivo_rechazo)
+    success, message = rechazar_reseña(resena_id, current_user.id, motivo_rechazo)
     
     if success:
         flash(message, "success")
@@ -202,3 +213,27 @@ def json_list():
             'has_next': reseñas_data['has_next']
         }
     })
+
+
+@reseñas_bp.route("/<int:resena_id>/eliminar", methods=['POST'])
+def eliminar(resena_id):
+    """Eliminar una reseña con confirmación"""
+    
+    # Verificar permisos
+    if not check_permission("review_moderate"):
+        from flask import abort
+        abort(403)
+    
+    confirmacion = request.form.get('confirmacion')
+    if confirmacion != 'ELIMINAR':
+        flash("Debe escribir 'ELIMINAR' para confirmar la eliminación", "error")
+        return redirect(url_for('reseñas.detalle', resena_id=resena_id))
+    
+    success, message = eliminar_reseña(resena_id)
+    
+    if success:
+        flash(message, "success")
+        return redirect(url_for('reseñas.index'))
+    else:
+        flash(message, "error")
+        return redirect(url_for('reseñas.detalle', resena_id=resena_id))

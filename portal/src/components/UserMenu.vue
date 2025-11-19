@@ -1,0 +1,469 @@
+<template>
+  <div class="user-menu" ref="menuRef">
+    <!-- Login Button (Unauthenticated) -->
+    <div v-if="!authStore.isAuthenticated">
+      <button 
+        @click="goToLogin"
+        class="btn-login"
+      >
+        Iniciar Sesión
+      </button>
+    </div>
+    
+    <!-- User Menu (Authenticated) -->
+    <div v-else>
+      <button 
+        @click="toggleDropdown"
+        class="user-trigger"
+        :class="{ 'user-trigger--active': dropdownOpen }"
+      >
+        <!-- Avatar -->
+        <div class="avatar">
+          {{ userInitial }}
+        </div>
+        
+        <!-- User Info (Desktop) -->
+        <div class="user-info">
+          <span class="user-name">
+            {{ authStore.userName }}
+          </span>
+          <span class="user-role">
+            Usuario
+          </span>
+        </div>
+
+        <!-- Chevron -->
+        <svg 
+          class="chevron-icon"
+          :class="{ 'chevron-icon--rotated': dropdownOpen }"
+          fill="none" 
+          viewBox="0 0 24 24" 
+          stroke="currentColor"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+      
+      <!-- Dropdown Menu -->
+      <Transition name="dropdown">
+        <div v-if="dropdownOpen" class="dropdown-menu">
+          <!-- Header -->
+          <div class="dropdown-header">
+            <div class="header-content">
+              <div class="avatar avatar--large">
+                {{ userInitial }}
+              </div>
+              <div class="header-text">
+                <p class="header-name">
+                  {{ authStore.userName }}
+                </p>
+                <p class="header-email">
+                  {{ authStore.userEmail }}
+                </p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Menu Items -->
+          <div class="dropdown-body">
+            <!-- Account Section -->
+            <div class="menu-section">
+              <p class="section-title">Mi Cuenta</p>
+              <RouterLink 
+                to="/profile" 
+                class="menu-item"
+                @click="closeDropdown"
+              >
+                <div class="item-icon">
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                <div class="item-content">
+                  <span class="item-title">Perfil</span>
+                  <span class="item-subtitle">Gestiona tu información</span>
+                </div>
+              </RouterLink>
+            </div>
+
+            <!-- Activity Section -->
+            <div class="menu-section">
+              <p class="section-title">Actividad</p>
+              <RouterLink 
+                to="/profile" 
+                class="menu-item"
+                @click="closeDropdown"
+              >
+                <div class="item-icon">
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                  </svg>
+                </div>
+                <span class="item-title">Sitios Favoritos</span>
+              </RouterLink>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <!-- Logout -->
+            <button 
+              @click="handleLogout" 
+              class="menu-item menu-item--danger"
+            >
+              <div class="item-icon item-icon--danger">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+              </div>
+              <span class="item-title">Cerrar Sesión</span>
+            </button>
+          </div>
+        </div>
+      </Transition>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '../stores/auth'
+import api from '../config/api'
+
+const router = useRouter()
+const authStore = useAuthStore()
+const dropdownOpen = ref(false)
+const menuRef = ref(null)
+
+const userInitial = computed(() => {
+  return authStore.userName ? authStore.userName.charAt(0).toUpperCase() : 'U'
+})
+
+const toggleDropdown = (e) => {
+  e.stopPropagation()
+  dropdownOpen.value = !dropdownOpen.value
+}
+
+const closeDropdown = () => {
+  dropdownOpen.value = false
+}
+
+const handleClickOutside = (event) => {
+  if (menuRef.value && !menuRef.value.contains(event.target)) {
+    dropdownOpen.value = false
+  }
+}
+
+const handleLogout = async () => {
+  try {
+    await api.post('/user/logout', {}, { withCredentials: true })
+  } catch (e) {
+    console.error('Logout error:', e)
+  }
+  authStore.clearUser()
+  router.push('/login')
+  closeDropdown()
+}
+
+const goToLogin = () => {
+  router.push({ name: 'login', query: { redirect: router.currentRoute.value.fullPath } })
+}
+
+onMounted(() => {
+  document.addEventListener('click', handleClickOutside)
+})
+
+onUnmounted(() => {
+  document.removeEventListener('click', handleClickOutside)
+})
+</script>
+
+<style scoped>
+.user-menu {
+  position: relative;
+}
+
+/* Login Button */
+.btn-login {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
+  background-color: var(--color-blue-600);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.btn-login:hover {
+  background-color: var(--color-blue-700);
+  box-shadow: var(--shadow-md);
+}
+
+/* User Trigger */
+.user-trigger {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.375rem;
+  padding-right: 0.75rem;
+  padding-left: 0.5rem;
+  background-color: white;
+  border: 1px solid var(--color-slate-200);
+  padding-left: 0.375rem;
+  background-color: #f3f4f6; /* Fondo gris claro */
+  border: 1px solid transparent; /* Borde transparente */
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.user-trigger:hover {
+  border-color: var(--color-blue-300);
+  background-color: #e5e7eb; /* Gris un poco más oscuro al pasar el ratón */
+  box-shadow: var(--shadow-md);
+}
+
+.user-trigger--active {
+  border-color: var(--color-blue-300);
+  box-shadow: 0 0 0 2px var(--color-blue-100);
+  box-shadow: 0 0 0 3px var(--color-blue-100);
+}
+
+/* Avatar */
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(135deg, var(--color-blue-500), var(--color-blue-600));
+  border-radius: var(--radius-full);
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.avatar--large {
+  width: 3rem;
+  height: 3rem;
+  font-size: 1.25rem;
+  background: white;
+  color: var(--color-blue-600);
+  border: 2px solid var(--color-blue-100);
+}
+
+/* User Info */
+.user-info {
+  display: none;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-right: 0.25rem;
+}
+
+@media (min-width: 640px) {
+  .user-info {
+    display: flex;
+  }
+}
+
+.user-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-slate-700);
+  transition: color var(--transition-fast);
+}
+
+.user-trigger:hover .user-name {
+  color: var(--color-blue-700);
+}
+
+.user-role {
+  font-size: 0.625rem;
+  font-weight: 500;
+  color: var(--color-slate-500);
+}
+
+/* Chevron */
+.chevron-icon {
+  width: 1rem;
+  height: 1rem;
+  color: var(--color-slate-400);
+  transition: transform var(--transition-fast), color var(--transition-fast);
+}
+
+.user-trigger:hover .chevron-icon {
+  color: var(--color-blue-500);
+}
+
+.chevron-icon--rotated {
+  transform: rotate(180deg);
+  color: var(--color-blue-500);
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  margin-top: 0.5rem;
+  width: 18rem;
+  background-color: #f9fafb; 
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--color-slate-200);
+  overflow: hidden;
+  z-index: 50;
+  transform-origin: top right;
+}
+
+.dropdown-header {
+  padding: 1.25rem;
+  background-color: var(--color-slate-50);
+  border-bottom: 1px solid var(--color-slate-100);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-text {
+  overflow: hidden;
+}
+
+.header-name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-slate-900);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.header-email {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-slate-500);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dropdown-body {
+  padding: 0.5rem;
+}
+
+.menu-section {
+  padding: 0.5rem 0.75rem;
+}
+
+.section-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-slate-400);
+  margin-bottom: 0.5rem;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: var(--radius-lg);
+  color: var(--color-slate-600);
+  transition: all var(--transition-fast);
+  width: 100%;
+  text-align: left;
+}
+
+.menu-item:hover {
+  background-color: var(--color-blue-50);
+  color: var(--color-blue-700);
+}
+
+.item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.375rem;
+  background-color: var(--color-slate-100);
+  border-radius: var(--radius-md);
+  color: var(--color-slate-500);
+  transition: all var(--transition-fast);
+}
+
+.menu-item:hover .item-icon {
+  background-color: white;
+  color: var(--color-blue-600);
+  box-shadow: var(--shadow-sm);
+}
+
+.item-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.item-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.item-subtitle {
+  font-size: 0.75rem;
+  color: var(--color-slate-400);
+}
+
+.menu-item:hover .item-subtitle {
+  color: var(--color-blue-500);
+  opacity: 0.8;
+}
+
+.divider {
+  height: 1px;
+  background-color: var(--color-slate-100);
+  margin: 0.25rem 0.75rem;
+}
+
+/* Danger / Logout */
+.menu-item--danger {
+  color: var(--color-red-600);
+}
+
+.menu-item--danger:hover {
+  background-color: var(--color-red-50);
+  color: var(--color-red-600);
+}
+
+.item-icon--danger {
+  background-color: var(--color-red-50);
+  color: var(--color-red-500);
+}
+
+.menu-item--danger:hover .item-icon--danger {
+  background-color: white;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Transitions */
+.dropdown-enter-active {
+  transition: all 0.2s ease-out;
+}
+
+.dropdown-leave-active {
+  transition: all 0.15s ease-in;
+}
+
+.dropdown-enter-from,
+.dropdown-leave-to {
+  transform: scale(0.95) translateY(-10px);
+  opacity: 0;
+}
+</style>
