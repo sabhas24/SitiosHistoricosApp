@@ -1,5 +1,5 @@
 const DEFAULT_CONFIG = {
-  MINIO_ENDPOINT: 'http://127.0.0.1:9000', 
+  MINIO_ENDPOINT: 'https://minio.proyecto2025.linti.unlp.edu.ar', 
   MINIO_BUCKET_NAME: 'grupo44',
   MINIO_ACCESS_KEY: 'hajqpfzuadiMb4aIqDPz',
   MINIO_SECRET_KEY: 'YoTbnJTYnaVXovWm93GJpYLj9LsPs3tMluHzJe57'

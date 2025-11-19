@@ -67,11 +67,11 @@ class ProductionConfig(Config):
     BD_SCHEME = environ.get("DB_SCHEME")
     
     # MinIO configuration with fallbacks
-    MINIO_ENDPOINT = environ.get("MINIO_ENDPOINT", "127.0.0.1:9000")
+    MINIO_ENDPOINT = environ.get("MINIO_ENDPOINT", "minio.proyecto2025.linti.unlp.edu.ar")
     MINIO_BUCKET_NAME = environ.get("MINIO_BUCKET_NAME", "grupo44")
     MINIO_ACCESS_KEY = environ.get("MINIO_ACCESS_KEY", "hajqpfzuadiMb4aIqDPz")
     MINIO_SECRET_KEY = environ.get("MINIO_SECRET_KEY", "YoTbnJTYnaVXovWm93GJpYLj9LsPs3tMluHzJe57")
-    MINIO_SECURE = False
+    MINIO_SECURE = True
 
     SQLALCHEMY_ENGINES = {"default": environ.get("DATABASE_URL")}
     DEBUG = False
