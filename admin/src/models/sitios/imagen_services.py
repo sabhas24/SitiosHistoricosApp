@@ -20,11 +20,24 @@ MAX_IMAGES_PER_SITE = 10
 
 def init_minio():
     """Inicializa el cliente MinIO"""
+    # Validar configuración
+    endpoint = current_app.config.get('MINIO_ENDPOINT')
+    access_key = current_app.config.get('MINIO_ACCESS_KEY')
+    secret_key = current_app.config.get('MINIO_SECRET_KEY')
+    secure = current_app.config.get('MINIO_SECURE', False)
+    
+    if not endpoint:
+        raise Exception("MINIO_ENDPOINT no está configurado")
+    if not access_key:
+        raise Exception("MINIO_ACCESS_KEY no está configurado")
+    if not secret_key:
+        raise Exception("MINIO_SECRET_KEY no está configurado")
+    
     return Minio(
-        current_app.config['MINIO_ENDPOINT'],
-        access_key=current_app.config['MINIO_ACCESS_KEY'],
-        secret_key=current_app.config['MINIO_SECRET_KEY'],
-        secure=False,
+        endpoint,
+        access_key=access_key,
+        secret_key=secret_key,
+        secure=secure,
     )
 
 
@@ -45,7 +58,13 @@ def upload_image_to_minio(file, filename):
     """Sube una imagen a MinIO y retorna la URL pública"""
     try:
         minio_client = init_minio()
-        bucket_name = current_app.config['MINIO_BUCKET_NAME']
+        bucket_name = current_app.config.get('MINIO_BUCKET_NAME')
+        endpoint = current_app.config.get('MINIO_ENDPOINT')
+        
+        if not bucket_name:
+            raise Exception("MINIO_BUCKET_NAME no está configurado")
+        if not endpoint:
+            raise Exception("MINIO_ENDPOINT no está configurado")
         
         if not minio_client.bucket_exists(bucket_name):
             minio_client.make_bucket(bucket_name)
@@ -65,7 +84,7 @@ def upload_image_to_minio(file, filename):
             content_type=file.mimetype
         )
         
-        url_publica = f"http://{current_app.config['MINIO_ENDPOINT']}/{bucket_name}/{filename}"
+        url_publica = f"http://{endpoint}/{bucket_name}/{filename}"
         return url_publica
         
     except S3Error as e:
@@ -76,7 +95,10 @@ def delete_image_from_minio(filename):
     """Elimina una imagen de MinIO"""
     try:
         minio_client = init_minio()
-        bucket_name = current_app.config['MINIO_BUCKET_NAME']
+        bucket_name = current_app.config.get('MINIO_BUCKET_NAME')
+        
+        if not bucket_name:
+            raise Exception("MINIO_BUCKET_NAME no está configurado")
         
         minio_client.remove_object(bucket_name, filename)
         return True

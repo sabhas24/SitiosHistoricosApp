@@ -33,8 +33,8 @@ class Config:
 class DevelopmentConfig(Config):
     MINIO_ENDPOINT = environ.get("MINIO_ENDPOINT", "127.0.0.1:9000")
     MINIO_BUCKET_NAME = environ.get("MINIO_BUCKET_NAME", "grupo44")
-    MINIO_ACCESS_KEY = environ.get("MINIO_ACCESS_KEY", "minioadmin")
-    MINIO_SECRET_KEY = environ.get("MINIO_SECRET_KEY", "minioadmin")
+    MINIO_ACCESS_KEY = environ.get("MINIO_ACCESS_KEY", "hajqpfzuadiMb4aIqDPz")
+    MINIO_SECRET_KEY = environ.get("MINIO_SECRET_KEY", "YoTbnJTYnaVXovWm93GJpYLj9LsPs3tMluHzJe57")
     MINIO_SECURE = False
     MINIO_SERVER = "127.0.0.1:9000"
     DEBUG = True
@@ -65,18 +65,24 @@ class ProductionConfig(Config):
     BD_PORT = environ.get("DB_PORT")
     BD_NAME = environ.get("DB_NAME")
     BD_SCHEME = environ.get("DB_SCHEME")
-    MINIO_ENDPOINT = environ.get("MINIO_ENDPOINT")
-    MINIO_BUCKET_NAME = environ.get("MINIO_BUCKET_NAME")
-    MINIO_ACCESS_KEY = environ.get("MINIO_ACCESS_KEY")
-    MINIO_SECRET_KEY = environ.get("MINIO_SECRET_KEY")
-    MINIO_SECURE = True
+    
+    # MinIO configuration with fallbacks
+    MINIO_ENDPOINT = environ.get("MINIO_ENDPOINT", "127.0.0.1:9000")
+    MINIO_BUCKET_NAME = environ.get("MINIO_BUCKET_NAME", "grupo44")
+    MINIO_ACCESS_KEY = environ.get("MINIO_ACCESS_KEY", "hajqpfzuadiMb4aIqDPz")
+    MINIO_SECRET_KEY = environ.get("MINIO_SECRET_KEY", "YoTbnJTYnaVXovWm93GJpYLj9LsPs3tMluHzJe57")
+    MINIO_SECURE = False
 
     SQLALCHEMY_ENGINES = {"default": environ.get("DATABASE_URL")}
     DEBUG = False
-    JWT_SECRET_KEY = environ.get("JWT_SECRET_KEY")
-    JWT_TOKEN_LOCATION = ["cookies"]
-    JWT_COOKIE_SECURE = True
-    JWT_COOKIE_CSRF_PROTECT = True
+
+    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_SAMESITE = "Lax"
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=1)
+
+    JWT_COOKIE_SECURE = False
+    JWT_COOKIE_SAMESITE = "Lax"
+    JWT_COOKIE_HTTPONLY = True
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
     JWT_COOKIE_SAMESITE = "Lax"
     JWT_COOKIE_DOMAIN = None
