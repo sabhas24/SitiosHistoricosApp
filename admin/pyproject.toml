@@ -18,7 +18,8 @@ dependencies = [
     "marshmallow",
     "psycopg2-binary (==2.9.11)",
     "geoalchemy2 (>=0.18.0,<0.19.0)",
-    "shapely (>=2.1.2,<3.0.0)"
+    "shapely (>=2.1.2,<3.0.0)",
+    "minio"
 ]
 
 [tool.poetry]
