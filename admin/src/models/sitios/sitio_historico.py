@@ -11,7 +11,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.sql import func
 from geoalchemy2.types import Geometry
-from src.models.database import Base, db
+from src.models.database import Base
 from sqlalchemy.orm import relationship
 from src.models.tags.tag import sitio_tag, Tag
 from src.models.sitios.imagen_sitio import ImagenSitio

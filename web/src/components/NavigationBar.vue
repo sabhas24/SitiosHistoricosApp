@@ -192,7 +192,7 @@ onUnmounted(() => {
 
 .nav-link--active {
   background-color: white !important;
-  color: #1f2937 !important; /* Color oscuro para el texto */
+  color: #1f2937 !important; 
   font-weight: 600;
 }
 

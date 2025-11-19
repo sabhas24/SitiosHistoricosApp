@@ -32,6 +32,10 @@ class user(Base):
     favoritos = relationship(
         "Favorito", back_populates="usuario", cascade="all, delete-orphan"
     )
+<<<<<<< HEAD
+=======
+
+>>>>>>> 234f559b4227407ff069b4e5a007fb9f6b1e8f9e
 
     def __repr__(self):
         return f"<User {self.email}, {self.name}, {self.last_name} >"

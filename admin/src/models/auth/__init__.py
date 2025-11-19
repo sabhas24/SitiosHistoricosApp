@@ -129,9 +129,7 @@ def create_role(name):
     db.session.commit()
     print(f" ✅ Role created with ID: {role.id} {role.name}")
     return role
-def get_roleid_by_name(name):
-    role= db.session.query(Role).filter_by(name=name).first()
-    return role.id if role else None
+
 def create_permission(name):
     if not permiso_valido(name):
         raise ValueError(f"❌ Permission '{name}' no permitido (debe existir en Enum Permisos)")
