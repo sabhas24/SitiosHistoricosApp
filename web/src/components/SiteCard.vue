@@ -28,7 +28,10 @@
 </template>
 
 <script setup>
+import { useRouter } from 'vue-router'
 import { minioImg } from '../utils/minioImages.js'
+
+const router = useRouter()
 
 const props = defineProps({
   site: {
@@ -39,7 +42,7 @@ const props = defineProps({
 
 const navigateToSite = () => {
   // Usar router de Vue en lugar de window.location
-  window.location.href = `/sitio/${props.site.id}`
+  router.push(`/sitio/${props.site.id}`)
 }
 
 const handleImageError = (event) => {

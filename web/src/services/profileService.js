@@ -1,4 +1,5 @@
 import api from "../config/api";
+import favoritesService from "./favoritesService";
 
 export const profileService = {
     async getReviews(page = 1, limit = 25, order = 'latest') {
@@ -18,24 +19,7 @@ export const profileService = {
     },
 
     async getFavorites(page = 1, limit = 25, order = 'latest') {
-        try {
-            const response = await api.get('/me/favoritos', {
-                params: { page, per_page: limit, order }
-            });
-            const items = response.data.favoritos.map(f => ({
-                id: f.sitio.id,
-                name: f.sitio.nombre,
-                image: f.sitio.imagen,
-                location: f.sitio.ciudad,
-                rating: f.sitio.calificacion_promedio
-            }));
-            return {
-                items: items,
-                totalPages: response.data.total_pages
-            };
-        } catch (error) {
-            console.error("Error fetching favorites:", error);
-            throw error;
-        }
+        // Usar el servicio específico de favoritos para evitar duplicación
+        return favoritesService.getFavorites(page, limit, order);
     }
 };

@@ -14,7 +14,10 @@ api.interceptors.response.use(
     response => response,
     error => {
         if (error.response && error.response.status === 401) {
-            const isAuthCheck = error.config && error.config.url && error.config.url.includes('/me/');
+            const url = error.config && error.config.url ? error.config.url : ''
+            // Consider any endpoint that includes '/me' (e.g. '/me', '/me/', '/sites/:id/reviews/me')
+            // as an auth-check so we only clear local storage but avoid forcing a redirect loop.
+            const isAuthCheck = url.includes('/me')
 
             if (isAuthCheck) {
                 localStorage.removeItem('user');

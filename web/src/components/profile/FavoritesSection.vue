@@ -23,7 +23,7 @@
             <h3 class="favorite-name">{{ site.name }}</h3>
             <p class="favorite-location">{{ site.location }}</p>
             <RatingStars :rating="Math.round(site.rating)" />
-            <a :href="`/site/${site.id}`" class="btn-visit">Ver Sitio</a>
+            <router-link :to="`/sitio/${site.id}`" class="btn-visit">Ver Sitio</router-link>
           </div>
         </div>
       </div>
