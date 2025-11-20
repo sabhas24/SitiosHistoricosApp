@@ -83,9 +83,9 @@ class ProductionConfig(Config):
     SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_SAMESITE = "Lax"
     SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_DOMAIN = ".grupo44.proyecto2025.linti.unlp.edu.ar"
+    SESSION_COOKIE_DOMAIN = None
     PERMANENT_SESSION_LIFETIME = timedelta(hours=1)
-    JWT_COOKIE_DOMAIN = None
+    JWT_COOKIE_DOMAIN = ".grupo44.proyecto2025.linti.unlp.edu.ar"
     JWT_COOKIE_SECURE = True
     JWT_COOKIE_SAMESITE = "Lax"
     JWT_COOKIE_HTTPONLY = True
