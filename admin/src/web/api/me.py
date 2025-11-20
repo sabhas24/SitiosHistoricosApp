@@ -53,6 +53,7 @@ def show_env():
             "SESSION_COOKIE_HTTPONLY": config.SESSION_COOKIE_HTTPONLY,
             "SESSION_COOKIE_SAMESITE": config.SESSION_COOKIE_SAMESITE,
             "PERMANENT_SESSION_LIFETIME": str(config.PERMANENT_SESSION_LIFETIME),
+        ,
             
             # Frontend Configuration
             "FRONTEND_BASE_URL": config.FRONTEND_BASE_URL,
