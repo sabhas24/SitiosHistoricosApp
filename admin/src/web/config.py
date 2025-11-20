@@ -63,8 +63,8 @@ class DevelopmentConfig(Config):
 
 
 class ProductionConfig(Config):
-   SQLALCHEMY_ENGINES = {"default": environ.get("DATABASE_URL")}
-    DEBUG = False
+    SQLALCHEMY_ENGINES = {"default": environ.get("DATABASE_URL")}
+
     BD_USER = environ.get("DATABASE_USERNAME")
     BD_PASSWORD = environ.get("DATABASE_PASSWORD")
     BD_HOST = environ.get("DATABASE_HOST")
