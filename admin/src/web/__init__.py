@@ -43,13 +43,23 @@ def create_app(env="development", static_folder="../../static"):
                 "origins": [
                     "http://localhost:*",
                     "http://127.0.0.1:*",
-                    "https://grupo44.proyecto2025.linti.unlp.edu.ar"
+                    "https://grupo44.proyecto2025.linti.unlp.edu.ar",
                 ],
                 "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
                 "allow_headers": ["Content-Type", "Authorization"],
                 "expose_headers": ["Content-Type", "Authorization"],
                 "supports_credentials": True,
-            }
+            },
+            r"/auth/*": {
+                "origins": [
+                    "http://localhost:*",
+                    "http://127.0.0.1:*",
+                    "https://grupo44.proyecto2025.linti.unlp.edu.ar",
+                ],
+                "methods": ["GET", "POST", "OPTIONS"],
+                "allow_headers": ["Content-Type"],
+                "supports_credentials": True,
+            },
         },
     )
 
