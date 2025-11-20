@@ -69,6 +69,7 @@ class ProductionConfig(Config):
     BD_PORT = environ.get("PORT")
     BD_NAME = environ.get("NAME")
     BD_URL = environ.get("URL")
+    BD_SCHEME = environ.get("SCHEME")
     MINIO_ENDPOINT = environ.get(
         "MINIO_ENDPOINT", "minio.proyecto2025.linti.unlp.edu.ar"
     )
