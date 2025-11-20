@@ -22,9 +22,9 @@ class Config:
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = None
     SQLALCHEMY_ENGINE_OPTIONS = {
-        "pool_size": 10,
+        "pool_size": 5,
         "pool_pre_ping": True,
-        "pool_recycle": 60,
+        "pool_recycle": 300,
     }
     DEBUG = False
     TESTING = False
@@ -63,6 +63,8 @@ class DevelopmentConfig(Config):
 
 
 class ProductionConfig(Config):
+   SQLALCHEMY_ENGINES = {"default": environ.get("DATABASE_URL")}
+    DEBUG = False
     BD_USER = environ.get("DATABASE_USERNAME")
     BD_PASSWORD = environ.get("DATABASE_PASSWORD")
     BD_HOST = environ.get("DATABASE_HOST")
@@ -70,14 +72,10 @@ class ProductionConfig(Config):
     BD_NAME = environ.get("DATABASE_NAME")
     BD_URL = environ.get(" DATABASE_URL")
     BD_SCHEME = environ.get("DATABASE_SCHEME")
-    MINIO_ENDPOINT = environ.get(
-        "MINIO_ENDPOINT", "minio.proyecto2025.linti.unlp.edu.ar"
-    )
-    MINIO_BUCKET_NAME = environ.get("MINIO_BUCKET_NAME", "grupo44")
-    MINIO_ACCESS_KEY = environ.get("MINIO_ACCESS_KEY", "hajqpfzuadiMb4aIqDPz")
-    MINIO_SECRET_KEY = environ.get(
-        "MINIO_SECRET_KEY", "YoTbnJTYnaVXovWm93GJpYLj9LsPs3tMluHzJe57"
-    )
+    MINIO_ENDPOINT = environ.get("MINIO_ENDPOINT")
+    MINIO_BUCKET_NAME = environ.get("MINIO_BUCKET_NAME")
+    MINIO_ACCESS_KEY = environ.get("MINIO_ACCESS_KEY")
+    MINIO_SECRET_KEY = environ.get("MINIO_SECRET_KEY")
     MINIO_SECURE = True
     SQLALCHEMY_ENGINES = {"default": environ.get("DATABASE_URL")}
     DEBUG = False
@@ -94,9 +92,7 @@ class ProductionConfig(Config):
     JWT_COOKIE_CSRF_PROTECT = False
     JWT_SECRET_KEY = environ.get("JWT_SECRET_KEY")
     JWT_TOKEN_LOCATION = ["cookies"]
-    FRONTEND_BASE_URL = environ.get(
-        "FRONTEND_BASE_URL", "https://grupo44.proyecto2025.linti.unlp.edu.ar"
-    )
+    FRONTEND_BASE_URL = environ.get("FRONTEND_BASE_URL")
     CORS_ORIGINS = ["https://grupo44.proyecto2025.linti.unlp.edu.ar"]
 
 
