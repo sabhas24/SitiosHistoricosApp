@@ -3,6 +3,7 @@ from functools import wraps
 from src.models import auth
 
 def is_authenticated():
+    print(f"Checking session. Session data: {dict(session)}")
     if not session.get('user'):
         return False
     return True
