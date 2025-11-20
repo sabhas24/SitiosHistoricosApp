@@ -63,13 +63,13 @@ class DevelopmentConfig(Config):
 
 
 class ProductionConfig(Config):
-    BD_USER = environ.get("USERNAME")
-    BD_PASSWORD = environ.get("PASSWORD")
-    BD_HOST = environ.get("HOST")
-    BD_PORT = environ.get("PORT")
-    BD_NAME = environ.get("NAME")
-    BD_URL = environ.get("URL")
-    BD_SCHEME = environ.get("SCHEME")
+    BD_USER = environ.get("DATABASE_USERNAME")
+    BD_PASSWORD = environ.get("DATABASE_PASSWORD")
+    BD_HOST = environ.get("DATABASE_HOST")
+    BD_PORT = environ.get("DATABASE_PORT")
+    BD_NAME = environ.get("DATABASE_NAME")
+    BD_URL = environ.get(" DATABASE_URL")
+    BD_SCHEME = environ.get("DATABASE_SCHEME")
     MINIO_ENDPOINT = environ.get(
         "MINIO_ENDPOINT", "minio.proyecto2025.linti.unlp.edu.ar"
     )
