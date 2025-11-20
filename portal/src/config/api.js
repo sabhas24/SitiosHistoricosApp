@@ -1,20 +1,18 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: 'https://admin-grupo44.proyecto2025.linti.unlp.edu.ar/api',
+    baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000',
     withCredentials: true,
     headers: {
         'Content-Type': 'application/json'
     }
 });
 
-// Interceptor de requests
 api.interceptors.request.use(
     config => config,
     error => Promise.reject(error)
 );
 
-// Interceptor de responses para manejar errores de autenticación
 api.interceptors.response.use(
     response => response,
     error => {
