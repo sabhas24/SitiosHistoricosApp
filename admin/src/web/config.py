@@ -81,7 +81,7 @@ class ProductionConfig(Config):
     MINIO_SECURE = True
     SQLALCHEMY_ENGINES = {"default": environ.get("DATABASE_URL")}
     DEBUG = False
-    SESSION_COOKIE_SECURE = False
+    SESSION_COOKIE_SECURE = True
     SESSION_COOKIE_SAMESITE = "None"
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_DOMAIN = ".grupo44.proyecto2025.linti.unlp.edu.ar"
