@@ -1,8 +1,18 @@
 
 
-// import { getMinioBaseUrl } from '../config/minio.js'
+import { getMinioBaseUrl } from '../config/minio.js'
 
-const DEFAULT_FALLBACK_IMAGE = '/placeholder-image.jpg'
+// Use the placeholder image from MinIO
+function getPlaceholderImage() {
+  try {
+    return `${getMinioBaseUrl()}/placeholder-image.jpg`
+  } catch {
+    // Fallback if MinIO config fails
+    return 'https://minio.proyecto2025.linti.unlp.edu.ar/grupo44/placeholder-image.jpg'
+  }
+}
+
+const DEFAULT_FALLBACK_IMAGE = getPlaceholderImage()
 
 export function getMinioImageUrl(imagePath) {
   if (!imagePath) {
