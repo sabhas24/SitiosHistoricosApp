@@ -22,19 +22,16 @@ def show_env():
             "BD_NAME": config.BD_NAME,
             "BD_SCHEME": config.BD_SCHEME,
             "SQLALCHEMY_ENGINES": config.SQLALCHEMY_ENGINES,
-            
             # MinIO Configuration
             "MINIO_ENDPOINT": config.MINIO_ENDPOINT,
             "MINIO_BUCKET_NAME": config.MINIO_BUCKET_NAME,
             "MINIO_ACCESS_KEY": config.MINIO_ACCESS_KEY,
             "MINIO_SECRET_KEY": config.MINIO_SECRET_KEY,
             "MINIO_SECURE": config.MINIO_SECURE,
-            
             # Google OAuth Configuration
             "GOOGLE_CLIENT_ID": config.GOOGLE_CLIENT_ID,
             "GOOGLE_CLIENT_SECRET": config.GOOGLE_CLIENT_SECRET,
             "GOOGLE_DISCOVERY_URL": config.GOOGLE_DISCOVERY_URL,
-            
             # JWT Configuration
             "JWT_SECRET_KEY": config.JWT_SECRET_KEY,
             "JWT_TOKEN_LOCATION": config.JWT_TOKEN_LOCATION,
@@ -43,7 +40,6 @@ def show_env():
             "JWT_ACCESS_TOKEN_EXPIRES": str(config.JWT_ACCESS_TOKEN_EXPIRES),
             "JWT_COOKIE_SAMESITE": config.JWT_COOKIE_SAMESITE,
             "JWT_COOKIE_DOMAIN": config.JWT_COOKIE_DOMAIN,
-            
             # Session Configuration
             "SECRET_KEY": config.SECRET_KEY,
             "SESSION_TYPE": config.SESSION_TYPE,
@@ -53,14 +49,10 @@ def show_env():
             "SESSION_COOKIE_HTTPONLY": config.SESSION_COOKIE_HTTPONLY,
             "SESSION_COOKIE_SAMESITE": config.SESSION_COOKIE_SAMESITE,
             "PERMANENT_SESSION_LIFETIME": str(config.PERMANENT_SESSION_LIFETIME),
-        ,
-            
             # Frontend Configuration
             "FRONTEND_BASE_URL": config.FRONTEND_BASE_URL,
-            
             # CORS Configuration
             "CORS_ORIGINS": config.CORS_ORIGINS,
-            
             # General Configuration
             "DEBUG": config.DEBUG,
             "TESTING": config.TESTING,

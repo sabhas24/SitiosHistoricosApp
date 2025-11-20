@@ -60,6 +60,7 @@ class DevelopmentConfig(Config):
     JWT_COOKIE_HTTPONLY = True
     FRONTEND_BASE_URL = "http://localhost:5173"
     SESSION_COOKIE_DOMAIN = None
+    SESSION_COOKIE_SAMESITE = "Lax"
 
 
 class ProductionConfig(Config):
