@@ -1,5 +1,5 @@
 from flask import render_template, request, redirect, url_for, flash, jsonify, Blueprint
-from src.web.handlers.auth import check_permission
+from src.web.handlers.auth import check
 from src.models.reseñas.reseña_services import (
     obtener_reseñas, 
     obtener_reseña_por_id, 
@@ -14,13 +14,9 @@ reseñas_bp = Blueprint("reseñas", __name__, url_prefix="/resenas")
 
 
 @reseñas_bp.route("/")
+@check("review_index")
 def index():
     """Listar todas las reseñas para moderación"""
-    
-    # Verificar permisos
-    if not check_permission("review_index"):
-        from flask import abort
-        abort(403)
     
     # Obtener parámetros de paginación y filtros
     page = request.args.get('page', 1, type=int)
@@ -81,13 +77,9 @@ def index():
 
 
 @reseñas_bp.route("/<int:resena_id>")
+@check("review_index")
 def detalle(resena_id):
     """Ver detalle de una reseña específica"""
-    
-    # Verificar permisos
-    if not check_permission("review_index"):
-        from flask import abort
-        abort(403)
     
     reseña = obtener_reseña_por_id(resena_id)
     if not reseña:
@@ -98,13 +90,9 @@ def detalle(resena_id):
 
 
 @reseñas_bp.route("/<int:resena_id>/aprobar", methods=['POST'])
+@check("review_moderate")
 def aprobar(resena_id):
     """Aprobar una reseña"""
-    
-    # Verificar permisos
-    if not check_permission("review_moderate"):
-        from flask import abort
-        abort(403)
     
     from src.web.handlers.auth import get_current_user
     current_user = get_current_user()
@@ -123,13 +111,9 @@ def aprobar(resena_id):
 
 
 @reseñas_bp.route("/<int:resena_id>/rechazar", methods=['POST'])
+@check("review_moderate")
 def rechazar(resena_id):
     """Rechazar una reseña con motivo"""
-    
-    # Verificar permisos
-    if not check_permission("review_moderate"):
-        from flask import abort
-        abort(403)
     
     from src.web.handlers.auth import get_current_user
     current_user = get_current_user()
@@ -153,26 +137,18 @@ def rechazar(resena_id):
 
 
 @reseñas_bp.route("/estadisticas")
+@check("review_index")
 def estadisticas():
     """API endpoint para obtener estadísticas de reseñas"""
-    
-    # Verificar permisos
-    if not check_permission("review_index"):
-        from flask import abort
-        abort(403)
     
     stats = obtener_estadisticas_reseñas()
     return jsonify(stats)
 
 
 @reseñas_bp.route("/json")
+@check("review_index")
 def json_list():
     """API endpoint para obtener reseñas en formato JSON"""
-    
-    # Verificar permisos
-    if not check_permission("review_index"):
-        from flask import abort
-        abort(403)
     
     # Obtener parámetros
     page = request.args.get('page', 1, type=int)
@@ -216,13 +192,9 @@ def json_list():
 
 
 @reseñas_bp.route("/<int:resena_id>/eliminar", methods=['POST'])
+@check("review_moderate")
 def eliminar(resena_id):
     """Eliminar una reseña con confirmación"""
-    
-    # Verificar permisos
-    if not check_permission("review_moderate"):
-        from flask import abort
-        abort(403)
     
     confirmacion = request.form.get('confirmacion')
     if confirmacion != 'ELIMINAR':
