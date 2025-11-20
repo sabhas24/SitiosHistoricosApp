@@ -1,55 +1,10 @@
-<template>
-  <section class="featured-section">
-    <div class="section-header">
-      <h2 class="section-title">{{ title }}</h2>
-      <div class="header-actions">
-        <button 
-          v-if="showViewAll" 
-          @click="handleViewAll"
-          class="view-all-link"
-        >
-          Ver todos
-        </button>
-      </div>
-    </div>
-    
-    <div v-if="loading" class="loading-state">
-      <div class="skeleton-grid">
-        <div v-for="n in 4" :key="n" class="skeleton-card"></div>
-      </div>
-    </div>
-    
-    <div v-else-if="error" class="error-state">
-      <p>Error al cargar contenido</p>
-      <button @click="retry" class="retry-btn">Reintentar</button>
-    </div>
-    
-    <div v-else-if="sites.length === 0" class="empty-state-container">
-      <div class="empty-pill">No hay contenido</div>
-    </div>
-    
-    <div v-else class="carousel-container">
-      <div class="sites-grid" ref="carouselTrack">
-        <SiteCard 
-          v-for="site in sites" 
-          :key="site.id" 
-          :site="site"
-        />
-      </div>
-      <!-- Navigation Buttons -->
-      <div class="carousel-nav">
-        <button @click="scrollLeft" class="nav-btn nav-btn--prev" aria-label="Anterior">‹</button>
-        <button @click="scrollRight" class="nav-btn nav-btn--next" aria-label="Siguiente">›</button>
-      </div>
-    </div>
-  </section>
-</template>
-
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import SiteCard from './SiteCard.vue'
 import sitiosService from '../services/sitiosService'
+
+const router = useRouter()
 
 const props = defineProps({
   title: {
@@ -74,16 +29,15 @@ const props = defineProps({
   }
 })
 
-const router = useRouter()
 const sites = ref([])
-const loading = ref(true)
-const error = ref(false)
+const isLoading = ref(true)
+const hasError = ref(false)
 const carouselTrack = ref(null)
 
 const loadSites = async () => {
   try {
-    loading.value = true
-    error.value = false
+    isLoading.value = true
+    hasError.value = false
     
     // Llamar a la API con los parámetros del endpoint
     const params = {
@@ -96,9 +50,9 @@ const loadSites = async () => {
     
   } catch (err) {
     console.error('Error loading sites:', err)
-    error.value = true
+    hasError.value = true
   } finally {
-    loading.value = false
+    isLoading.value = false
   }
 }
 
@@ -134,10 +88,70 @@ onMounted(() => {
 })
 </script>
 
+<template>
+  <section class="featured-section">
+    <div class="section-header">
+      <h2 class="section-title">{{ title }}</h2>
+      <div class="header-actions">
+        <button 
+          v-if="showViewAll" 
+          @click="handleViewAll"
+          class="view-all-link"
+        >
+          Ver todos
+        </button>
+      </div>
+    </div>
+    
+    <div v-if="isLoading" class="loading-state">
+      <div class="skeleton-grid">
+        <div v-for="n in 4" :key="n" class="skeleton-card"></div>
+      </div>
+    </div>
+    
+    <div v-else-if="hasError" class="error-state">
+      <p>Error al cargar contenido</p>
+      <button @click="retry" class="retry-btn">Reintentar</button>
+    </div>
+    
+    <div v-else-if="sites.length === 0" class="empty-state-container">
+      <div class="empty-pill">{{ emptyMessage }}</div>
+    </div>
+    
+    <div v-else class="carousel-container">
+      <div class="sites-grid" ref="carouselTrack">
+        <SiteCard 
+          v-for="site in sites" 
+          :key="site.id" 
+          :site="site"
+        />
+      </div>
+      <!-- Navigation Buttons -->
+      <div class="carousel-nav">
+        <button @click="scrollLeft" class="nav-btn nav-btn--prev" aria-label="Anterior">‹</button>
+        <button @click="scrollRight" class="nav-btn nav-btn--next" aria-label="Siguiente">›</button>
+      </div>
+    </div>
+  </section>
+</template>
+
 <style scoped>
 .featured-section {
   margin-bottom: 48px;
   animation: fadeIn 0.6s ease-out;
+
+  background: rgba(28, 37, 54, 0.02); 
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 24px 32px; /* Reduced vertical padding */
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  box-sizing: border-box;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.025);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 @keyframes fadeIn {
@@ -346,3 +360,4 @@ onMounted(() => {
   }
 }
 </style>
+sd
