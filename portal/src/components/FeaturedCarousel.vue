@@ -52,7 +52,7 @@ onMounted(loadMock)
 <style scoped>
 .featured-carousel {
   padding: 24px 0 12px;
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.15);
 }
 .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }

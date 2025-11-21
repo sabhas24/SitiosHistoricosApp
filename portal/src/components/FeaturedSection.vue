@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import SiteCard from './SiteCard.vue'
 import sitiosService from '../services/sitiosService'
+import favoritesService from '@/services/favoritesService'
 
 const router = useRouter()
 
@@ -13,7 +14,7 @@ const props = defineProps({
   },
   endpoint: {
     type: String,
-    required: true
+    required: false
   },
   emptyMessage: {
     type: String,
@@ -26,6 +27,10 @@ const props = defineProps({
   filterParams: {
     type: Object,
     default: () => ({})
+  },
+  isFavorites: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -39,14 +44,28 @@ const loadSites = async () => {
     isLoading.value = true
     hasError.value = false
     
-    // Llamar a la API con los parámetros del endpoint
-    const params = {
-      per_page: 8,
-      ...props.filterParams
+    let response
+    if (props.isFavorites) {
+      const params = {
+        limit: 8,
+        order: props.filterParams?.sort,
+        page: props.filterParams?.page
+      }
+      response = await favoritesService.getFavorites(params.page, params.limit, params.order)
+      sites.value = response.items || []
+    } else {
+      const params = {
+        per_page: 8,
+        ...props.filterParams
+      }
+      // If filterParams has 'sort', it should be 'order_by' for sitiosService
+      if (params.sort) {
+        params.order_by = params.sort;
+        delete params.sort;
+      }
+      response = await sitiosService.getSitios(params)
+      sites.value = response.sitios || []
     }
-    
-    const response = await sitiosService.getSitios(params)
-    sites.value = response.sitios || []
     
   } catch (err) {
     console.error('Error loading sites:', err)

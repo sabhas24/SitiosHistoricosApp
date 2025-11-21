@@ -11,14 +11,14 @@
           title="Más visitados"
           endpoint="/sitios/mas-visitados"
           empty-message="No hay datos de visitas disponibles"
-          :filter-params="{ sort: 'visits', order: 'latest' }"
+          :filter-params="{ order: 'visitas_desc' }"
         />
         
         <FeaturedSection
           title="Mejor puntuados"
           endpoint="/sitios/mejor-puntuados"
           empty-message="No hay sitios puntuados aún"
-          :filter-params="{ sort: 'rating', order: 'latest' }"
+          :filter-params="{ order : 'rating_desc' }"
         />
         
         <FeaturedSection
@@ -33,7 +33,7 @@
           title="Recientemente agregados"
           endpoint="/sitios/recientes"
           empty-message="No hay sitios agregados recientemente"
-          :filter-params="{ sort: 'created_at', order: 'latest' }"
+          :filter-params="{ order: 'lasted' }"
         />
         
       </div>
