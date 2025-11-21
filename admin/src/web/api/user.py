@@ -80,18 +80,18 @@ def login_user():
 @bp.get("/login/google")
 def login_google():
     oauth = get_oauth()
-    redirect_uri = url_for("api.user_api.login_callback", _external=True)
-    nonce = secrets.token_urlsafe(16)
-    session["nonce"] = nonce
-    return oauth.google.authorize_redirect(redirect_uri=redirect_uri, nonce=nonce)
+    redirect_uri = url_for("user_api.login_callback", _external=True)
+    # Authlib genera y guarda el state automáticamente en session["state"]
+    return oauth.google.authorize_redirect(redirect_uri)
 
 
 @bp.get("/login/callback")
 def login_callback():
     try:
         oauth = get_oauth()
+        # Authlib valida el state automáticamente desde session["state"]
         token = oauth.google.authorize_access_token()
-        user_info = oauth.google.parse_id_token(token, nonce=session.get("nonce"))
+        user_info = oauth.google.parse_id_token(token, nonce=None)  # Sin nonce
 
         email = user_info["email"]
         name = user_info.get("given_name", "")
