@@ -22,7 +22,12 @@ const sitiosService = {
    */
   async getSitios(params = {}) {
     try {
-      const response = await api.get('/sitios', { params })
+      // Siempre filtrar por sitios visibles por defecto
+      const filteredParams = {
+        visible: true,
+        ...params
+      }
+      const response = await api.get('/sitios', { params: filteredParams })
       return response.data
     } catch (error) {
       console.error('Error al obtener sitios:', error)
@@ -38,6 +43,10 @@ const sitiosService = {
   async getSitioById(id) {
     try {
       const response = await api.get(`/sitios/${id}`)
+      // Verificar que el sitio sea visible
+      if (response.data && response.data.visible === false) {
+        throw new Error('Sitio no encontrado')
+      }
       return response.data
     } catch (error) {
       console.error(`Error al obtener sitio ${id}:`, error)

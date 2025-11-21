@@ -76,8 +76,11 @@ def sitio_exists(nombre, ciudad):
 
 
 def get_sitio_by_id(id):
-    """Obtener un sitio histórico por su ID"""
-    return db.session.get(SitioHistorico, id)
+    """Obtener un sitio histórico por su ID (solo si es visible)"""
+    sitio = db.session.get(SitioHistorico, id)
+    if sitio and sitio.visible:
+        return sitio
+    return None
 
 
 def sitio_index(page=1, per_page=25, filters=None):
@@ -404,9 +407,14 @@ def obtener_sitios(
     radius=None,
     page=1,
     per_page=25,
+    visible=True,  # Por defecto solo sitios visibles
 ):
     """Obtener sitios históricos con filtros, búsqueda geográfica y paginación"""
     query = db.session.query(SitioHistorico)
+
+    # Filtrar por visibilidad por defecto
+    if visible is not None:
+        query = query.filter(SitioHistorico.visible == visible)
     if name:
         query = query.filter(SitioHistorico.nombre.ilike(f"%{name}%"))
     if descripcion:
@@ -419,7 +427,8 @@ def obtener_sitios(
         query = query.filter(SitioHistorico.categoria == Categoria(category))
     if estado_conservacion:
         query = query.filter(
-            SitioHistorico.estado_conservacion == EstadoConservacion(estado_conservacion)
+            SitioHistorico.estado_conservacion
+            == EstadoConservacion(estado_conservacion)
         )
     if tag:
         from src.models.tags.tag import Tags
