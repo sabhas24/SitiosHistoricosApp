@@ -2,7 +2,7 @@ import axios from 'axios';
 
 
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://admin-grupo44.proyecto2025.linti.unlp.edu.ar/api';
 console.log('API Base URL being used:', apiBaseUrl);
 
 const api = axios.create({
