@@ -103,14 +103,11 @@ function getProfileColor(user) {
 }
 
 const userProfilePicture = computed(() => {
-  const pic = authStore.user?.profile_picture || '' 
-  console.log('URL de imagen detectada:', pic)
+  const pic = authStore.user?.profile_picture || ''
   return pic
 })
 onMounted(async () => {
   profileColor.value = getProfileColor(authStore)
-  console.log('ProfileView - user:', authStore.user.value)
-  console.log('ProfileView - user profile_picture:', authStore.user.value?.profile_picture)
   await loadReviews()
 })
 

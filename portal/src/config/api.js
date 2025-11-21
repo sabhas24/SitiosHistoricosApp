@@ -2,7 +2,7 @@ import axios from 'axios';
 
 
 const api = axios.create({
-    baseURL: 'https://admin-grupo44.proyecto2025.linti.unlp.edu.ar/api',
+    baseURL: import.meta.env.VITE_API_BASE_URL,
     withCredentials: true,
     headers: {
         'Content-Type': 'application/json'

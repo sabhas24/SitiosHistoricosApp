@@ -1,12 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import MapView from '../views/MapView.vue'
-import SiteDetailView from '../views/SiteDetailView.vue'
-import SitiosListView from '../views/SitiosListView.vue'
-import LoginView from '../views/LoginView.vue'
-import ProfileView from '../views/ProfileView.vue'
 import { useAuthStore } from '../stores/auth';
-import loginSuccess from '../views/LoginSuccessView.vue'
+import HomeView from '../views/HomeView.vue'
+
+
+const MapView = () => import('../views/MapView.vue')
+const SiteDetailView = () => import('../views/SiteDetailView.vue')
+const SitiosListView = () => import('../views/SitiosListView.vue')
+const LoginView = () => import('../views/LoginView.vue')
+const ProfileView = () => import('../views/ProfileView.vue')
+const LoginSuccessView = () => import('../views/LoginSuccessView.vue')
+const RegisterView = () => import('../views/RegisterView.vue')
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -45,7 +48,12 @@ const router = createRouter({
     {
       path: '/login-success',
       name: 'login-success',
-      component: loginSuccess,
+      component: LoginSuccessView,
+    },
+    {
+      path: '/register',
+      name: 'register',
+      component: RegisterView,
     }
   ],
 })

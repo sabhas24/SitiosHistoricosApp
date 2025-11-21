@@ -2,7 +2,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import SiteCard from './SiteCard.vue'
-import sitiosService from '../services/sitiosService'
+import sitiosService from '../../services/sitiosService'
 import favoritesService from '@/services/favoritesService'
 
 const router = useRouter()
@@ -39,6 +39,27 @@ const isLoading = ref(true)
 const hasError = ref(false)
 const carouselTrack = ref(null)
 
+
+const getCardWidth = () => {
+  if (typeof window === 'undefined') return 280
+  
+  const width = window.innerWidth
+  if (width <= 480) return 160
+  if (width <= 640) return 200
+  if (width <= 768) return 240
+  return 280
+}
+
+const getGap = () => {
+  if (typeof window === 'undefined') return 20
+  
+  const width = window.innerWidth
+  if (width <= 480) return 8
+  if (width <= 640) return 12
+  if (width <= 768) return 16
+  return 20
+}
+
 const loadSites = async () => {
   try {
     isLoading.value = true
@@ -47,23 +68,28 @@ const loadSites = async () => {
     let response
     if (props.isFavorites) {
       const params = {
-        limit: 8,
-        order: props.filterParams?.sort,
-        page: props.filterParams?.page
+        limit: 10,
+        order: props.filterParams?.order || 'latest',
+        page: props.filterParams?.page || 1
       }
       response = await favoritesService.getFavorites(params.page, params.limit, params.order)
       sites.value = response.items || []
     } else {
-      const params = {
-        per_page: 8,
-        ...props.filterParams
+     
+      if (props.endpoint?.includes('mas-visitados')) {
+        response = await sitiosService.getMasVisitados(8)
+      } else if (props.endpoint?.includes('mejor-puntuados')) {
+        response = await sitiosService.getMejorPuntuados(8)
+      } else if (props.endpoint?.includes('recientes')) {
+        response = await sitiosService.getRecientes(8)
+      } else {
+        // Generic method with filters
+        const params = {
+          per_page: 8,
+          ...props.filterParams
+        }
+        response = await sitiosService.getSitios(params)
       }
-      // If filterParams has 'sort', it should be 'order_by' for sitiosService
-      if (params.sort) {
-        params.order_by = params.sort;
-        delete params.sort;
-      }
-      response = await sitiosService.getSitios(params)
       sites.value = response.sitios || []
     }
     
@@ -79,8 +105,8 @@ const handleViewAll = () => {
   // Construir query params para la vista de listado
   const query = {}
   
-  if (props.filterParams.sort) {
-    query.order_by = props.filterParams.sort
+  if (props.filterParams?.order_by) {
+    query.order_by = props.filterParams.order_by
   }
   
   router.push({ name: 'sitios-list', query })
@@ -92,13 +118,15 @@ const retry = () => {
 
 const scrollLeft = () => {
   if (carouselTrack.value) {
-    carouselTrack.value.scrollBy({ left: -300, behavior: 'smooth' })
+    const scrollAmount = getCardWidth() + getGap()
+    carouselTrack.value.scrollBy({ left: -scrollAmount, behavior: 'smooth' })
   }
 }
 
 const scrollRight = () => {
   if (carouselTrack.value) {
-    carouselTrack.value.scrollBy({ left: 300, behavior: 'smooth' })
+    const scrollAmount = getCardWidth() + getGap()
+    carouselTrack.value.scrollBy({ left: scrollAmount, behavior: 'smooth' })
   }
 }
 
@@ -159,11 +187,11 @@ onMounted(() => {
   margin-bottom: 48px;
   animation: fadeIn 0.6s ease-out;
 
-  background: rgba(28, 37, 54, 0.02); 
+  background: rgba(28, 37, 54, 0.03 ); 
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  padding: 24px 32px; /* Reduced vertical padding */
-  width: 100vw;
+  padding: 24px 32px; 
+  width: 99vw;
   position: relative;
   left: 50%;
   transform: translateX(-50%);
@@ -172,7 +200,10 @@ onMounted(() => {
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
-
+.featured-section:hover {
+  box-shadow: 0 12px 48px rgba(88, 88, 88, 0.1);
+  background-color: rgba(15, 15, 15, 0.15);
+}
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -219,9 +250,9 @@ onMounted(() => {
 }
 
 .view-all-link {
-  background: none;
+  background-color: #2563eb;
   border: 1px solid #d1d5db;
-  color: #4b5563;
+  color: #ffffff;
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
@@ -232,7 +263,9 @@ onMounted(() => {
 
 .view-all-link:hover {
   background-color: #f3f4f6;
+  color: #374151;
   border-color: #9ca3af;
+  transform: scale(1.05);
 }
 
 .carousel-container {
@@ -281,19 +314,23 @@ onMounted(() => {
 .sites-grid {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: minmax(280px, 1fr);
+  grid-auto-columns: 280px; /* Fixed width for consistent carousel */
   gap: 20px;
   overflow-x: auto;
   padding-bottom: 20px;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
   /* Ocultar la barra de scroll */
   scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
 }
 .sites-grid::-webkit-scrollbar {
   display: none; /* Chrome, Safari, and Opera */
 }
 
 .sites-grid > * {
-  width: 280px; /* Ancho fijo para cada tarjeta */
+  width: 280px;
+  scroll-snap-align: start;
 }
 
 .loading-state {
@@ -351,32 +388,124 @@ onMounted(() => {
 }
 
 /* Mobile responsive */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+  .featured-section {
+    padding: 16px 16px;
+    margin-bottom: 32px;
+  }
+  
   .section-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 16px;
+    gap: 12px;
+    margin-bottom: 16px;
   }
   
   .section-title {
     font-size: 1.25rem;
   }
   
+  .section-title::before {
+    bottom: -12px;
+    width: 50px;
+    height: 2px;
+  }
+  
   .sites-grid {
-    grid-template-columns: 1fr; /* Mobile first: stack vertically */
+    grid-auto-columns: 240px; /* Fixed width for tablets */
     gap: 16px;
+    padding-bottom: 16px;
+  }
+  
+  .sites-grid > * {
+    width: 240px;
   }
   
   .skeleton-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 16px;
+  }
+  
+  .skeleton-card {
+    height: 240px;
+  }
+  
+  /* Adjust navigation buttons for tablets */
+  .nav-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 1.5rem;
+  }
+  
+  .nav-btn--prev {
+    left: -18px;
+  }
+  
+  .nav-btn--next {
+    right: -18px;
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 640px) {
+  .featured-section {
+    padding: 12px 12px;
+    margin-bottom: 24px;
+  }
+  
   .sites-grid {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    grid-auto-columns: 200px; /* Smaller cards for mobile */
+    gap: 12px;
+  }
+  
+  .sites-grid > * {
+    width: 200px;
+  }
+  
+  .skeleton-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+  }
+  
+  .skeleton-card {
+    height: 200px;
+  }
+  
+  /* Hide navigation buttons on small mobile screens */
+  .nav-btn {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .featured-section {
+    padding: 8px 8px;
+  }
+  
+  .sites-grid {
+    grid-auto-columns: 160px; /* Even smaller for very small screens */
+    gap: 8px;
+  }
+  
+  .sites-grid > * {
+    width: 160px;
+  }
+  
+  .skeleton-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 8px;
+  }
+  
+  .skeleton-card {
+    height: 160px;
+  }
+  
+  .section-title {
+    font-size: 1.1rem;
+  }
+  
+  .view-all-link {
+    font-size: 0.85rem;
+    padding: 4px 12px;
   }
 }
 </style>
-sd

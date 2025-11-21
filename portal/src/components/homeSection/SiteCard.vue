@@ -16,12 +16,12 @@
       </p>
       <div v-if="site.calificacion_promedio || site.rating" class="rating">
         <div class="stars" aria-hidden="true">
-          <span v-for="n in 5" :key="n" class="star" :class="{ filled: n <= (site.calificacion_promedio || site.rating) }">
+          <span v-for="n in 5" :key="n" class="star" :class="{ filled: n <= Math.round(site.calificacion_promedio || site.rating || 0) }">
             ★
           </span>
         </div>
-        <span class="rating-value">{{ (site.calificacion_promedio || site.rating).toFixed(1) }}</span>
-        <span class="sr-only">Calificación: {{ (site.calificacion_promedio || site.rating).toFixed(1) }} de 5</span>
+        <span class="rating-value">{{ ((site.calificacion_promedio || site.rating || 0)).toFixed(1) }}</span>
+        <span class="sr-only">Calificación: {{ ((site.calificacion_promedio || site.rating || 0)).toFixed(1) }} de 5</span>
       </div>
     </div>
   </article>
@@ -29,7 +29,7 @@
 
 <script setup>
 import { useRouter } from 'vue-router'
-import { minioImg } from '../utils/minioImages.js'
+import { minioImg } from '../../utils/minioImages'
 
 const router = useRouter()
 
@@ -41,7 +41,7 @@ const props = defineProps({
 })
 
 const navigateToSite = () => {
-  // Usar router de Vue en lugar de window.location
+  
   router.push(`/sitio/${props.site.id}`)
 }
 
@@ -53,7 +53,15 @@ const formatLocation = (site) => {
   const parts = []
   if (site.ciudad || site.city) parts.push(site.ciudad || site.city)
   if (site.provincia || site.province) parts.push(site.provincia || site.province)
-  return parts.join(', ')
+  
+  let location = parts.join(', ')
+  
+  if (site.visitas !== undefined && site.visitas !== null) {
+    const visitsText = site.visitas === 1 ? '1 visita' : `${site.visitas} visitas`
+    location += ` • ${visitsText}`
+  }
+  
+  return location
 }
 </script>
 
@@ -71,9 +79,10 @@ const formatLocation = (site) => {
 }
 
 .site-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-5px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   border-color: #d1d5db;
+  scale: 1.04;
 }
 
 .card-image-wrapper {
@@ -92,8 +101,8 @@ const formatLocation = (site) => {
   transition: transform 0.3s ease;
 }
 
-.site-card:hover .card-image-wrapper img {
-  transform: scale(1.02);
+ .card-image-wrapper img {
+  transform: scale(1.05);
 }
 
 .card-content {
@@ -168,5 +177,52 @@ const formatLocation = (site) => {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border-width: 0;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .site-card {
+    max-width: 100%;
+  }
+  
+  .site-name {
+    font-size: 1rem;
+  }
+  
+  .site-location,
+  .site-description,
+  .rating-value {
+    font-size: 0.8rem;
+  }
+  
+  .card-content {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .site-card:hover {
+    transform: none; /* Disable hover effects on touch devices */
+  }
+  
+  .site-card:hover .card-image-wrapper img {
+    transform: none;
+  }
+  
+  .card-content {
+    padding: 10px;
+  }
+  
+  .site-name {
+    font-size: 0.95rem;
+  }
+  
+  .rating {
+    gap: 4px;
+  }
+  
+  .star {
+    font-size: 0.9rem;
+  }
 }
 </style>

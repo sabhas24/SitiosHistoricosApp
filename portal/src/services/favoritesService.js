@@ -65,7 +65,8 @@ export const favoritesService = {
                 name: f.sitio.nombre,
                 image: f.sitio.imagen_principal,
                 location: f.sitio.ciudad,
-                rating: f.sitio.calificacion_promedio || 0
+                rating: f.sitio.calificacion_promedio || 0,
+                visitas: f.sitio.visitas || 0
             }));
 
             return {

@@ -81,7 +81,7 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
-import UserMenu from './UserMenu.vue'
+import UserMenu from './login/UserMenu.vue'
 
 defineProps({
   transparent: {

@@ -60,8 +60,6 @@ const props = defineProps({
   },
 })
 
-console.log('ProfileHeader - profilePicture:', props.profilePicture)
-
 const userInitial = computed(() => {
   return props.userName ? props.userName.charAt(0).toUpperCase() : 'U'
 })

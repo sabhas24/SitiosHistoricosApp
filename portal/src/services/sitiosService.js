@@ -52,7 +52,7 @@ const sitiosService = {
    */
   async getMasVisitados(limit = 8) {
     return this.getSitios({
-      order_by: 'visits',
+      order_by: 'visits_desc',
       per_page: limit,
     })
   },
@@ -64,7 +64,7 @@ const sitiosService = {
    */
   async getMejorPuntuados(limit = 8) {
     return this.getSitios({
-      order_by: 'rating',
+      order_by: 'rating_desc',
       per_page: limit,
     })
   },
@@ -76,7 +76,7 @@ const sitiosService = {
    */
   async getRecientes(limit = 8) {
     return this.getSitios({
-      order_by: 'created_at',
+      order_by: 'latest',
       per_page: limit,
     })
   },

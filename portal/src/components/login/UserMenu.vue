@@ -57,7 +57,7 @@
                 <p class="header-name">
                   {{ authStore.userName }}
                 </p>
-                <p class="header-email">
+                <p class="header-email header-email--mobile">
                   {{ authStore.userEmail }}
                 </p>
               </div>
@@ -127,8 +127,8 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '../stores/auth'
-import api from '../config/api'
+import { useAuthStore } from '../../stores/auth'
+import api from '../../config/api'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -188,14 +188,21 @@ onUnmounted(() => {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem 1.25rem;
-  font-size: 0.875rem;
+  padding: 0.375rem 1rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: white;
   background-color: var(--color-blue-600);
   border-radius: var(--radius-full);
   box-shadow: var(--shadow-sm);
   transition: all var(--transition-fast);
+}
+
+@media (min-width: 640px) {
+  .btn-login {
+    padding: 0.5rem 1.25rem;
+    font-size: 0.875rem;
+  }
 }
 
 .btn-login:hover {
@@ -207,30 +214,33 @@ onUnmounted(() => {
 .user-trigger {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.375rem;
-  padding-right: 0.75rem;
-  padding-left: 0.5rem;
-  background-color: white;
-  border: 1px solid var(--color-slate-200);
-  padding-left: 0.375rem;
-  background-color: #f3f4f6; /* Fondo gris claro */
-  border: 1px solid transparent; /* Borde transparente */
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background-color: #f3f4f6;
+  border: 1px solid transparent;
   border-radius: var(--radius-full);
   box-shadow: var(--shadow-sm);
   transition: all var(--transition-fast);
+  min-width: fit-content;
+}
+
+@media (min-width: 640px) {
+  .user-trigger {
+    gap: 0.75rem;
+    padding: 0.375rem 0.75rem;
+    padding-left: 0.5rem;
+  }
 }
 
 .user-trigger:hover {
   border-color: var(--color-blue-300);
-  background-color: #e5e7eb; /* Gris un poco más oscuro al pasar el ratón */
+  background-color: #e5e7eb;
   box-shadow: var(--shadow-md);
 }
 
 .user-trigger--active {
   border-color: var(--color-blue-300);
   box-shadow: 0 0 0 2px var(--color-blue-100);
-  box-shadow: 0 0 0 3px var(--color-blue-100);
 }
 
 /* Avatar */
@@ -238,14 +248,22 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  font-size: 0.875rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: white;
   background: linear-gradient(135deg, var(--color-blue-500), var(--color-blue-600));
   border-radius: var(--radius-full);
   box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+@media (min-width: 640px) {
+  .avatar {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.875rem;
+  }
 }
 
 .avatar--large {
@@ -290,10 +308,17 @@ onUnmounted(() => {
 
 /* Chevron */
 .chevron-icon {
-  width: 1rem;
-  height: 1rem;
+  width: 0.875rem;
+  height: 0.875rem;
   color: var(--color-slate-400);
   transition: transform var(--transition-fast), color var(--transition-fast);
+}
+
+@media (min-width: 640px) {
+  .chevron-icon {
+    width: 1rem;
+    height: 1rem;
+  }
 }
 
 .user-trigger:hover .chevron-icon {
@@ -311,7 +336,7 @@ onUnmounted(() => {
   right: 0;
   top: 100%;
   margin-top: 0.5rem;
-  width: 18rem;
+  width: 16rem;
   background-color: #f9fafb; 
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-xl);
@@ -321,10 +346,32 @@ onUnmounted(() => {
   transform-origin: top right;
 }
 
+@media (max-width: 480px) {
+  .dropdown-menu {
+    width: calc(100vw - 2rem);
+    max-width: 16rem;
+    right: -0.5rem;
+    left: -0.5rem;
+    margin-top: 0.25rem;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 640px) {
+  .dropdown-menu {
+    width: 14rem;
+  }
+}
+
 .dropdown-header {
   padding: 1.25rem;
   background-color: var(--color-slate-50);
   border-bottom: 1px solid var(--color-slate-100);
+}
+
+@media (max-width: 640px) {
+  .dropdown-header {
+    padding: 0.75rem;
+  }
 }
 
 .header-content {
@@ -355,12 +402,34 @@ onUnmounted(() => {
   text-overflow: ellipsis;
 }
 
+.header-email--mobile {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .header-email--mobile {
+    display: block;
+  }
+}
+
 .dropdown-body {
   padding: 0.5rem;
 }
 
+@media (max-width: 640px) {
+  .dropdown-body {
+    padding: 0.25rem;
+  }
+}
+
 .menu-section {
   padding: 0.5rem 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .menu-section {
+    padding: 0.25rem 0.5rem;
+  }
 }
 
 .section-title {
@@ -411,11 +480,6 @@ onUnmounted(() => {
   flex-direction: column;
 }
 
-.item-title {
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
 .item-subtitle {
   font-size: 0.75rem;
   color: var(--color-slate-400);
@@ -424,6 +488,20 @@ onUnmounted(() => {
 .menu-item:hover .item-subtitle {
   color: var(--color-blue-500);
   opacity: 0.8;
+}
+
+@media (max-width: 640px) {
+  .item-subtitle {
+    display: none;
+  }
+  
+  .menu-item {
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .item-icon {
+    padding: 0.25rem;
+  }
 }
 
 .divider {

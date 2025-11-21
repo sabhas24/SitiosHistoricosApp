@@ -339,7 +339,6 @@ const setEstadoConservacion = (estado) => {
 }
 
 const toggleFavorite = (sitioId) => {
-  console.log('Toggle favorite:', sitioId)
   // Aquí implementar la lógica de favoritos
 }
 
@@ -440,11 +439,8 @@ const visiblePages = computed(() => {
 const loadFilterOptions = async () => {
   try {
     const options = await sitiosService.getFilterOptions()
-    console.log('Filter options received:', options)
     availableProvinces.value = options.provincias || []
     availableCategories.value = options.categorias || []
-    console.log('Available provinces:', availableProvinces.value)
-    console.log('Available categories:', availableCategories.value)
   } catch (err) {
     console.error('Error al cargar opciones de filtros:', err)
   }

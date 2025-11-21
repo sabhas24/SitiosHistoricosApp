@@ -11,14 +11,14 @@
           title="Más visitados"
           endpoint="/sitios/mas-visitados"
           empty-message="No hay datos de visitas disponibles"
-          :filter-params="{ order: 'visitas_desc' }"
+          :filter-params="{order_by: 'visits_desc'}"
         />
         
         <FeaturedSection
           title="Mejor puntuados"
           endpoint="/sitios/mejor-puntuados"
           empty-message="No hay sitios puntuados aún"
-          :filter-params="{ order : 'rating_desc' }"
+          :filter-params="{order_by: 'rating_desc'}"
         />
         
         <FeaturedSection
@@ -26,14 +26,14 @@
           title="Favoritos"
           endpoint="/sitios/favoritos"
           empty-message="Aún no tienes sitios favoritos"
-          :filter-params="{ favorited: 'true' }"
+          :is-favorites="true"
         />
         
         <FeaturedSection
           title="Recientemente agregados"
           endpoint="/sitios/recientes"
           empty-message="No hay sitios agregados recientemente"
-          :filter-params="{ order: 'lasted' }"
+          :filter-params="{order_by: 'latest'}"
         />
         
       </div>
@@ -45,7 +45,7 @@
 import { onMounted } from 'vue'
 import NavigationBar from '../components/NavigationBar.vue'
 import HeroSection from '../components/HeroSection.vue'
-import FeaturedSection from '../components/FeaturedSection.vue'
+import FeaturedSection from '../components/homeSection/FeaturedSection.vue'
 import { useAuthStore } from '../stores/auth'
 
 const authStore = useAuthStore()
