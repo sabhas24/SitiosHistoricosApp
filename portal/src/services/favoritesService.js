@@ -60,7 +60,8 @@ export const favoritesService = {
                 params: { page, per_page: limit, order }
             });
 
-            const items = response.data.favoritos.map(f => ({
+            const favoritos = response.data.favoritos || [];
+            const items = favoritos.map(f => ({
                 id: f.sitio.id,
                 name: f.sitio.nombre,
                 image: f.sitio.imagen_principal,
@@ -71,7 +72,7 @@ export const favoritesService = {
 
             return {
                 items: items,
-                totalPages: response.data.total_pages
+                totalPages: response.data.total_pages || 1
             };
         } catch (error) {
             console.error("Error fetching favorites:", error);
