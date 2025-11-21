@@ -2,7 +2,7 @@ import axios from 'axios';
 
 
 const api = axios.create({
-    baseURL: "https://grupo44.proyecto2025.linti.unlp.edu.ar:5000/api",
+    baseURL: "https://admin-grupo44.proyecto2025.linti.unlp.edu.ar/api",
     withCredentials: true,
     headers: {
         'Content-Type': 'application/json'
