@@ -23,7 +23,7 @@ from src.models.auth import user_show_id
 from src.models.favoritos import favorito_agregar, favorito_eliminar
 from src.models.database import db
 
-bp = Blueprint("sitios_api", __name__, url_prefix="/api/sitios")
+bp = Blueprint("sitios_api", __name__)
 
 
 @bp.get("/filters")
