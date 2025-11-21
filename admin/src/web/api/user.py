@@ -20,7 +20,7 @@ from flask_jwt_extended import (
 )
 import secrets
 
-bp = Blueprint("user_api", __name__, url_prefix="/api/user")
+bp = Blueprint("user_api", __name__)
 
 
 def get_oauth():
@@ -80,7 +80,7 @@ def login_user():
 @bp.get("/login/google")
 def login_google():
     oauth = get_oauth()
-    redirect_uri = url_for("user_api.login_callback", _external=True)
+    redirect_uri = url_for("api.user_api.login_callback", _external=True)
     # Authlib genera y guarda el state automáticamente en session["state"]
     return oauth.google.authorize_redirect(redirect_uri)
 

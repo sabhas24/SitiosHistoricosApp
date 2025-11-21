@@ -6,7 +6,7 @@ from src.web.schemas.user import UserReadSchema
 from src.models.reseñas.reseña_services import obtener_reseñas_por_usuario
 from src.web.config import ProductionConfig
 
-bp = Blueprint("me_api", __name__, url_prefix="/api/me")
+bp = Blueprint("me_api", __name__)
 
 
 @bp.route("/debug/env")
