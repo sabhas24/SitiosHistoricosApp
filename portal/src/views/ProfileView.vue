@@ -51,6 +51,7 @@
         :total-pages="totalPagesFavorites"
         @prev-page="previousPage('favorites')"
         @next-page="nextPage('favorites')"
+        @remove-favorite="removeFavorite"
       />
     </div>
   </div>
@@ -175,6 +176,17 @@ const previousPage = async (section) => {
     await loadFavorites()
   }
   window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+const removeFavorite = async (siteId) => {
+  if (!confirm('¿Eliminar este sitio de tus favoritos?')) return
+  try {
+    await profileService.removeFavorite(siteId)
+    await loadFavorites()
+  } catch (err) {
+    console.error('Error removing favorite:', err)
+    errorFavorites.value = 'No pudimos eliminar el favorito. Intenta nuevamente.'
+  }
 }
 
 watch(activeTab, (newTab) => {

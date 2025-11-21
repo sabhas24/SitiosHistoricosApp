@@ -21,5 +21,9 @@ export const profileService = {
     async getFavorites(page = 1, limit = 25, order = 'latest') {
         // Usar el servicio específico de favoritos para evitar duplicación
         return favoritesService.getFavorites(page, limit, order);
+    },
+
+    async removeFavorite(siteId) {
+        return favoritesService.removeFromFavorites(siteId);
     }
 };

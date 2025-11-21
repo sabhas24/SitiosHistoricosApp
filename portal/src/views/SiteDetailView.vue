@@ -119,6 +119,8 @@
           </button>
         </div>
       </section>
+
+      <SiteReviews :siteId="sitio.id" />
     </section>
   </div>
 </template>
@@ -129,6 +131,7 @@ import { useRoute } from 'vue-router'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import NavigationBar from '../components/NavigationBar.vue'
+import SiteReviews from '../components/SiteReviews.vue'
 import sitiosService from '../services/sitiosService'
 import { minioImg } from '../utils/minioImages'
 import api from '../config/api'
@@ -186,17 +189,16 @@ const infoPractica = computed(() => {
 })
 
 const loadSitio = async () => {
+  loading.value = true
+  error.value = false
   try {
-    loading.value = true
-    error.value = false
-
-    const sitioId = Number(route.params.id)
-    if (Number.isNaN(sitioId)) {
-      throw new Error('ID de sitio inválido')
-    }
+    const sitioId = route.params.id
 
     const response = await sitiosService.getSitioById(sitioId)
     sitio.value = response
+    
+    // Establecer is_favorite desde la respuesta del backend
+    isFavorite.value = response.is_favorite || false
 
     await nextTick()
     if (sitio.value.latitud && sitio.value.longitud) {
@@ -240,10 +242,10 @@ const openDirections = () => {
 const toggleFavorite = async () => {
   try {
     if (isFavorite.value) {
-      await api.delete(`/sitios/${sitio.value.id}/favoritos`)
+      await api.delete(`/sites/${sitio.value.id}/favorite`)
       isFavorite.value = false
     } else {
-      await api.put(`/sitios/${sitio.value.id}/favoritos`)
+      await api.put(`/sites/${sitio.value.id}/favorite`)
       isFavorite.value = true
     }
   } catch (err) {

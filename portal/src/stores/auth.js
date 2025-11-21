@@ -2,8 +2,8 @@ import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import api from "../config/api"
 export const useAuthStore = defineStore("auth", () => {
-    const user = ref(null);
-    const isAuthenticated = ref(false);
+    const user = ref(JSON.parse(localStorage.getItem("user")) || null);
+    const isAuthenticated = ref(localStorage.getItem("isAuthenticated") === "true");
     const loading = ref(false);
 
     const userName = computed(() => user.value ? user.value.name : "");

@@ -3,6 +3,8 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from src.models.favoritos import favorito_listar
 from src.models.auth import user_show_id
 from src.web.schemas.user import UserReadSchema
+from src.web.schemas.favorito import FavoritoReadSchema
+from src.web.schemas.reseña import ReseñaReadSchema
 from src.models.reseñas.reseña_services import obtener_reseñas_por_usuario
 from src.web.config import ProductionConfig
 
@@ -99,6 +101,10 @@ def list_favorites():
 
     list_favoritos = favorito_listar(user_id, page=page, per_page=per_page, order=order)
 
+    # Serializar la lista de objetos Favorito
+    schema = FavoritoReadSchema(many=True)
+    list_favoritos["favoritos"] = schema.dump(list_favoritos["favoritos"])
+
     return jsonify(list_favoritos), 200
 
 
@@ -116,4 +122,9 @@ def get_my_reviews():
     reviews = obtener_reseñas_por_usuario(
         user.email, page=page, per_page=per_page, order=order
     )
+    
+    # Serializar las reseñas
+    schema = ReseñaReadSchema(many=True)
+    reviews["reseñas"] = schema.dump(reviews["reseñas"])
+    
     return jsonify(reviews), 200

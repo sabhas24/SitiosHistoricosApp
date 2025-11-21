@@ -40,22 +40,14 @@ def create_app(env="development", static_folder="../../static"):
         app,
         resources={
             r"/api/*": {
-                "origins": [
-                    "http://localhost:*",
-                    "http://127.0.0.1:*",
-                    "https://grupo44.proyecto2025.linti.unlp.edu.ar",
-                ],
+                "origins": app.config.get("CORS_ORIGINS", ["*"]),
                 "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
                 "allow_headers": ["Content-Type", "Authorization"],
                 "expose_headers": ["Content-Type", "Authorization"],
                 "supports_credentials": True,
             },
             r"/auth/*": {
-                "origins": [
-                    "http://localhost:*",
-                    "http://127.0.0.1:*",
-                    "https://grupo44.proyecto2025.linti.unlp.edu.ar",
-                ],
+                "origins": app.config.get("CORS_ORIGINS", ["*"]),
                 "methods": ["GET", "POST", "OPTIONS"],
                 "allow_headers": ["Content-Type"],
                 "supports_credentials": True,

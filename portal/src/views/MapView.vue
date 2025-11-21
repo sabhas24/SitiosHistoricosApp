@@ -1,395 +1,305 @@
 <template>
-  <div class="map-page">
+  <div class="map-view">
     <NavigationBar />
     
-    <main class="main-content">
-      <div class="container">
-        <div class="map-header">
-          <h1>Mapa de Sitios Históricos</h1>
-          <p class="subtitle">
-            Explora la ubicación de todos los sitios históricos de Buenos Aires
+    <div class="map-container">
+      <div id="interactive-map" class="map-canvas"></div>
+      
+      <div class="map-controls">
+        <div class="control-info">
+          <p class="info-text">
+            <span class="icon">📍</span>
+            <strong>{{ sitesCount }}</strong> sitios encontrados
           </p>
-        </div>
-        
-        <div class="map-container">
-          <div class="map-wrapper">
-            <l-map ref="map" v-model:zoom="zoom" :center="center" class="leaflet-map">
-              <l-tile-layer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                layer-type="base"
-                name="OpenStreetMap"
-                attribution="&copy; OpenStreetMap contributors"
-              ></l-tile-layer>
-              
-              <!-- Marcadores de sitios históricos -->
-              <l-marker 
-                v-for="site in sites" 
-                :key="site.id"
-                :lat-lng="[site.latitude, site.longitude]"
-                @click="selectSite(site)"
-              >
-                <l-popup>
-                  <div class="popup-content">
-                    <h4>{{ site.name }}</h4>
-                    <p>{{ site.address }}</p>
-                    <div v-if="site.rating" class="popup-rating">
-                      <span class="stars">
-                        <span v-for="n in Math.floor(site.rating)" :key="n">⭐</span>
-                      </span>
-                      <span>{{ site.rating.toFixed(1) }}</span>
-                    </div>
-                    <button @click="showSiteInfo(site)" class="popup-link">
-                      Ver detalles →
-                    </button>
-                  </div>
-                </l-popup>
-              </l-marker>
-            </l-map>
-          </div>
-          
-          <!-- Panel lateral con lista de sitios -->
-          <aside class="sites-sidebar">
-            <div class="sidebar-header">
-              <h3>Sitios en el mapa</h3>
-              <div class="search-filter">
-                <input 
-                  v-model="searchTerm" 
-                  type="text" 
-                  placeholder="Buscar sitios..."
-                  class="search-input"
-                />
-              </div>
-            </div>
-            
-            <div class="sites-list">
-              <div 
-                v-for="site in filteredSites" 
-                :key="site.id"
-                class="site-item"
-                :class="{ active: selectedSite?.id === site.id }"
-                @click="focusOnSite(site)"
-              >
-                <div class="site-info">
-                  <h4 class="site-name">{{ site.name }}</h4>
-                  <p class="site-address">{{ site.address }}</p>
-                  <div v-if="site.rating" class="site-rating">
-                    <span class="stars">
-                      <span v-for="n in Math.floor(site.rating)" :key="n">⭐</span>
-                    </span>
-                    <span class="rating-value">{{ site.rating.toFixed(1) }}</span>
-                  </div>
-                </div>
-                <button @click="showSiteInfo(site)" class="view-btn">
-                  Ver →
-                </button>
-              </div>
-            </div>
-          </aside>
+          <p class="info-hint">Mueve y haz zoom en el mapa para explorar</p>
         </div>
       </div>
-    </main>
+    </div>
   </div>
 </template>
 
-<script>
-import "leaflet/dist/leaflet.css";
-import { LMap, LTileLayer, LMarker, LPopup } from "@vue-leaflet/vue-leaflet";
-import NavigationBar from '../components/NavigationBar.vue';
+<script setup>
+import { ref, onMounted, onUnmounted } from 'vue'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
+import NavigationBar from '../components/NavigationBar.vue'
+import sitiosService from '../services/sitiosService'
+import { minioImg } from '../utils/minioImages'
 
-import L from 'leaflet';
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
-});
+const sitesCount = ref(0)
+let map = null
+let markers = []
 
-export default {
-  components: {
-    NavigationBar,
-    LMap,
-    LTileLayer,
-    LMarker,
-    LPopup,
-  },
-  data() {
-    return {
-      zoom: 12,
-      center: [-34.6118, -58.3960],
-      searchTerm: '',
-      selectedSite: null,
-      sites: [
-        {
-          id: 1,
-          name: 'EJEMPLO',
-          address: 'Del Valle Iberlucea 1100',
-          latitude: -34.6395,
-          longitude: -58.3636,
-          rating: 4.5
-        },
-        {
-          id: 2,
-          name: 'EJEMPLO2',
-          address: 'Cerrito 628',
-          latitude: -34.6010,
-          longitude: -58.3834,
-          rating: 4.8
-        }
-      ]
-    };
-  },
-  computed: {
-    filteredSites() {
-      if (!this.searchTerm) return this.sites;
-      return this.sites.filter(site => 
-        site.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        site.address.toLowerCase().includes(this.searchTerm.toLowerCase())
-      );
-    }
-  },
-  methods: {
-    selectSite(site) {
-      this.selectedSite = site;
-    },
-    focusOnSite(site) {
-      this.selectedSite = site;
-      this.center = [site.latitude, site.longitude];
-      this.zoom = 16;
-    },
-    showSiteInfo(site) {
-      //MOSTRAR INFO DETALLADA DE SITIO
-      console.log('Mostrando información de:', site.name);
-      this.selectSite(site);
-    }
-  },
-  mounted() {
-    // CARGAR SITIOS REALES DESDE LA API
+// Coordenadas del centro de Argentina
+const DEFAULT_CENTER = [-38.4161, -63.6167]
+const DEFAULT_ZOOM = 5
+
+// Función para calcular el radio en metros basado en el nivel de zoom
+const calculateRadius = (zoom) => {
+  // Fórmula aproximada: a mayor zoom, menor radio
+  // Zoom 5 (país completo) = ~500km
+  // Zoom 10 (provincia) = ~50km
+  // Zoom 15 (ciudad) = ~5km
+  const baseRadius = 500000 // 500km en metros
+  const radiusMeters = baseRadius / Math.pow(2, zoom - 5)
+  return Math.max(radiusMeters, 1000) // Mínimo 1km
+}
+
+// Función para limpiar marcadores existentes
+const clearMarkers = () => {
+  markers.forEach(marker => map.removeLayer(marker))
+  markers = []
+}
+
+// Función para cargar y mostrar sitios
+const loadSites = async () => {
+  if (!map) return
+
+  const center = map.getCenter()
+  const zoom = map.getZoom()
+  const radius = calculateRadius(zoom)
+
+  try {
+    const response = await sitiosService.getSitios({
+      lat: center.lat,
+      long: center.lng,
+      radius: radius,
+      per_page: 100
+    })
+
+    clearMarkers()
+    
+    const sites = response.sitios || []
+    sitesCount.value = sites.length
+
+    sites.forEach(site => {
+      if (site.latitud && site.longitud) {
+        const marker = L.marker([site.latitud, site.longitud], {
+          icon: L.divIcon({
+            className: 'custom-marker',
+            html: `<div class="marker-pin">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#dc2626">
+                      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                    </svg>
+                  </div>`,
+            iconSize: [40, 50],
+            iconAnchor: [20, 50],
+            popupAnchor: [0, -50]
+          })
+        })
+
+        const popupContent = `
+          <div class="marker-popup">
+            <img src="${minioImg(site.imagen_principal)}" alt="${site.nombre}" class="popup-image" />
+            <h3 class="popup-title">${site.nombre}</h3>
+            <p class="popup-location">${site.ciudad || ''}, ${site.provincia || ''}</p>
+            <p class="popup-rating">⭐ ${site.calificacion_promedio?.toFixed(1) || 'N/A'}</p>
+            <a href="/sitio/${site.id}" class="popup-link">Ver detalles →</a>
+          </div>
+        `
+
+        marker.bindPopup(popupContent, {
+          maxWidth: 250,
+          className: 'custom-popup'
+        })
+
+        marker.addTo(map)
+        markers.push(marker)
+      }
+    })
+  } catch (error) {
+    console.error('Error loading sites:', error)
   }
-};
+}
+
+// Debounce para evitar demasiadas llamadas al mover el mapa
+let loadTimeout = null
+const debouncedLoadSites = () => {
+  if (loadTimeout) clearTimeout(loadTimeout)
+  loadTimeout = setTimeout(loadSites, 500)
+}
+
+onMounted(() => {
+  // Inicializar el mapa
+  map = L.map('interactive-map').setView(DEFAULT_CENTER, DEFAULT_ZOOM)
+
+  // Agregar capa de tiles
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 18,
+    minZoom: 4
+  }).addTo(map)
+
+  // Cargar sitios iniciales
+  loadSites()
+
+  // Escuchar eventos de movimiento y zoom
+  map.on('moveend', debouncedLoadSites)
+  map.on('zoomend', debouncedLoadSites)
+})
+
+onUnmounted(() => {
+  if (map) {
+    map.remove()
+    map = null
+  }
+  if (loadTimeout) {
+    clearTimeout(loadTimeout)
+  }
+})
 </script>
 
 <style scoped>
-.map-page {
-  min-height: 100vh;
-}
-
-.main-content {
-  padding: 40px 0;
-}
-
-.container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-.map-header {
-  text-align: center;
-  margin-bottom: 40px;
-}
-
-.map-header h1 {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 16px;
-}
-
-.subtitle {
-  font-size: 1.1rem;
-  color: var(--text-secondary);
+.map-view {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .map-container {
-  display: grid;
-  grid-template-columns: 1fr 350px;
-  gap: 24px;
-  height: 70vh;
-  min-height: 600px;
+  flex: 1;
+  position: relative;
+  background: #f3f4f6;
 }
 
-.map-wrapper {
-  background: white;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: var(--shadow-md);
-}
-
-.leaflet-map {
+.map-canvas {
   width: 100%;
   height: 100%;
 }
 
-.popup-content {
+.map-controls {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+}
+
+.control-info {
+  background: white;
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   min-width: 200px;
 }
 
-.popup-content h4 {
+.info-text {
   margin: 0 0 8px 0;
-  font-size: 1.1rem;
-  color: var(--text-primary);
-}
-
-.popup-content p {
-  margin: 0 0 8px 0;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
-
-.popup-rating {
+  font-size: 16px;
+  color: #1f2937;
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 8px 0;
-  font-size: 0.9rem;
 }
 
-.popup-link {
-  display: inline-block;
-  margin-top: 8px;
-  color: var(--primary-color);
-  text-decoration: none;
-  font-weight: 500;
+.icon {
+  font-size: 20px;
 }
 
-.popup-link:hover {
-  text-decoration: underline;
+.info-text strong {
+  color: #8B7355;
+  font-weight: 700;
 }
 
-.sites-sidebar {
-  background: white;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
+.info-hint {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Estilos para marcadores personalizados */
+:deep(.custom-marker) {
+  background: transparent;
+  border: none;
+}
+
+:deep(.marker-pin) {
+  width: 40px;
+  height: 50px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  transition: transform 0.2s;
+}
+
+:deep(.marker-pin:hover) {
+  transform: scale(1.1);
+}
+
+/* Estilos para popups personalizados */
+:deep(.custom-popup .leaflet-popup-content-wrapper) {
+  border-radius: 12px;
+  padding: 0;
+  overflow: hidden;
+}
+
+:deep(.custom-popup .leaflet-popup-content) {
+  margin: 0;
+  width: 250px !important;
+}
+
+:deep(.marker-popup) {
   display: flex;
   flex-direction: column;
 }
 
-.sidebar-header {
-  padding: 24px;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.sidebar-header h3 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 16px;
-}
-
-.search-input {
+:deep(.popup-image) {
   width: 100%;
-  padding: 10px 16px;
-  border: 2px solid var(--border-color);
-  border-radius: var(--radius-md);
-  font-size: 0.9rem;
+  height: 150px;
+  object-fit: cover;
 }
 
-.search-input:focus {
-  outline: none;
-  border-color: var(--primary-color);
+:deep(.popup-title) {
+  margin: 12px 12px 4px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #1f2937;
 }
 
-.sites-list {
-  flex: 1;
-  overflow-y: auto;
+:deep(.popup-location) {
+  margin: 0 12px 4px;
+  font-size: 13px;
+  color: #6b7280;
 }
 
-.site-item {
-  padding: 16px 24px;
-  border-bottom: 1px solid var(--border-color);
-  cursor: pointer;
-  transition: background-color 0.2s;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-}
-
-.site-item:hover,
-.site-item.active {
-  background-color: var(--background-soft);
-}
-
-.site-info {
-  flex: 1;
-}
-
-.site-name {
-  font-size: 1rem;
+:deep(.popup-rating) {
+  margin: 0 12px 12px;
+  font-size: 14px;
+  color: #8B7355;
   font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 4px 0;
 }
 
-.site-address {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  margin: 0 0 8px 0;
-}
-
-.site-rating {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.8rem;
-}
-
-.stars {
-  line-height: 1;
-}
-
-.rating-value {
-  color: var(--text-secondary);
-  font-weight: 500;
-}
-
-.view-btn {
-  color: var(--primary-color);
+:deep(.popup-link) {
+  display: block;
+  padding: 10px 12px;
+  background: #8B7355;
+  color: white;
+  text-align: center;
   text-decoration: none;
-  font-size: 0.9rem;
   font-weight: 500;
-  padding: 4px 8px;
-  border-radius: var(--radius-sm);
-  transition: background-color 0.2s;
+  font-size: 14px;
+  transition: background 0.2s;
 }
 
-.view-btn:hover {
-  background-color: rgba(59, 130, 246, 0.1);
-  text-decoration: none;
-}
-
-@media (max-width: 1024px) {
-  .map-container {
-    grid-template-columns: 1fr;
-    grid-template-rows: 400px auto;
-    height: auto;
-  }
-  
-  .sites-sidebar {
-    max-height: 300px;
-  }
+:deep(.popup-link:hover) {
+  background: #704a3a;
 }
 
 @media (max-width: 768px) {
-  .main-content {
-    padding: 20px 0;
+  .map-controls {
+    top: 10px;
+    right: 10px;
   }
-  
-  .container {
-    padding: 0 16px;
+
+  .control-info {
+    padding: 12px 16px;
+    min-width: 160px;
   }
-  
-  .map-header h1 {
-    font-size: 2rem;
+
+  .info-text {
+    font-size: 14px;
   }
-  
-  .map-container {
-    gap: 16px;
-    grid-template-rows: 350px auto;
-  }
-  
-  .sidebar-header,
-  .site-item {
-    padding: 16px;
+
+  .info-hint {
+    font-size: 11px;
   }
 }
 </style>

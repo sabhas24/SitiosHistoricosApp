@@ -1,53 +1,107 @@
 <template>
   <section class="site-reviews">
-    <h2>Reseñas y Calificaciones</h2>
-
-    <div v-if="loading">Cargando reseñas...</div>
-    <div v-else>
-      <div class="actions" v-if="isAuthenticated">
+    <div class="reviews-header">
+      <h2>Reseñas de la Comunidad</h2>
+      <div v-if="isAuthenticated && !showForm && !myReview">
         <button @click="openForm" class="btn-primary">
-          {{ myReview ? (editing ? 'Cancelar' : (myReview ? 'Editar mi reseña' : 'Escribir reseña')) : 'Escribir reseña' }}
+          <span class="icon">✎</span>
+          Escribir reseña
         </button>
       </div>
+    </div>
 
-      <div v-if="showForm">
+    <!-- Loading State -->
+    <div v-if="loading" class="loading-container">
+      <div class="spinner"></div>
+    </div>
+
+    <div v-else>
+      <!-- Review Form -->
+      <div v-if="showForm" class="review-form-container">
+        <h3>{{ editing ? 'Editar tu reseña' : 'Comparte tu experiencia' }}</h3>
         <form @submit.prevent="submitReview" class="review-form">
-          <label>Calificación</label>
-          <RatingInput v-model="form.rating" />
-
-          <label>Comentario</label>
-          <textarea v-model="form.comment" rows="5" />
-
-          <div class="form-actions">
-            <button type="submit" class="btn-primary">{{ editing ? 'Guardar cambios' : 'Enviar reseña' }}</button>
-            <button type="button" v-if="editing" @click="confirmDelete" class="btn-danger">Eliminar reseña</button>
-            <button type="button" @click="closeForm" class="btn-secondary">Cancelar</button>
+          <div class="form-group">
+            <label>Calificación</label>
+            <RatingInput v-model="form.rating" />
           </div>
 
-          <p class="note" v-if="statusMessage">{{ statusMessage }}</p>
+          <div class="form-group">
+            <label>Comentario</label>
+            <textarea 
+              v-model="form.comment" 
+              rows="4" 
+              placeholder="¿Qué te pareció este sitio? Cuéntanos más..."
+            ></textarea>
+            <p class="hint">Mínimo 20 caracteres.</p>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">
+              {{ editing ? 'Guardar cambios' : 'Publicar reseña' }}
+            </button>
+            <button type="button" @click="closeForm" class="btn-secondary">
+              Cancelar
+            </button>
+            <button v-if="editing" type="button" @click="confirmDelete" class="btn-danger">
+              Eliminar
+            </button>
+          </div>
+
+          <div v-if="statusMessage" class="status-message">
+            {{ statusMessage }}
+          </div>
         </form>
       </div>
 
-      <div v-if="reviews.length === 0" class="no-reviews">Aún no hay reseñas aprobadas para este sitio.</div>
+      <!-- Empty State -->
+      <div v-if="reviews.length === 0 && !showForm" class="empty-state">
+        <div class="empty-icon">💬</div>
+        <h3>No hay reseñas aún</h3>
+        <p>Sé el primero en compartir tu opinión sobre este sitio.</p>
+        <div class="mt-action" v-if="isAuthenticated">
+          <button @click="openForm" class="btn-primary">Escribir reseña</button>
+        </div>
+        <div class="mt-action" v-else>
+          <a href="/login" class="link-primary">Inicia sesión para escribir una reseña</a>
+        </div>
+      </div>
 
-      <ul class="reviews-list">
-        <li v-for="r in reviews" :key="r.id" class="review-card">
-          <div class="review-header">
-            <strong>{{ r.author_name || 'Anónimo' }}</strong>
-            <span class="rating">{{ r.rating }} ★</span>
+      <!-- Reviews List -->
+      <div v-else class="reviews-grid">
+        <div v-for="r in reviews" :key="r.id" class="review-card">
+          <div class="review-content-wrapper">
+            <div class="avatar-wrapper">
+              <div class="avatar">
+                {{ getInitials(r.author_name) }}
+              </div>
+            </div>
+            <div class="review-main">
+              <div class="review-top">
+                <p class="author-name">
+                  {{ r.author_name || 'Usuario Anónimo' }}
+                </p>
+                <div class="user-actions" v-if="isAuthenticated && myReview && myReview.id === r.id">
+                  <button @click="startEdit(r)" class="btn-icon" title="Editar">
+                    ✎
+                  </button>
+                </div>
+              </div>
+              <div class="rating-row">
+                <div class="stars">
+                  <span v-for="i in 5" :key="i" class="star" :class="{ filled: i <= r.rating }">★</span>
+                </div>
+                <span class="date">{{ formatDate(r.inserted_at) }}</span>
+              </div>
+              <div class="review-text">
+                {{ r.comment }}
+              </div>
+            </div>
           </div>
-          <p class="review-comment">{{ r.comment }}</p>
-          <div class="review-meta">{{ formatDate(r.inserted_at) }}</div>
-          <div class="review-actions" v-if="isAuthenticated && myReview && myReview.id === r.id">
-            <button @click="startEdit(r)" class="btn-link">Editar</button>
-            <button @click="confirmDelete" class="btn-link danger">Eliminar</button>
-          </div>
-        </li>
-      </ul>
+        </div>
+      </div>
     </div>
   </section>
 </template>
-
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import RatingInput from './RatingInput.vue'
@@ -71,11 +125,15 @@ const form = ref({ rating: 5, comment: '' })
 
 function formatDate(iso) {
   try {
-    return new Date(iso).toLocaleString()
+    return new Date(iso).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })
   } catch (e) {
-    void e
     return iso
   }
+}
+
+function getInitials(name) {
+  if (!name) return '?'
+  return name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
 }
 
 async function loadReviews() {
@@ -95,24 +153,17 @@ async function loadMyReview() {
   try {
     const data = await reviewsService.getMyReview(props.siteId)
     myReview.value = data
-    // prefill if user has a review
     if (myReview.value) {
       form.value.rating = myReview.value.rating
       form.value.comment = myReview.value.comment
     }
   } catch (err) {
-    // 404 means no review yet
     if (err.response && err.response.status === 404) {
       myReview.value = null
     } else if (err.response && err.response.status === 401) {
-      // Session expired or invalid — clear local auth state but do not force a redirect here
-      try {
-        auth.clearUser()
-      } catch (e) { void e }
+      try { auth.clearUser() } catch (e) {}
       myReview.value = null
       isAuthenticated.value = false
-    } else {
-      console.error('Error loading my review', err)
     }
   }
 }
@@ -146,7 +197,6 @@ function startEdit(review) {
 
 async function submitReview() {
   statusMessage.value = ''
-  // client-side validation
   const r = form.value.rating
   const c = (form.value.comment || '').trim()
   const errors = []
@@ -158,23 +208,22 @@ async function submitReview() {
   try {
     if (editing.value && myReview.value) {
       await reviewsService.updateReview(props.siteId, myReview.value.id, form.value.rating, form.value.comment)
-      statusMessage.value = 'Reseña actualizada. Puede quedar pendiente de moderación.'
+      statusMessage.value = 'Reseña actualizada.'
     } else {
       await reviewsService.createReview(props.siteId, form.value.rating, form.value.comment)
-      statusMessage.value = 'Reseña creada. Queda pendiente de moderación.'
+      statusMessage.value = 'Reseña creada.'
     }
     await loadReviews()
     await loadMyReview()
     editing.value = false
     showForm.value = false
   } catch (err) {
-    console.error('Error submitting review', err)
     statusMessage.value = err.response?.data?.error?.message || 'No se pudo enviar la reseña.'
   }
 }
 
 async function confirmDelete() {
-  if (!confirm('¿Eliminar tu reseña? Esta acción no se puede deshacer.')) return
+  if (!confirm('¿Eliminar tu reseña?')) return
   try {
     if (!myReview.value) return
     await reviewsService.deleteReview(props.siteId, myReview.value.id)
@@ -183,63 +232,322 @@ async function confirmDelete() {
     myReview.value = null
     showForm.value = false
   } catch (err) {
-    console.error('Error deleting review', err)
     statusMessage.value = err.response?.data?.error?.message || 'No se pudo eliminar la reseña.'
   }
 }
 </script>
 
 <style scoped>
-.site-reviews { margin-top: 32px }
-.review-form { display:flex; flex-direction:column; gap:8px; margin-bottom:16px }
-.form-actions { display:flex; gap:8px; margin-top:8px }
-.btn-primary { background:#667eea; color:#fff; border:none; padding:8px 12px; border-radius:6px }
-.btn-secondary { background:#fff; border:1px solid #ccc; padding:8px 12px; border-radius:6px }
-.btn-danger, .btn-link.danger { color:#dc2626; background:transparent; border:none }
-.reviews-list { list-style:none; padding:0; display:flex; flex-direction:column; gap:12px }
-.review-card { padding:12px; border-radius:8px; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,0.06) }
-.review-header { display:flex; justify-content:space-between; align-items:center }
-.rating { color:#f59e0b }
-.no-reviews { color:#6b7280 }
-.note { color:#374151; font-size:0.95rem }
+.site-reviews {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e5e7eb;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
 
-/* New styles for edit/delete actions */
-.review-actions {
-  margin-top: 10px;
+.reviews-header {
   display: flex;
-  gap: 8px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.reviews-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+}
+
+/* Buttons */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: #4338ca;
+}
+
+.btn-secondary {
+  padding: 0.5rem 1rem;
+  background-color: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-secondary:hover {
+  background-color: #f9fafb;
+}
+
+.btn-danger {
+  padding: 0.5rem 1rem;
+  background-color: #fee2e2;
+  color: #b91c1c;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.btn-danger:hover {
+  background-color: #fecaca;
+}
+
+.icon {
+  margin-right: 0.5rem;
+}
+
+/* Loading */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  padding: 3rem 0;
+}
+
+.spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid #e5e7eb;
+  border-top-color: #4f46e5;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Form */
+.review-form-container {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.review-form-container h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.25rem;
+}
+
+textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-family: inherit;
+  font-size: 0.875rem;
+  resize: vertical;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.hint {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 0.25rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.status-message {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: #eff6ff;
+  color: #1e40af;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  background-color: #f9fafb;
+  border: 1px dashed #d1d5db;
+  border-radius: 0.75rem;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: #9ca3af;
+}
+
+.empty-state h3 {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+  margin: 0 0 0.25rem 0;
+}
+
+.empty-state p {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.mt-action {
+  margin-top: 1.5rem;
+}
+
+.link-primary {
+  color: #4f46e5;
+  font-weight: 500;
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+
+.link-primary:hover {
+  text-decoration: underline;
+}
+
+/* Reviews List */
+.reviews-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.review-card {
+  background-color: white;
+  border: 1px solid #f3f4f6;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s;
+}
+
+.review-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.review-content-wrapper {
+  display: flex;
+  gap: 1rem;
+}
+
+.avatar-wrapper {
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.review-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.review-top {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
 }
-.btn-link {
-  background: transparent;
-  border: 1px solid transparent;
-  padding: 6px 10px;
-  border-radius: 8px;
-  color: #4b5563;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-  font-size: 0.9rem;
-}
-.btn-link:hover {
-  background: #f3f4f6;
+
+.author-name {
+  font-size: 0.875rem;
+  font-weight: 500;
   color: #111827;
-  border-color: #e5e7eb;
-}
-.btn-link.danger {
-  color: #b91c1c;
-  border-color: transparent;
-}
-.btn-link.danger:hover {
-  background: rgba(239,68,68,0.06);
-  border-color: rgba(239,68,68,0.12);
-  color: #991b1b;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Ensure small buttons look good on mobile */
-@media (max-width: 600px) {
-  .review-header { flex-direction: column; align-items: flex-start; gap: 8px }
-  .review-actions { gap: 6px }
-  .btn-link { padding: 6px 8px; font-size: 0.85rem }
+.btn-icon {
+  background: none;
+  border: none;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 0.25rem;
+  font-size: 1rem;
+  transition: color 0.2s;
+}
+
+.btn-icon:hover {
+  color: #4f46e5;
+}
+
+.rating-row {
+  display: flex;
+  align-items: center;
+  margin-top: 0.25rem;
+}
+
+.stars {
+  display: flex;
+  color: #d1d5db;
+}
+
+.star {
+  font-size: 1rem;
+}
+
+.star.filled {
+  color: #facc15;
+}
+
+.date {
+  margin-left: 0.5rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.review-text {
+  margin-top: 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #4b5563;
 }
 </style>

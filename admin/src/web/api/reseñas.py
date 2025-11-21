@@ -15,6 +15,84 @@ from src.web.schemas.reseña import ReseñaCreateSchema, ReseñaReadSchema
 bp_reviews = Blueprint("reviews_api", __name__)
 
 
+@bp_reviews.get("/sites/<int:site_id>/reviews/public")
+def list_public_site_reviews(site_id):
+    try:
+        sitio = get_sitio_by_id(site_id)
+        if not sitio:
+            return (
+                jsonify({"error": {"code": "not_found", "message": "Site not found"}}),
+                404,
+            )
+
+        page = request.args.get("page", 1, type=int)
+        per_page = request.args.get("per_page", 10, type=int)
+
+        errors = {}
+        if page < 1:
+            errors["page"] = ["Must be at least 1"]
+        if per_page < 1 or per_page > 100:
+            errors["per_page"] = ["Must be between 1 and 100"]
+
+        if errors:
+            return (
+                jsonify(
+                    {
+                        "error": {
+                            "code": "invalid_data",
+                            "message": "Invalid input data",
+                            "details": errors,
+                        }
+                    }
+                ),
+                400,
+            )
+
+        resultado = obtener_reseñas_por_sitio(
+            sitio_id=site_id, page=page, per_page=per_page
+        )
+
+        reseñas_data = []
+        for reseña in resultado["reseñas"]:
+            reseña_dict = {
+                "id": reseña.id,
+                "site_id": reseña.sitio_id,
+                "rating": reseña.calificacion,
+                "comment": reseña.comentario,
+                "author_name": reseña.nombre_usuario,
+                "inserted_at": reseña.fecha_creacion.isoformat() + "Z",
+                "updated_at": reseña.fecha_creacion.isoformat() + "Z",
+            }
+            reseñas_data.append(reseña_dict)
+
+        return (
+            jsonify(
+                {
+                    "data": reseñas_data,
+                    "meta": {
+                        "page": resultado["page"],
+                        "per_page": resultado["per_page"],
+                        "total": resultado["total"],
+                    },
+                }
+            ),
+            200,
+        )
+
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "error": {
+                        "code": "server_error",
+                        "message": "An unexpected error occurred",
+                    }
+                }
+            ),
+            500,
+        )
+
+
 @bp_reviews.get("/sites/<int:site_id>/reviews")
 @jwt_required
 def list_site_reviews(site_id):

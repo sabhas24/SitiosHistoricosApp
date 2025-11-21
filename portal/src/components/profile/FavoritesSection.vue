@@ -17,7 +17,9 @@
         <div v-for="site in favorites" :key="site.id" class="favorite-card">
           <div class="favorite-image">
             <img :src="site.image" :alt="site.name" loading="lazy"/>
-            <span class="favorite-badge">♡</span>
+            <button @click="$emit('remove-favorite', site.id)" class="remove-btn" title="Eliminar de favoritos">
+              ✕
+            </button>
           </div>
           <div class="favorite-content">
             <h3 class="favorite-name">{{ site.name }}</h3>
@@ -74,7 +76,7 @@ defineProps({
   }
 })
 
-defineEmits(['prev-page', 'next-page'])
+defineEmits(['prev-page', 'next-page', 'remove-favorite'])
 </script>
 
 <style scoped>
@@ -124,19 +126,29 @@ defineEmits(['prev-page', 'next-page'])
   object-fit: cover;
 }
 
-.favorite-badge {
+.remove-btn {
   position: absolute;
   top: 8px;
   right: 8px;
-  width: 36px;
-  height: 36px;
-  background: rgba(255, 255, 255, 0.9);
+  width: 32px;
+  height: 32px;
+  background: rgba(220, 38, 38, 0.9);
+  border: none;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 18px;
-  color: #D4AF37;
+  font-weight: bold;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 10;
+}
+
+.remove-btn:hover {
+  background: rgba(185, 28, 28, 1);
+  transform: scale(1.1);
 }
 
 .favorite-content {

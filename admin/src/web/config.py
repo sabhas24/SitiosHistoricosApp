@@ -61,39 +61,53 @@ class DevelopmentConfig(Config):
     FRONTEND_BASE_URL = "http://localhost:5173"
     SESSION_COOKIE_DOMAIN = None
     SESSION_COOKIE_SAMESITE = "Lax"
+    CORS_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
 
 class ProductionConfig(Config):
-    SQLALCHEMY_ENGINES = {"default": environ.get("DATABASE_URL")}
+    """Configuración para producción."""
 
+    DEBUG = False
+    TESTING = False
+
+    # Database Configuration
+    SQLALCHEMY_ENGINES = {"default": environ.get("DATABASE_URL")}
     BD_USER = environ.get("DATABASE_USERNAME")
     BD_PASSWORD = environ.get("DATABASE_PASSWORD")
     BD_HOST = environ.get("DATABASE_HOST")
     BD_PORT = environ.get("DATABASE_PORT")
     BD_NAME = environ.get("DATABASE_NAME")
-    BD_URL = environ.get(" DATABASE_URL")
+    BD_URL = environ.get("DATABASE_URL")
     BD_SCHEME = environ.get("DATABASE_SCHEME")
+
+    # MinIO Configuration
     MINIO_ENDPOINT = environ.get("MINIO_ENDPOINT")
     MINIO_BUCKET_NAME = environ.get("MINIO_BUCKET_NAME")
     MINIO_ACCESS_KEY = environ.get("MINIO_ACCESS_KEY")
     MINIO_SECRET_KEY = environ.get("MINIO_SECRET_KEY")
     MINIO_SECURE = True
-    SQLALCHEMY_ENGINES = {"default": environ.get("DATABASE_URL")}
-    DEBUG = False
-    SESSION_COOKIE_SECURE = True
-    SESSION_COOKIE_SAMESITE = "Lax"
-    SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_DOMAIN = ".grupo44.proyecto2025.linti.unlp.edu.ar"
-    PERMANENT_SESSION_LIFETIME = timedelta(hours=1)
-    JWT_COOKIE_DOMAIN = ".grupo44.proyecto2025.linti.unlp.edu.ar"
-    JWT_COOKIE_SECURE = True
-    JWT_COOKIE_SAMESITE = "Lax"
+
+    # JWT Configuration for Production (Cross-domain)
+    JWT_SECRET_KEY = environ.get("JWT_SECRET_KEY")
+    JWT_TOKEN_LOCATION = ["cookies"]
+    JWT_COOKIE_SECURE = True  # Required with SameSite=None (HTTPS only)
+    JWT_COOKIE_SAMESITE = "None"  # Required for cross-domain cookies
+    JWT_COOKIE_DOMAIN = None  # Let browser handle domain
     JWT_COOKIE_HTTPONLY = True
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
     JWT_COOKIE_CSRF_PROTECT = False
-    JWT_SECRET_KEY = environ.get("JWT_SECRET_KEY")
-    JWT_TOKEN_LOCATION = ["cookies"]
-    FRONTEND_BASE_URL = environ.get("FRONTEND_BASE_URL")
+
+    # Session Configuration for Production (Cross-domain)
+    SESSION_COOKIE_SECURE = True  # Required with SameSite=None (HTTPS only)
+    SESSION_COOKIE_SAMESITE = "None"  # Required for cross-domain cookies
+    SESSION_COOKIE_HTTPONLY = True
+    SESSION_COOKIE_DOMAIN = None  # Let browser handle domain
+    PERMANENT_SESSION_LIFETIME = timedelta(hours=1)
+
+    # Frontend URL
+    FRONTEND_BASE_URL = "https://grupo44.proyecto2025.linti.unlp.edu.ar"
+
+    # CORS Configuration
     CORS_ORIGINS = ["https://grupo44.proyecto2025.linti.unlp.edu.ar"]
 
 
