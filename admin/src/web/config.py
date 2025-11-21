@@ -55,12 +55,12 @@ class DevelopmentConfig(Config):
     JWT_COOKIE_SECURE = False
     JWT_COOKIE_CSRF_PROTECT = False
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
-    JWT_COOKIE_SAMESITE = "Lax"
+    JWT_COOKIE_SAMESITE = "None"
     JWT_COOKIE_DOMAIN = None
     JWT_COOKIE_HTTPONLY = True
     FRONTEND_BASE_URL = "http://localhost:5173"
     SESSION_COOKIE_DOMAIN = None
-    SESSION_COOKIE_SAMESITE = "Lax"
+    SESSION_COOKIE_SAMESITE = "None"
     CORS_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
 
