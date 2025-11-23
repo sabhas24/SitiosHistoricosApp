@@ -84,7 +84,7 @@ def upload_image_to_minio(file, filename):
             content_type=file.mimetype
         )
         
-        url_publica = f"http://{endpoint}/{bucket_name}/{filename}"
+        url_publica = f"https://{endpoint}/{bucket_name}/{filename}"
         return url_publica
         
     except S3Error as e:

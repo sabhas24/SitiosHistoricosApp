@@ -5,7 +5,7 @@ import axios from 'axios';
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://admin-grupo44.proyecto2025.linti.unlp.edu.ar/api';
 
-console.log('API Base URL:', apiBaseUrl);
+
 
 
 const api = axios.create({
@@ -26,7 +26,7 @@ api.interceptors.response.use(
     (error) => {
         if (error.response?.status === 401) {
 
-            console.log('Usuario no autenticado');
+
         }
         return Promise.reject(error);
     }

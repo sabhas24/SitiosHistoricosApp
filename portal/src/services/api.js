@@ -11,7 +11,7 @@ const apiClient = axios.create({
 })
 
 // Log de configuración inicial
-console.log('🔧 API configurada:', API_BASE_URL);
+
 
 // Interceptor para agregar token JWT si existe
 apiClient.interceptors.request.use(
@@ -19,9 +19,9 @@ apiClient.interceptors.request.use(
     const token = localStorage.getItem('jwt_token')
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
-      console.log('🔐 Token JWT agregado al request');
+
     }
-    console.log('📤 Request a:', config.url);
+
     return config
   },
   (error) => {
@@ -33,7 +33,7 @@ apiClient.interceptors.request.use(
 // Interceptor para manejar errores
 apiClient.interceptors.response.use(
   (response) => {
-    console.log('📥 Response exitoso:', response.status, 'de', response.config.url);
+
     return response;
   },
   (error) => {

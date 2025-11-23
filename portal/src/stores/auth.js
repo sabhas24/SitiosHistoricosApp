@@ -31,7 +31,7 @@ export const useAuthStore = defineStore("auth", () => {
 
             return true;
         } catch (error) {
-            console.log('AuthStore - checkSession error:', error);
+
             clearUser();
             return false;
         } finally {
