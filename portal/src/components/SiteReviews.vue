@@ -194,11 +194,7 @@ async function loadMyReview() {
   }
 }
 
-import { useRoute } from 'vue-router'
-
 const route = useRoute()
-
-// ... (existing code)
 
 onMounted(async () => {
   await loadReviews()
