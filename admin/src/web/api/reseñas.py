@@ -122,24 +122,9 @@ def get_my_site_review(site_id):
             )
 
        
-        from src.models.reseñas.reseña_services import obtener_reseñas_por_usuario
+        from src.models.reseñas.reseña_services import obtener_reseña_usuario_sitio
         
-        #
-        from src.models.reseñas.reseña_services import obtener_reseñas
-        
-        filters = {
-            'sitio': str(site_id), 
-            'usuario': usuario.email 
-        }
-     
-        
-        from src.models.reseñas.reseña import Reseñ
-        from src.models.database import db
-        
-        reseña = db.session.query(Reseña).filter(
-            Reseña.sitio_id == site_id,
-            Reseña.email_usuario == usuario.email
-        ).first()
+        reseña = obtener_reseña_usuario_sitio(usuario.email, site_id)
         
         if not reseña:
              return (

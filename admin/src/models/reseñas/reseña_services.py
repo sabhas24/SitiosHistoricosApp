@@ -321,6 +321,14 @@ def obtener_reseñas_por_usuario(idmail, page=1, per_page=25, order="latest"):
     }
 
 
+def obtener_reseña_usuario_sitio(email_usuario, sitio_id):
+    """Obtiene la reseña de un usuario para un sitio específico (cualquier estado)"""
+    return db.session.query(Reseña).filter(
+        Reseña.email_usuario == email_usuario,
+        Reseña.sitio_id == sitio_id,
+    ).first()
+
+
 def existe_reseña_usuario_sitio(email_usuario, sitio_id):
     return db.session.query(Reseña).filter(
         Reseña.email_usuario == email_usuario,
