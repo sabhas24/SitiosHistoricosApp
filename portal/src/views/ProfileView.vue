@@ -29,6 +29,30 @@
 
     <!-- Contenido de Tabs -->
     <div class="tabs-content">
+      
+      <!-- Controls Row -->
+      <div class="controls-row" v-if="activeTab === 'reviews' && reviews.length > 0">
+        <div class="sort-control">
+          <label>Ordenar por:</label>
+          <select v-model="sortOrder">
+            <option v-for="opt in sortOptions" :key="opt.value" :value="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <div class="controls-row" v-if="activeTab === 'favorites' && favorites.length > 0">
+        <div class="sort-control">
+          <label>Ordenar por:</label>
+          <select v-model="sortOrderFavorites">
+            <option v-for="opt in sortOptionsFavorites" :key="opt.value" :value="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+
       <!-- Mis Reseñas -->
       <ReviewsSection
         v-if="activeTab === 'reviews'"
