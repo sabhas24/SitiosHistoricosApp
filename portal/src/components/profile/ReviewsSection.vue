@@ -116,7 +116,7 @@ const formatStatus = (status) => {
 
 const editReview = (review) => {
   router.push({
-    path: `/site/${review.sitio_id}`,
+    path: `/sitio/${review.sitio_id}`,
     query: { edit: 'true' }
   })
 }
@@ -125,14 +125,9 @@ const deleteReview = async (review) => {
   if (!confirm('¿Estás seguro de que quieres eliminar esta reseña?')) return
   
   try {
-    // Assuming review object has sitio_id (mapped from backend response)
-    // If backend returns 'site_id' or 'sitio_id', we need to be sure.
-    // In reseñas.py list_site_reviews returns 'site_id'.
-    // In profileService.js getReviews maps response.
-    // Let's check profileService.js mapping.
-    // But assuming we have site_id:
+    
     await reviewsService.deleteReview(review.sitio_id || review.site_id, review.id)
-    emit('review-deleted') // Parent should reload reviews
+    emit('review-deleted') 
   } catch (e) {
     console.error(e)
     alert('No se pudo eliminar la reseña.')
