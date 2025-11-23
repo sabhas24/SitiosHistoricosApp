@@ -350,6 +350,27 @@ def create_site_review(site_id):
                 401,
             )
 
+        # Verificar si ya existe una reseña para este usuario y sitio
+        from src.models.reseñas.reseña import Reseña
+        from src.models.database import db
+        existing_review = db.session.query(Reseña).filter(
+            Reseña.sitio_id == site_id,
+            Reseña.email_usuario == usuario.email
+        ).first()
+
+        if existing_review:
+            return (
+                jsonify(
+                    {
+                        "error": {
+                            "code": "conflict",
+                            "message": "You have already reviewed this site",
+                        }
+                    }
+                ),
+                409,
+            )
+
         reseña = create_reseña(
             comentario=json_data.get("comment", ""),
             calificacion=json_data["rating"],

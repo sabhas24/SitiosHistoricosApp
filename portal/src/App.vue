@@ -1,9 +1,9 @@
 <script setup>
 import { RouterView } from 'vue-router'
-import { onMounted } from 'vue'
+import { onMounted, watch } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useConfigStore } from '@/stores/config'
-import FooterSection from './components/FooterSection.vue'
+import MaintenanceView from '@/views/MaintenanceView.vue'
 
 const authStore = useAuthStore()
 const configStore = useConfigStore()
@@ -15,7 +15,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div id="app" class="app-container">
+  <MaintenanceView v-if="configStore.maintenanceMode" />
+  <div v-else class="app-container">
     <RouterView />
     <FooterSection />
   </div>

@@ -63,6 +63,7 @@
         :total-pages="totalPages"
         @prev-page="previousPage('reviews')"
         @next-page="nextPage('reviews')"
+        @review-deleted="loadReviews"
       />
 
       <!-- Mis Sitios Favoritos -->

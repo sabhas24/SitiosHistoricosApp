@@ -4,6 +4,7 @@ import api from '@/config/api'
 export const useConfigStore = defineStore('config', {
     state: () => ({
         reviewsEnabled: true, // Default to true to avoid flashing hidden state
+        maintenanceMode: false,
         loading: false,
         error: null
     }),
@@ -15,6 +16,7 @@ export const useConfigStore = defineStore('config', {
                 const response = await api.get('/config')
                 if (response.data) {
                     this.reviewsEnabled = response.data.reviews_enabled
+                    this.maintenanceMode = response.data.portal_maintenance_mode
                 }
             } catch (error) {
                 console.error('Error fetching config:', error)

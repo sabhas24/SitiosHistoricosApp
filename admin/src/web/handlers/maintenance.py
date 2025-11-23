@@ -1,4 +1,4 @@
-from flask import request, session, render_template, redirect, url_for
+from flask import request, session, render_template, redirect, url_for, jsonify
 from src.models.feature_flag.feature_flag_services import (
     is_admin_maintenance_active, 
     get_maintenance_message,
@@ -10,9 +10,19 @@ def check_maintenance_mode():
     """Middleware para verificar modo de mantenimiento"""
     
     # Verificar si estamos en el portal público (no implementado aún)
+    # Verificar si estamos en el portal público (API)
     if is_portal_maintenance_active():
-        # Este se implementará en la etapa 2
-        pass
+        # Si es una petición a la API (excepto auth/config), retornar 503
+        if request.path.startswith('/api/'):
+            allowed_prefixes = ['/api/auth', '/api/config']
+            if not any(request.path.startswith(prefix) for prefix in allowed_prefixes):
+                maintenance_message = get_maintenance_message('portal_maintenance_mode')
+                return jsonify({
+                    "error": {
+                        "code": "service_unavailable",
+                        "message": maintenance_message
+                    }
+                }), 503
     
     # Verificar modo de mantenimiento de administración
     if is_admin_maintenance_active():

@@ -16,7 +16,13 @@
       <div v-for="review in reviews" :key="review.id" class="review-card">
         <div class="review-header">
           <h3 class="review-site">{{ review.sitio_nombre }}</h3>
-          <span class="review-date">{{ formatDate(review.fecha) }}</span>
+          <div class="header-right">
+             <span class="review-date">{{ formatDate(review.fecha) }}</span>
+             <div class="actions">
+                <button @click="editReview(review)" class="btn-icon edit" title="Editar">✎</button>
+                <button @click="deleteReview(review)" class="btn-icon delete" title="Eliminar">🗑️</button>
+             </div>
+          </div>
         </div>
         <RatingStars :rating="review.calificacion" show-value />
         <p class="review-excerpt">{{ review.resena || review.comentario }}</p>
@@ -68,7 +74,12 @@ defineProps({
   }
 })
 
-defineEmits(['prev-page', 'next-page'])
+import { useRouter } from 'vue-router'
+import reviewsService from '../../services/reviewsService'
+
+const emit = defineEmits(['prev-page', 'next-page', 'review-deleted'])
+
+const router = useRouter()
 
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString('es-ES', {
@@ -76,6 +87,28 @@ const formatDate = (date) => {
     month: 'long',
     day: 'numeric'
   })
+}
+
+const editReview = (review) => {
+  router.push(`/site/${review.sitio_id}`)
+}
+
+const deleteReview = async (review) => {
+  if (!confirm('¿Estás seguro de que quieres eliminar esta reseña?')) return
+  
+  try {
+    // Assuming review object has sitio_id (mapped from backend response)
+    // If backend returns 'site_id' or 'sitio_id', we need to be sure.
+    // In reseñas.py list_site_reviews returns 'site_id'.
+    // In profileService.js getReviews maps response.
+    // Let's check profileService.js mapping.
+    // But assuming we have site_id:
+    await reviewsService.deleteReview(review.sitio_id || review.site_id, review.id)
+    emit('review-deleted') // Parent should reload reviews
+  } catch (e) {
+    console.error(e)
+    alert('No se pudo eliminar la reseña.')
+  }
 }
 </script>
 
@@ -178,5 +211,35 @@ const formatDate = (date) => {
   margin: 0;
   color: #dc2626;
   font-size: 14px;
+}
+
+.header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.btn-icon:hover {
+  background-color: #f3f4f6;
+}
+
+.btn-icon.delete:hover {
+  background-color: #fee2e2;
 }
 </style>
