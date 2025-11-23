@@ -13,7 +13,10 @@ class ReseñaReadSchema(BaseSchema):
     fecha_creacion = fields.DateTime(dump_only=True)
     fecha_moderacion = fields.DateTime(dump_only=True)
     usuario_moderador_id = fields.Int(dump_only=True)
-    motivo_rechazo = fields.Str(dump_only=True) 
+    usuario_moderador_id = fields.Int(dump_only=True)
+    motivo_rechazo = fields.Str(dump_only=True)
+    sitio_id = fields.Int(dump_only=True)
+    sitio_nombre = fields.Function(lambda obj: obj.sitio.nombre if obj.sitio else None, dump_only=True) 
 class ReseñaCreateSchema(BaseSchema):
     """Schema para creación de reseña."""
     comentario = fields.Str(required=True, validate=validate.Length(min=1))

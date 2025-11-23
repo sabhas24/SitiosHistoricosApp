@@ -2,10 +2,15 @@
   <section class="site-reviews">
     <div class="reviews-header">
       <h2>Reseñas de la Comunidad</h2>
-      <div v-if="isAuthenticated && !showForm && !myReview && config.reviewsEnabled">
-        <button @click="openForm" class="btn-primary">
+      <div v-if="isAuthenticated && !showForm && config.reviewsEnabled">
+        <button 
+          @click="openForm" 
+          class="btn-primary" 
+          :disabled="!!myReview"
+          :title="myReview ? 'Ya has escrito una reseña para este sitio' : ''"
+        >
           <span class="icon">✎</span>
-          Escribir reseña
+          {{ myReview ? 'Reseña enviada' : 'Escribir reseña' }}
         </button>
       </div>
       <div v-if="!config.reviewsEnabled" class="status-message">
@@ -15,6 +20,16 @@
       <div v-if="isAuthenticated && myReview && myReview.status === 'Pendiente'" class="pending-notice">
         <span class="icon">⏳</span>
         Tu reseña está pendiente de moderación.
+      </div>
+      <div v-if="isAuthenticated && myReview && myReview.status === 'Rechazada'" class="rejection-notice">
+        <div class="notice-header">
+          <span class="icon">⚠️</span>
+          <strong>Tu reseña fue rechazada</strong>
+        </div>
+        <p class="rejection-reason" v-if="myReview.rejection_reason">
+          Motivo: {{ myReview.rejection_reason }}
+        </p>
+        <p class="rejection-help">Puedes editarla para corregir los problemas señalados.</p>
       </div>
     </div>
 
@@ -66,7 +81,7 @@
         <div class="empty-icon">💬</div>
         <h3>No hay reseñas aún</h3>
         <p>Sé el primero en compartir tu opinión sobre este sitio.</p>
-        <div class="mt-action" v-if="isAuthenticated">
+        <div class="mt-action" v-if="isAuthenticated && !myReview">
           <button @click="openForm" class="btn-primary">Escribir reseña</button>
         </div>
         <div class="mt-action" v-else>
@@ -163,12 +178,6 @@ async function loadMyReview() {
   try {
     // Use the new endpoint that returns the user's review for this site
     const response = await reviewsService.getMyReview(props.siteId)
-    // The service might need an update if it doesn't support this specific call yet, 
-    // but looking at reviewsService.js earlier, it had getMyReview(siteId) calling /sites/${siteId}/reviews/me
-    // Wait, let me double check reviewsService.js content from previous steps.
-    // Step 27 showed: async getMyReview(siteId) { const response = await api.get(`/sites/${siteId}/reviews/me`); return response.data }
-    // So it was ALREADY implemented in the service, just the backend was missing!
-    // Perfect.
     
     myReview.value = response
     if (myReview.value) {
@@ -294,6 +303,12 @@ async function confirmDelete() {
 
 .btn-primary:hover {
   background-color: #4338ca;
+}
+
+.btn-primary:disabled {
+  background-color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 .btn-secondary {
@@ -429,6 +444,34 @@ textarea:focus {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.rejection-notice {
+  margin-top: 1rem;
+  padding: 1rem;
+  background-color: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.notice-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.rejection-reason {
+  margin: 0.5rem 0;
+  font-style: italic;
+}
+
+.rejection-help {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #b91c1c;
 }
 
 /* Empty State */

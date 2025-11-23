@@ -11,6 +11,7 @@ from src.models.reseñas.reseña_services import (
 from src.models.sitios.sitios import get_sitio_by_id
 from src.models.favoritos import favorito_agregar, favorito_eliminar
 from src.web.schemas.reseña import ReseñaCreateSchema, ReseñaReadSchema
+from src.models.reseñas.reseña_services import existe_reseña_usuario_sitio
 
 bp_reviews = Blueprint("reviews_api", __name__)
 
@@ -244,6 +245,7 @@ def get_my_site_review(site_id):
                     "rating": reseña.calificacion,
                     "comment": reseña.comentario,
                     "status": reseña.estado.value, # Importante para el frontend
+                    "rejection_reason": reseña.motivo_rechazo,
                     "inserted_at": reseña.fecha_creacion.isoformat() + "Z",
                     "updated_at": reseña.fecha_creacion.isoformat() + "Z",
                 }
@@ -350,13 +352,8 @@ def create_site_review(site_id):
                 401,
             )
 
-        # Verificar si ya existe una reseña para este usuario y sitio
-        from src.models.reseñas.reseña import Reseña
-        from src.models.database import db
-        existing_review = db.session.query(Reseña).filter(
-            Reseña.sitio_id == site_id,
-            Reseña.email_usuario == usuario.email
-        ).first()
+ 
+        existing_review = existe_reseña_usuario_sitio(usuario.email, site_id)
 
         if existing_review:
             return (
