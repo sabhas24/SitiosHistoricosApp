@@ -210,46 +210,19 @@ def get_my_site_review(site_id):
                 401,
             )
 
-        # Buscar reseña del usuario para este sitio
-        # Nota: Necesitamos una función en el servicio para esto, o filtrar las del sitio
-        # Por eficiencia, deberíamos tener obtener_reseña_por_usuario_y_sitio
-        # Como no existe explícitamente en lo que vi, usaré obtener_reseñas_por_sitio y filtraré (ineficiente pero funciona por ahora)
-        # O mejor, implemento una búsqueda directa si es posible.
-        # Revisando reseña_services.py... no vi una función directa.
-        # Voy a usar obtener_reseñas_por_usuario y filtrar por sitio_id, que ya existe en me.py
-        
+       
         from src.models.reseñas.reseña_services import obtener_reseñas_por_usuario
         
-        # Esto devuelve paginado, lo cual no es ideal para buscar una específica.
-        # Mejor añado una consulta directa aquí o en el servicio.
-        # Dado que no puedo editar el servicio fácilmente sin ver su contenido completo de nuevo,
-        # haré una consulta directa usando el modelo si es posible, o iteraré.
-        
-        # Re-reading reseña_services.py content from memory/previous steps...
-        # I saw obtener_reseñas, obtener_reseña_por_id, aprobar, rechazar, eliminar.
-        # I didn't see a "get_by_user_and_site".
-        # However, I can use obtener_reseñas with filters if it supports it.
-        # The controller index uses filters. Let's see if obtener_reseñas supports filtering by user and site.
-        
+        #
         from src.models.reseñas.reseña_services import obtener_reseñas
         
         filters = {
-            'sitio': str(site_id), # El filtro espera string probablemente o ID
-            'usuario': usuario.email # El filtro busca por email o nombre? En el controller index usa 'usuario'
+            'sitio': str(site_id), 
+            'usuario': usuario.email 
         }
+     
         
-        # Revisando controller index:
-        # filters['sitio'] = sitio
-        # filters['usuario'] = usuario
-        # obtener_reseñas(..., filters=filters)
-        
-        # Asumimos que esto funciona. Pero obtener_reseñas devuelve todas las reseñas (aprobadas o no? el admin las ve todas).
-        # Necesitamos asegurarnos que sea LA reseña del usuario.
-        
-        # Una forma más segura y rápida es consultar la DB directamente si tuviera acceso al modelo aquí.
-        # Tengo acceso a src.models.reseñas.reseña.Reseña
-        
-        from src.models.reseñas.reseña import Reseña
+        from src.models.reseñas.reseña import Reseñ
         from src.models.database import db
         
         reseña = db.session.query(Reseña).filter(
@@ -299,7 +272,7 @@ from src.models.feature_flag.feature_flag_services import are_reviews_enabled
 @jwt_required
 def create_site_review(site_id):
     try:
-        # Verificar Feature Flag
+       
         if not are_reviews_enabled():
             return (
                 jsonify(

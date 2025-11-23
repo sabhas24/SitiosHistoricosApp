@@ -81,7 +81,7 @@ def login_user():
 def login_google():
     oauth = get_oauth()
     redirect_uri = url_for("api.user_api.login_callback", _external=True)
-    # Authlib genera y guarda el state automáticamente en session["state"]
+   
     return oauth.google.authorize_redirect(redirect_uri)
 
 
@@ -89,10 +89,9 @@ def login_google():
 def login_callback():
     try:
         oauth = get_oauth()
-        # Authlib valida el state automáticamente desde session["state"]
+       
         token = oauth.google.authorize_access_token()
-        user_info = oauth.google.parse_id_token(token, nonce=None)  # Sin nonce
-
+        user_info = oauth.google.parse_id_token(token, nonce=None)  
         email = user_info["email"]
         name = user_info.get("given_name", "")
         last_name = user_info.get("family_name", "")

@@ -49,7 +49,6 @@ def list_favorites():
 
     list_favoritos = favorito_listar(user_id, page=page, per_page=per_page, order=order)
 
-    # Serializar la lista de objetos Favorito
     schema = FavoritoReadSchema(many=True)
     list_favoritos["favoritos"] = schema.dump(list_favoritos["favoritos"])
 
@@ -71,7 +70,6 @@ def get_my_reviews():
         user.email, page=page, per_page=per_page, order=order
     )
 
-    # Serializar las reseñas
     schema = ReseñaReadSchema(many=True)
     reviews["reseñas"] = schema.dump(reviews["reseñas"])
 
