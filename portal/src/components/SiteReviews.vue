@@ -221,7 +221,7 @@ function openForm() {
   showForm.value = true
   editing.value = !!myReview.value
   
-  // Populate form with existing data if editing
+ 
   if (myReview.value) {
     form.value.rating = myReview.value.rating
     form.value.comment = myReview.value.comment
