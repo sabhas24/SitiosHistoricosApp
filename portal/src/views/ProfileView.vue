@@ -1,5 +1,5 @@
 <template>
-  <div class="profile-container container" >
+  <div class="profile-container container">
     <button @click="goBack" class="back-button">
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="back-icon">
         <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
@@ -196,6 +196,39 @@ const loadFavorites = async () => {
   }
 }
 
+const nextPage = async (section) => {
+  if (section === 'reviews' && currentPage.value < totalPages.value) {
+    currentPage.value++
+    await loadReviews()
+  } else if (section === 'favorites' && currentPageFavorites.value < totalPagesFavorites.value) {
+    currentPageFavorites.value++
+    await loadFavorites()
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+const previousPage = async (section) => {
+  if (section === 'reviews' && currentPage.value > 1) {
+    currentPage.value--
+    await loadReviews()
+  } else if (section === 'favorites' && currentPageFavorites.value > 1) {
+    currentPageFavorites.value--
+    await loadFavorites()
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+const removeFavorite = async (siteId) => {
+  if (!confirm('¿Eliminar este sitio de tus favoritos?')) return
+  try {
+    await profileService.removeFavorite(siteId)
+    await loadFavorites()
+  } catch (err) {
+    console.error('Error removing favorite:', err)
+    errorFavorites.value = 'No pudimos eliminar el favorito. Intenta nuevamente.'
+  }
+}
+
 watch(sortOrder, () => {
   currentPage.value = 1
   loadReviews()
@@ -331,3 +364,4 @@ watch(sortOrderFavorites, () => {
   border-color: #8B7355;
   ring: 1px solid #8B7355;
 }
+</style>
