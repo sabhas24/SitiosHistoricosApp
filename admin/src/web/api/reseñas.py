@@ -536,6 +536,19 @@ def delete_site_review(site_id, review_id):
 
         return "", 204
 
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "error": {
+                        "code": "server_error",
+                        "message": "An unexpected error occurred",
+                    }
+                }
+            ),
+            500,
+        )
+
 
 @bp_reviews.put("/sites/<int:site_id>/favorite")
 @jwt_required
