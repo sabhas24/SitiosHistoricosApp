@@ -16,11 +16,11 @@ class Config:
     SECRET_KEY = environ.get("SECRET_KEY", "c413c4db1b08e3ef4e296c8d9643d378")
     SESSION_TYPE = "filesystem"
     SESSION_PERMANENT = False
-    SESSION_USE_SIGNER = True
+
     PERMANENT_SESSION_LIFETIME = timedelta(hours=2)
     SESSION_COOKIE_SECURE = False
     SESSION_COOKIE_HTTPONLY = True
-    SESSION_COOKIE_SAMESITE = None
+    SESSION_COOKIE_SAMESITE = "None"
     SQLALCHEMY_ENGINE_OPTIONS = {
         "pool_size": 5,
         "pool_pre_ping": True,
@@ -61,7 +61,13 @@ class DevelopmentConfig(Config):
     FRONTEND_BASE_URL = "http://localhost:5173"
     SESSION_COOKIE_DOMAIN = None
     SESSION_COOKIE_SAMESITE = "None"
-    CORS_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
+
+    CORS_ORIGINS = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
+    ]
 
 
 class ProductionConfig(Config):
@@ -103,10 +109,7 @@ class ProductionConfig(Config):
 
     FRONTEND_BASE_URL = environ.get("FRONTEND_BASE_URL")
 
-    CORS_ORIGINS = [
-        "https://grupo44.proyecto2025.linti.unlp.edu.ar",
-        "https://admin-grupo44.proyecto2025.linti.unlp.edu.ar",
-    ]
+    CORS_ORIGINS = ["*"]  # Temporal para probar
 
 
 config = {

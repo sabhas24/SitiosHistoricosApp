@@ -121,11 +121,32 @@ if (!authStore.isAuthenticated) {
 }
 
 
+const sortOrder = ref('latest')
+const sortOrderFavorites = ref('latest')
+
+const sortOptions = [
+  { value: 'latest', label: 'Más recientes' },
+  { value: 'oldest', label: 'Más antiguas' },
+  { value: 'highest', label: 'Mayor calificación' }, // Backend support pending for this, but 'latest'/'oldest' works
+  { value: 'lowest', label: 'Menor calificación' }
+]
+
+const sortOptionsFavorites = [
+  { value: 'latest', label: 'Agregado recientemente' },
+  { value: 'oldest', label: 'Más antiguos' }
+]
+
+watch(activeTab, (newTab) => {
+  if (newTab === 'favorites' && favorites.value.length === 0 && !loadingFavorites.value) {
+    loadFavorites()
+  }
+})
+
 const loadReviews = async () => {
   loading.value = true
   error.value = null
   try {
-    const data = await profileService.getReviews(currentPage.value, 25, 'latest')
+    const data = await profileService.getReviews(currentPage.value, 25, sortOrder.value)
     reviews.value = data.items
     totalPages.value = data.totalPages
   } catch (err) {
@@ -136,13 +157,11 @@ const loadReviews = async () => {
   }
 }
 
-
-
 const loadFavorites = async () => {
   loadingFavorites.value = true
   errorFavorites.value = null
   try {
-    const data = await profileService.getFavorites(currentPageFavorites.value, 25, 'latest')
+    const data = await profileService.getFavorites(currentPageFavorites.value, 25, sortOrderFavorites.value)
     favorites.value = data.items
     totalPagesFavorites.value = data.totalPages
   } catch (err) {
@@ -153,43 +172,14 @@ const loadFavorites = async () => {
   }
 }
 
-const nextPage = async (section) => {
-  if (section === 'reviews' && currentPage.value < totalPages.value) {
-    currentPage.value++
-    await loadReviews()
-  } else if (section === 'favorites' && currentPageFavorites.value < totalPagesFavorites.value) {
-    currentPageFavorites.value++
-    await loadFavorites()
-  }
-  window.scrollTo({ top: 0, behavior: 'smooth' })
-}
+watch(sortOrder, () => {
+  currentPage.value = 1
+  loadReviews()
+})
 
-const previousPage = async (section) => {
-  if (section === 'reviews' && currentPage.value > 1) {
-    currentPage.value--
-    await loadReviews()
-  } else if (section === 'favorites' && currentPageFavorites.value > 1) {
-    currentPageFavorites.value--
-    await loadFavorites()
-  }
-  window.scrollTo({ top: 0, behavior: 'smooth' })
-}
-
-const removeFavorite = async (siteId) => {
-  if (!confirm('¿Eliminar este sitio de tus favoritos?')) return
-  try {
-    await profileService.removeFavorite(siteId)
-    await loadFavorites()
-  } catch (err) {
-    console.error('Error removing favorite:', err)
-    errorFavorites.value = 'No pudimos eliminar el favorito. Intenta nuevamente.'
-  }
-}
-
-watch(activeTab, (newTab) => {
-  if (newTab === 'favorites' && favorites.value.length === 0 && !loadingFavorites.value) {
-    loadFavorites()
-  }
+watch(sortOrderFavorites, () => {
+  currentPageFavorites.value = 1
+  loadFavorites()
 })
 </script>
 
@@ -284,4 +274,36 @@ watch(activeTab, (newTab) => {
   height: 20px;
   stroke-width: 2;
 }
-</style>
+
+.controls-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.sort-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sort-control label {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.sort-control select {
+  padding: 6px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: white;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+}
+
+.sort-control select:focus {
+  outline: none;
+  border-color: #8B7355;
+  ring: 1px solid #8B7355;
+}

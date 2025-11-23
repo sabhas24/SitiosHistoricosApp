@@ -105,6 +105,9 @@ def create_app(env="development", static_folder="../../static"):
 
     # Registrar blueprint de la API REST
     app.register_blueprint(api_bp, url_prefix="/api")
+    
+    from src.web.api.config import bp_config
+    app.register_blueprint(bp_config, url_prefix="/api")
 
     app.jinja_env.globals["is_authenticated"] = is_authenticated
     app.jinja_env.globals["get_current_user"] = get_current_user

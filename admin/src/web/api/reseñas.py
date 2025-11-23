@@ -157,6 +157,20 @@ def list_site_reviews(site_id):
             200,
         )
 
+        return (
+            jsonify(
+                {
+                    "data": reseñas_data,
+                    "meta": {
+                        "page": resultado["page"],
+                        "per_page": resultado["per_page"],
+                        "total": resultado["total"],
+                    },
+                }
+            ),
+            200,
+        )
+
     except Exception as e:
         return (
             jsonify(
@@ -171,10 +185,134 @@ def list_site_reviews(site_id):
         )
 
 
+@bp_reviews.get("/sites/<int:site_id>/reviews/me")
+@jwt_required
+def get_my_site_review(site_id):
+    try:
+        sitio = get_sitio_by_id(site_id)
+        if not sitio:
+            return (
+                jsonify({"error": {"code": "not_found", "message": "Site not found"}}),
+                404,
+            )
+
+        usuario = user_show_id(request.current_user_id)
+        if not usuario:
+            return (
+                jsonify(
+                    {
+                        "error": {
+                            "code": "unauthorized",
+                            "message": "Authentication required",
+                        }
+                    }
+                ),
+                401,
+            )
+
+        # Buscar reseña del usuario para este sitio
+        # Nota: Necesitamos una función en el servicio para esto, o filtrar las del sitio
+        # Por eficiencia, deberíamos tener obtener_reseña_por_usuario_y_sitio
+        # Como no existe explícitamente en lo que vi, usaré obtener_reseñas_por_sitio y filtraré (ineficiente pero funciona por ahora)
+        # O mejor, implemento una búsqueda directa si es posible.
+        # Revisando reseña_services.py... no vi una función directa.
+        # Voy a usar obtener_reseñas_por_usuario y filtrar por sitio_id, que ya existe en me.py
+        
+        from src.models.reseñas.reseña_services import obtener_reseñas_por_usuario
+        
+        # Esto devuelve paginado, lo cual no es ideal para buscar una específica.
+        # Mejor añado una consulta directa aquí o en el servicio.
+        # Dado que no puedo editar el servicio fácilmente sin ver su contenido completo de nuevo,
+        # haré una consulta directa usando el modelo si es posible, o iteraré.
+        
+        # Re-reading reseña_services.py content from memory/previous steps...
+        # I saw obtener_reseñas, obtener_reseña_por_id, aprobar, rechazar, eliminar.
+        # I didn't see a "get_by_user_and_site".
+        # However, I can use obtener_reseñas with filters if it supports it.
+        # The controller index uses filters. Let's see if obtener_reseñas supports filtering by user and site.
+        
+        from src.models.reseñas.reseña_services import obtener_reseñas
+        
+        filters = {
+            'sitio': str(site_id), # El filtro espera string probablemente o ID
+            'usuario': usuario.email # El filtro busca por email o nombre? En el controller index usa 'usuario'
+        }
+        
+        # Revisando controller index:
+        # filters['sitio'] = sitio
+        # filters['usuario'] = usuario
+        # obtener_reseñas(..., filters=filters)
+        
+        # Asumimos que esto funciona. Pero obtener_reseñas devuelve todas las reseñas (aprobadas o no? el admin las ve todas).
+        # Necesitamos asegurarnos que sea LA reseña del usuario.
+        
+        # Una forma más segura y rápida es consultar la DB directamente si tuviera acceso al modelo aquí.
+        # Tengo acceso a src.models.reseñas.reseña.Reseña
+        
+        from src.models.reseñas.reseña import Reseña
+        from src.models.database import db
+        
+        reseña = db.session.query(Reseña).filter(
+            Reseña.sitio_id == site_id,
+            Reseña.email_usuario == usuario.email
+        ).first()
+        
+        if not reseña:
+             return (
+                jsonify({"error": {"code": "not_found", "message": "Review not found"}}),
+                404,
+            )
+            
+        return (
+            jsonify(
+                {
+                    "id": reseña.id,
+                    "site_id": reseña.sitio_id,
+                    "rating": reseña.calificacion,
+                    "comment": reseña.comentario,
+                    "status": reseña.estado.value, # Importante para el frontend
+                    "inserted_at": reseña.fecha_creacion.isoformat() + "Z",
+                    "updated_at": reseña.fecha_creacion.isoformat() + "Z",
+                }
+            ),
+            200,
+        )
+
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "error": {
+                        "code": "server_error",
+                        "message": "An unexpected error occurred",
+                        "details": str(e)
+                    }
+                }
+            ),
+            500,
+        )
+
+
+from src.models.feature_flag.feature_flag_services import are_reviews_enabled
+
 @bp_reviews.post("/sites/<int:site_id>/reviews")
 @jwt_required
 def create_site_review(site_id):
     try:
+        # Verificar Feature Flag
+        if not are_reviews_enabled():
+            return (
+                jsonify(
+                    {
+                        "error": {
+                            "code": "service_unavailable",
+                            "message": "Reviews are currently disabled",
+                        }
+                    }
+                ),
+                503,
+            )
+
         sitio = get_sitio_by_id(site_id)
         if not sitio:
             return (
@@ -424,19 +562,6 @@ def delete_site_review(site_id, review_id):
             )
 
         return "", 204
-
-    except Exception as e:
-        return (
-            jsonify(
-                {
-                    "error": {
-                        "code": "server_error",
-                        "message": "An unexpected error occurred",
-                    }
-                }
-            ),
-            500,
-        )
 
 
 @bp_reviews.put("/sites/<int:site_id>/favorite")

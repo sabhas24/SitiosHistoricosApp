@@ -2,11 +2,19 @@
   <section class="site-reviews">
     <div class="reviews-header">
       <h2>Reseñas de la Comunidad</h2>
-      <div v-if="isAuthenticated && !showForm && !myReview">
+      <div v-if="isAuthenticated && !showForm && !myReview && config.reviewsEnabled">
         <button @click="openForm" class="btn-primary">
           <span class="icon">✎</span>
           Escribir reseña
         </button>
+      </div>
+      <div v-if="!config.reviewsEnabled" class="status-message">
+        <span class="icon">🔒</span>
+        Las reseñas están temporalmente deshabilitadas.
+      </div>
+      <div v-if="isAuthenticated && myReview && myReview.status === 'Pendiente'" class="pending-notice">
+        <span class="icon">⏳</span>
+        Tu reseña está pendiente de moderación.
       </div>
     </div>
 
@@ -107,10 +115,12 @@ import { ref, onMounted, watch } from 'vue'
 import RatingInput from './RatingInput.vue'
 import reviewsService from '../services/reviewsService'
 import { useAuthStore } from '../stores/auth'
+import { useConfigStore } from '../stores/config'
 
 const props = defineProps({ siteId: { type: [Number, String], required: true } })
 
 const auth = useAuthStore()
+const config = useConfigStore()
 const isAuthenticated = ref(!!auth.isAuthenticated)
 watch(() => auth.isAuthenticated, (v) => (isAuthenticated.value = !!v))
 
@@ -151,8 +161,16 @@ async function loadReviews() {
 async function loadMyReview() {
   if (!isAuthenticated.value) { myReview.value = null; return }
   try {
-    const data = await reviewsService.getMyReview(props.siteId)
-    myReview.value = data
+    // Use the new endpoint that returns the user's review for this site
+    const response = await reviewsService.getMyReview(props.siteId)
+    // The service might need an update if it doesn't support this specific call yet, 
+    // but looking at reviewsService.js earlier, it had getMyReview(siteId) calling /sites/${siteId}/reviews/me
+    // Wait, let me double check reviewsService.js content from previous steps.
+    // Step 27 showed: async getMyReview(siteId) { const response = await api.get(`/sites/${siteId}/reviews/me`); return response.data }
+    // So it was ALREADY implemented in the service, just the backend was missing!
+    // Perfect.
+    
+    myReview.value = response
     if (myReview.value) {
       form.value.rating = myReview.value.rating
       form.value.comment = myReview.value.comment
@@ -398,6 +416,19 @@ textarea:focus {
   color: #1e40af;
   border-radius: 0.5rem;
   font-size: 0.875rem;
+}
+
+.pending-notice {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fdba74;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 /* Empty State */

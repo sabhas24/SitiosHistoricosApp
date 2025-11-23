@@ -1,14 +1,17 @@
 <script setup>
 import { RouterView } from 'vue-router'
-import { onMounted }  from 'vue';
-import { useAuthStore } from './stores/auth';
+import { onMounted } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import { useConfigStore } from '@/stores/config'
 import FooterSection from './components/FooterSection.vue'
 
-const authStore = useAuthStore();
+const authStore = useAuthStore()
+const configStore = useConfigStore()
 
-onMounted(() => {
-  authStore.checkSession();
-});
+onMounted(async () => {
+  await authStore.checkSession()
+  await configStore.fetchConfig()
+})
 </script>
 
 <template>

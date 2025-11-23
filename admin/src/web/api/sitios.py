@@ -29,6 +29,7 @@ bp = Blueprint("sitios_api", __name__)
 @bp.get("/filters")
 def get_filters():
     """Obtener opciones disponibles para los filtros de búsqueda."""
+
     options = get_search_options()
     return jsonify(options), 200
 
@@ -100,16 +101,16 @@ def list_sites():
     # Agregar is_favorite si el usuario está autenticado
     from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
     from src.models.favoritos import favorito_listar
-    
+
     try:
         verify_jwt_in_request(optional=True)
         user_id = get_jwt_identity()
-        
+
         if user_id:
             # Obtener todos los IDs de favoritos del usuario
             favoritos = favorito_listar(user_id, page=1, per_page=1000)
             favoritos_ids = {fav.sitio_id for fav in favoritos["favoritos"]}
-            
+
             # Agregar is_favorite a cada sitio
             for sitio in sitios_serializados:
                 sitio["is_favorite"] = sitio["id"] in favoritos_ids
@@ -157,15 +158,15 @@ def get_sitio(id):
     if not sitio:
         return jsonify(error="not_found", message="Sitio no encontrado"), 404
     sitio_read = SitioReadSchema().dump(sitio)
-    
+
     # Agregar is_favorite si el usuario está autenticado
     from flask_jwt_extended import get_jwt_identity, verify_jwt_in_request
     from src.models.favoritos import favorito_listar
-    
+
     try:
         verify_jwt_in_request(optional=True)
         user_id = get_jwt_identity()
-        
+
         if user_id:
             # Obtener todos los IDs de favoritos del usuario
             favoritos = favorito_listar(user_id, page=1, per_page=1000)
@@ -175,7 +176,7 @@ def get_sitio(id):
             sitio_read["is_favorite"] = False
     except:
         sitio_read["is_favorite"] = False
-    
+
     return jsonify(sitio_read), 200
 
 
