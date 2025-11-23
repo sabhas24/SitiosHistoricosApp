@@ -288,3 +288,15 @@ def obtener_reseñas_por_usuario(idmail, page=1, per_page=25, order="latest"):
         "has_prev": has_prev,
         "has_next": has_next,
     }
+
+
+def existe_reseña_usuario_sitio(email_usuario, sitio_id):
+    return db.session.query(Reseña).filter(
+        Reseña.email_usuario == email_usuario,
+        Reseña.sitio_id == sitio_id,
+    ).first() is not None
+    def existe_reseña_usuario_sitio(email_usuario, sitio_id):
+        return db.session.query(Reseña).filter(
+            Reseña.email_usuario == email_usuario,
+            Reseña.sitio_id == sitio_id,
+        ).first() is not None
