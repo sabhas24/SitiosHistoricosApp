@@ -16,84 +16,6 @@ from src.models.reseñas.reseña_services import existe_reseña_usuario_sitio
 bp_reviews = Blueprint("reviews_api", __name__)
 
 
-@bp_reviews.get("/sites/<int:site_id>/reviews/public")
-def list_public_site_reviews(site_id):
-    try:
-        sitio = get_sitio_by_id(site_id)
-        if not sitio:
-            return (
-                jsonify({"error": {"code": "not_found", "message": "Site not found"}}),
-                404,
-            )
-
-        page = request.args.get("page", 1, type=int)
-        per_page = request.args.get("per_page", 10, type=int)
-
-        errors = {}
-        if page < 1:
-            errors["page"] = ["Must be at least 1"]
-        if per_page < 1 or per_page > 100:
-            errors["per_page"] = ["Must be between 1 and 100"]
-
-        if errors:
-            return (
-                jsonify(
-                    {
-                        "error": {
-                            "code": "invalid_data",
-                            "message": "Invalid input data",
-                            "details": errors,
-                        }
-                    }
-                ),
-                400,
-            )
-
-        resultado = obtener_reseñas_por_sitio(
-            sitio_id=site_id, page=page, per_page=per_page
-        )
-
-        reseñas_data = []
-        for reseña in resultado["reseñas"]:
-            reseña_dict = {
-                "id": reseña.id,
-                "site_id": reseña.sitio_id,
-                "rating": reseña.calificacion,
-                "comment": reseña.comentario,
-                "author_name": reseña.nombre_usuario,
-                "inserted_at": reseña.fecha_creacion.isoformat() + "Z",
-                "updated_at": reseña.fecha_creacion.isoformat() + "Z",
-            }
-            reseñas_data.append(reseña_dict)
-
-        return (
-            jsonify(
-                {
-                    "data": reseñas_data,
-                    "meta": {
-                        "page": resultado["page"],
-                        "per_page": resultado["per_page"],
-                        "total": resultado["total"],
-                    },
-                }
-            ),
-            200,
-        )
-
-    except Exception as e:
-        return (
-            jsonify(
-                {
-                    "error": {
-                        "code": "server_error",
-                        "message": "An unexpected error occurred",
-                    }
-                }
-            ),
-            500,
-        )
-
-
 @bp_reviews.get("/sites/<int:site_id>/reviews")
 @jwt_required
 def list_site_reviews(site_id):
@@ -139,24 +61,12 @@ def list_site_reviews(site_id):
                 "site_id": reseña.sitio_id,
                 "rating": reseña.calificacion,
                 "comment": reseña.comentario,
+                "author_name": reseña.nombre_usuario,
+                "status": reseña.estado.value if reseña.estado else None,
                 "inserted_at": reseña.fecha_creacion.isoformat() + "Z",
                 "updated_at": reseña.fecha_creacion.isoformat() + "Z",
             }
             reseñas_data.append(reseña_dict)
-
-        return (
-            jsonify(
-                {
-                    "data": reseñas_data,
-                    "meta": {
-                        "page": resultado["page"],
-                        "per_page": resultado["per_page"],
-                        "total": resultado["total"],
-                    },
-                }
-            ),
-            200,
-        )
 
         return (
             jsonify(
@@ -465,6 +375,164 @@ def get_site_review(site_id, review_id):
                     "comment": reseña.comentario,
                     "inserted_at": reseña.fecha_creacion.isoformat() + "Z",
                     "updated_at": reseña.fecha_creacion.isoformat() + "Z",
+                }
+            ),
+            200,
+        )
+
+    except Exception as e:
+        return (
+            jsonify(
+                {
+                    "error": {
+                        "code": "server_error",
+                        "message": "An unexpected error occurred",
+                    }
+                }
+            ),
+            500,
+        )
+
+
+
+
+@bp_reviews.put("/sites/<int:site_id>/reviews/<int:review_id>")
+@jwt_required
+def update_site_review(site_id, review_id):
+    try:
+        sitio = get_sitio_by_id(site_id)
+        if not sitio:
+            return (
+                jsonify({"error": {"code": "not_found", "message": "Site not found"}}),
+                404,
+            )
+
+        reseña = obtener_reseña_por_id(review_id)
+        if not reseña:
+            return (
+                jsonify(
+                    {"error": {"code": "not_found", "message": "Review not found"}}
+                ),
+                404,
+            )
+
+        if reseña.sitio_id != site_id:
+            return (
+                jsonify(
+                    {"error": {"code": "not_found", "message": "Review not found"}}
+                ),
+                404,
+            )
+
+        usuario = user_show_id(request.current_user_id)
+        if not usuario:
+            return (
+                jsonify(
+                    {
+                        "error": {
+                            "code": "unauthorized",
+                            "message": "Authentication required",
+                        }
+                    }
+                ),
+                401,
+            )
+
+        if reseña.email_usuario != usuario.email:
+            return (
+                jsonify(
+                    {
+                        "error": {
+                            "code": "forbidden",
+                            "message": "You do not have permission to update this review",
+                        }
+                    }
+                ),
+                403,
+            )
+
+        json_data = request.get_json(force=True)
+        if not json_data:
+            return (
+                jsonify(
+                    {
+                        "error": {
+                            "code": "invalid_data",
+                            "message": "Invalid input data",
+                            "details": {"body": ["Request body is required"]},
+                        }
+                    }
+                ),
+                400,
+            )
+
+        errors = {}
+        
+        # Validar rating si se proporciona
+        if "rating" in json_data:
+            if not isinstance(json_data.get("rating"), (int, float)) or not (
+                1 <= json_data.get("rating") <= 5
+            ):
+                errors["rating"] = ["Must be between 1 and 5"]
+        
+        # Validar comment si se proporciona
+        if "comment" in json_data:
+            comment = json_data.get("comment", "")
+            if len(comment) < 20:
+                errors["comment"] = ["Must be at least 20 characters"]
+            elif len(comment) > 1000:
+                errors["comment"] = ["Must be at most 1000 characters"]
+
+        if errors:
+            return (
+                jsonify(
+                    {
+                        "error": {
+                            "code": "invalid_data",
+                            "message": "Invalid input data",
+                            "details": errors,
+                        }
+                    }
+                ),
+                400,
+            )
+
+        from src.models.reseñas.reseña_services import actualizar_reseña
+        
+        success, message = actualizar_reseña(
+            reseña_id=review_id,
+            usuario_email=usuario.email,
+            comentario=json_data.get("comment"),
+            calificacion=json_data.get("rating")
+        )
+
+        if not success:
+            return (
+                jsonify(
+                    {
+                        "error": {
+                            "code": "server_error",
+                            "message": message,
+                        }
+                    }
+                ),
+                500,
+            )
+
+        # Obtener reseña actualizada
+        reseña = obtener_reseña_por_id(review_id)
+        
+        return (
+            jsonify(
+                {
+                    "id": reseña.id,
+                    "site_id": reseña.sitio_id,
+                    "rating": reseña.calificacion,
+                    "comment": reseña.comentario,
+                    "status": reseña.estado.value,
+                    "inserted_at": reseña.fecha_creacion.isoformat() + "Z",
+                    "updated_at": reseña.fecha_creacion.isoformat() + "Z",
+                    "message": message
                 }
             ),
             200,

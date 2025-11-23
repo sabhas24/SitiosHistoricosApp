@@ -192,6 +192,37 @@ def rechazar_reseña(reseña_id, usuario_moderador_id, motivo_rechazo):
         return False, f"Error al rechazar reseña: {str(e)}"
 
 
+def actualizar_reseña(reseña_id, usuario_email, comentario=None, calificacion=None):
+    """Actualiza una reseña existente y resetea a estado PENDIENTE"""
+    reseña = obtener_reseña_por_id(reseña_id)
+    
+    if not reseña:
+        return False, "Reseña no encontrada"
+    
+    # Verificar que el usuario sea el autor
+    if reseña.email_usuario != usuario_email:
+        return False, "No tienes permiso para editar esta reseña"
+    
+    try:
+        # Actualizar campos si se proporcionan
+        if comentario is not None:
+            reseña.comentario = comentario
+        if calificacion is not None:
+            reseña.calificacion = calificacion
+        
+        # Resetear estado a PENDIENTE
+        reseña.estado = EstadoReseña.PENDIENTE
+        reseña.fecha_moderacion = None
+        reseña.usuario_moderador_id = None
+        reseña.motivo_rechazo = None
+        
+        db.session.commit()
+        return True, "Reseña actualizada exitosamente. Será revisada nuevamente por un moderador."
+    except Exception as e:
+        db.session.rollback()
+        return False, f"Error al actualizar reseña: {str(e)}"
+
+
 def eliminar_reseña(reseña_id):
     reseña = obtener_reseña_por_id(reseña_id)
 

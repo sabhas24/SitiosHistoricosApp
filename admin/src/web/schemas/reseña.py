@@ -4,19 +4,24 @@ class BaseSchema(Schema):
     """Schema base para ignorar campos extra."""
     class Meta:
         unknown = EXCLUDE
+
 class ReseñaReadSchema(BaseSchema):
     """Schema para lectura de reseña."""
     id = fields.Int(dump_only=True)
     comentario = fields.Str(required=True)
     calificacion = fields.Int(required=True)
-    estado = fields.Str(required=True)
+    estado = fields.Method("get_estado")
     fecha_creacion = fields.DateTime(dump_only=True)
     fecha_moderacion = fields.DateTime(dump_only=True)
     usuario_moderador_id = fields.Int(dump_only=True)
-    usuario_moderador_id = fields.Int(dump_only=True)
     motivo_rechazo = fields.Str(dump_only=True)
     sitio_id = fields.Int(dump_only=True)
-    sitio_nombre = fields.Function(lambda obj: obj.sitio.nombre if obj.sitio else None, dump_only=True) 
+    sitio_nombre = fields.Function(lambda obj: obj.sitio.nombre if obj.sitio else None, dump_only=True)
+    
+    def get_estado(self, obj):
+        """Return the value of the estado enum"""
+        return obj.estado.value if obj.estado else None
+
 class ReseñaCreateSchema(BaseSchema):
     """Schema para creación de reseña."""
     comentario = fields.Str(required=True, validate=validate.Length(min=1))
