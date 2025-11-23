@@ -2,7 +2,7 @@ import api from '../config/api'
 
 const reviewsService = {
     async getPublicReviews(siteId, page = 1, per_page = 10) {
-        const response = await api.get(`/sites/${siteId}/reviews/public`, { params: { page, per_page } })
+        const response = await api.get(`/sites/${siteId}/reviews`, { params: { page, per_page } })
         return response.data
     },
 
