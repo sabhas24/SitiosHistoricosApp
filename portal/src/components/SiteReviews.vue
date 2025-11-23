@@ -6,11 +6,9 @@
         <button 
           @click="openForm" 
           class="btn-primary" 
-          :disabled="!!myReview"
-          :title="myReview ? 'Ya has escrito una reseña para este sitio' : ''"
         >
           <span class="icon">✎</span>
-          {{ myReview ? 'Reseña enviada' : 'Escribir reseña' }}
+          {{ myReview ? 'Editar mi reseña' : 'Escribir reseña' }}
         </button>
       </div>
       <div v-if="!config.reviewsEnabled" class="status-message">
@@ -127,6 +125,7 @@
 </template>
 <script setup>
 import { ref, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import RatingInput from './RatingInput.vue'
 import reviewsService from '../services/reviewsService'
 import { useAuthStore } from '../stores/auth'
@@ -195,9 +194,27 @@ async function loadMyReview() {
   }
 }
 
+import { useRoute } from 'vue-router'
+
+const route = useRoute()
+
+// ... (existing code)
+
 onMounted(async () => {
   await loadReviews()
   await loadMyReview()
+  
+  // Check for edit query param
+  if (route.query.edit === 'true' && myReview.value) {
+    openForm()
+    // Scroll to form
+    setTimeout(() => {
+      const formElement = document.querySelector('.review-form-container')
+      if (formElement) {
+        formElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      }
+    }, 100)
+  }
 })
 
 function openForm() {

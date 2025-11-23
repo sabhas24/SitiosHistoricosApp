@@ -17,7 +17,10 @@
         <div class="review-header">
           <h3 class="review-site">{{ review.sitio_nombre }}</h3>
           <div class="header-right">
-             <span class="review-date">{{ formatDate(review.fecha) }}</span>
+             <span class="review-date">{{ formatDate(review.fecha_creacion) }}</span>
+             <div class="status-badge" :class="review.estado.toLowerCase()">
+               {{ formatStatus(review.estado) }}
+             </div>
              <div class="actions">
                 <button @click="editReview(review)" class="btn-icon edit" title="Editar">✎</button>
                 <button @click="deleteReview(review)" class="btn-icon delete" title="Eliminar">🗑️</button>
@@ -26,6 +29,18 @@
         </div>
         <RatingStars :rating="review.calificacion" show-value />
         <p class="review-excerpt">{{ review.resena || review.comentario }}</p>
+        
+        <!-- Rejection Notice -->
+        <div v-if="review.estado === 'Rechazada'" class="rejection-notice">
+          <div class="notice-header">
+            <span class="icon">⚠️</span>
+            <strong>Tu reseña fue rechazada</strong>
+          </div>
+          <p class="rejection-reason" v-if="review.motivo_rechazo">
+            Motivo: {{ review.motivo_rechazo }}
+          </p>
+          <p class="rejection-help">Puedes editarla para corregir los problemas señalados.</p>
+        </div>
       </div>
 
       <Pagination
@@ -82,6 +97,7 @@ const emit = defineEmits(['prev-page', 'next-page', 'review-deleted'])
 const router = useRouter()
 
 const formatDate = (date) => {
+  if (!date) return ''
   return new Date(date).toLocaleDateString('es-ES', {
     year: 'numeric',
     month: 'long',
@@ -89,8 +105,20 @@ const formatDate = (date) => {
   })
 }
 
+const formatStatus = (status) => {
+  const map = {
+    'Pendiente': 'Pendiente',
+    'Aprobada': 'Publicada',
+    'Rechazada': 'Rechazada'
+  }
+  return map[status] || status
+}
+
 const editReview = (review) => {
-  router.push(`/site/${review.sitio_id}`)
+  router.push({
+    path: `/site/${review.sitio_id}`,
+    query: { edit: 'true' }
+  })
 }
 
 const deleteReview = async (review) => {
@@ -241,5 +269,63 @@ const deleteReview = async (review) => {
 
 .btn-icon.delete:hover {
   background-color: #fee2e2;
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.status-badge.pendiente {
+  background-color: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fdba74;
+}
+
+.status-badge.aprobada {
+  background-color: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #86efac;
+}
+
+.status-badge.rechazada {
+  background-color: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+
+/* Rejection Notice */
+.rejection-notice {
+  margin-top: 12px;
+  padding: 12px;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.notice-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #991b1b;
+  margin-bottom: 4px;
+}
+
+.rejection-reason {
+  margin: 4px 0;
+  color: #7f1d1d;
+  font-style: italic;
+}
+
+.rejection-help {
+  margin: 4px 0 0 0;
+  font-size: 12px;
+  color: #991b1b;
 }
 </style>
