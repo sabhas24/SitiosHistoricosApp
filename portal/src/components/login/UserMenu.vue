@@ -275,7 +275,6 @@ onUnmounted(() => {
   border: 2px solid var(--color-blue-100);
 }
 
-/* User Info */
 .user-info {
   display: none;
   flex-direction: column;
@@ -306,7 +305,7 @@ onUnmounted(() => {
   color: var(--color-slate-500);
 }
 
-/* Chevron */
+
 .chevron-icon {
   width: 0.875rem;
   height: 0.875rem;

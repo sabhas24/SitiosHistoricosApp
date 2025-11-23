@@ -68,8 +68,8 @@ const formatLocation = (site) => {
 <style scoped>
 .site-card {
   background: white;
-  border: 1px solid #e5e7eb; /* Wireframe style border */
-  border-radius: 8px; /* Slightly sharper corners */
+  border: 1px solid #e5e7eb;  
+  border-radius: 8px; 
   overflow: hidden;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
@@ -158,7 +158,7 @@ const formatLocation = (site) => {
 }
 
 .star.filled {
-  color: #fbbf24; /* Amber-400 */
+  color: #fbbf24; 
 }
 
 .rating-value {
@@ -202,7 +202,7 @@ const formatLocation = (site) => {
 
 @media (max-width: 480px) {
   .site-card:hover {
-    transform: none; /* Disable hover effects on touch devices */
+    transform: none; 
   }
   
   .site-card:hover .card-image-wrapper img {

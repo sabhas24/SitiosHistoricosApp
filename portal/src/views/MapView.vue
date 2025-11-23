@@ -207,7 +207,7 @@ onUnmounted(() => {
   color: #6b7280;
 }
 
-/* Estilos para marcadores personalizados */
+
 :deep(.custom-marker) {
   background: transparent;
   border: none;
@@ -224,7 +224,7 @@ onUnmounted(() => {
   transform: scale(1.1);
 }
 
-/* Estilos para popups personalizados */
+
 :deep(.custom-popup .leaflet-popup-content-wrapper) {
   border-radius: 12px;
   padding: 0;

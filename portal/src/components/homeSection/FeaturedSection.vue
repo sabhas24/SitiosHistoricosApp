@@ -430,7 +430,7 @@ onMounted(() => {
     height: 240px;
   }
   
-  /* Adjust navigation buttons for tablets */
+ 
   .nav-btn {
     width: 36px;
     height: 36px;
@@ -453,7 +453,7 @@ onMounted(() => {
   }
   
   .sites-grid {
-    grid-auto-columns: 200px; /* Smaller cards for mobile */
+    grid-auto-columns: 200px; 
     gap: 12px;
   }
   
@@ -469,8 +469,7 @@ onMounted(() => {
   .skeleton-card {
     height: 200px;
   }
-  
-  /* Hide navigation buttons on small mobile screens */
+ 
   .nav-btn {
     display: none;
   }
