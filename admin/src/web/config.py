@@ -31,14 +31,17 @@ class Config:
 
 
 class DevelopmentConfig(Config):
-    MINIO_ENDPOINT = environ.get("MINIO_ENDPOINT", "127.0.0.1:9000")
+    
+    MINIO_ENDPOINT = environ.get("MINIO_ENDPOINT", "minio.proyecto2025.linti.unlp.edu.ar")
     MINIO_BUCKET_NAME = environ.get("MINIO_BUCKET_NAME", "grupo44")
-    MINIO_ACCESS_KEY = environ.get("MINIO_ACCESS_KEY", "hajqpfzuadiMb4aIqDPz")
+    MINIO_ACCESS_KEY = environ.get("MINIO_ACCESS_KEY", "kKhBPfUYJHfyvaCdnNZT")
     MINIO_SECRET_KEY = environ.get(
-        "MINIO_SECRET_KEY", "YoTbnJTYnaVXovWm93GJpYLj9LsPs3tMluHzJe57"
+        "MINIO_SECRET_KEY", "Tke5F7UZEP59mwkysJGRaWJYuCfLVlOypARR7fjx"
     )
-    MINIO_SECURE = False
-    MINIO_SERVER = "127.0.0.1:9000"
+    MINIO_SECURE = "minio.proyecto2025" in environ.get(
+        "MINIO_ENDPOINT", "minio.proyecto2025.linti.unlp.edu.ar"
+    )
+    MINIO_SERVER = environ.get("MINIO_ENDPOINT", "minio.proyecto2025.linti.unlp.edu.ar")
     DEBUG = True
     BD_USER = environ.get("DB_USER", "postgres")
     BD_PASSWORD = environ.get("DB_PASSWORD", "admin")
@@ -55,12 +58,14 @@ class DevelopmentConfig(Config):
     JWT_COOKIE_SECURE = False
     JWT_COOKIE_CSRF_PROTECT = False
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
-    JWT_COOKIE_SAMESITE = "None"
+    # Evitar SameSite=None sin secure durante el desarrollo en HTTP local
+    JWT_COOKIE_SAMESITE = "Lax"
     JWT_COOKIE_DOMAIN = None
     JWT_COOKIE_HTTPONLY = True
     FRONTEND_BASE_URL = "http://localhost:5173"
     SESSION_COOKIE_DOMAIN = None
-    SESSION_COOKIE_SAMESITE = "None"
+    SESSION_COOKIE_SAMESITE = "Lax"
+    SESSION_COOKIE_SECURE = False
 
     CORS_ORIGINS = [
         "http://localhost:5173",
@@ -96,7 +101,8 @@ class ProductionConfig(Config):
     JWT_SECRET_KEY = environ.get("JWT_SECRET_KEY")
     JWT_TOKEN_LOCATION = ["cookies"]
     JWT_COOKIE_SECURE = True
-    JWT_COOKIE_SAMESITE = "None"
+    # Evitar SameSite=None sin secure durante el desarrollo en HTTP local
+    JWT_COOKIE_SAMESITE = "Lax"
     JWT_COOKIE_DOMAIN = ".proyecto2025.linti.unlp.edu.ar"
     JWT_COOKIE_HTTPONLY = True
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(hours=1)
@@ -108,8 +114,6 @@ class ProductionConfig(Config):
     PERMANENT_SESSION_LIFETIME = timedelta(hours=1)
 
     FRONTEND_BASE_URL = environ.get("FRONTEND_BASE_URL")
-
-    CORS_ORIGINS = ["*"]  # Temporal para probar
 
 
 config = {
