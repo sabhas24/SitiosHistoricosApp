@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
-import api from '../config/api'
+import { authService } from '../services/authService'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -17,10 +17,7 @@ async function handleLogin() {
   loading.value = true
   
   try {
-    const response = await api.post('/user/login', {
-      email: email.value,
-      password: password.value
-    })
+    const response = await authService.login(email.value, password.value)
     authStore.setUser(response.data.user)
     const redirectPath = router.currentRoute.value.query.redirect || '/'
     router.push(redirectPath)
@@ -34,7 +31,7 @@ async function handleLogin() {
 function handleGoogleLogin() {
   const redirectPath = router.currentRoute.value.query.redirect || '/';
   localStorage.setItem('redirectAfterLogin', redirectPath);
-  window.location.href = `${api.defaults.baseURL}/user/login/google`;
+  window.location.href = authService.googleLogin()
 }
 
 function handleCancel() {
