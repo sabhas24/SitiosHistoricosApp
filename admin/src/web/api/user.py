@@ -80,9 +80,9 @@ def login_user():
 @bp.get("/login/google")
 def login_google():
     oauth = get_oauth()
-    # Usar _external=True y _scheme='http' para desarrollo local
-    redirect_uri = url_for("api.user_api.login_callback", _external=True, _scheme='http')
-    
+
+    redirect_uri = url_for("api.user_api.login_callback", _external=True)
+
     return oauth.google.authorize_redirect(redirect_uri)
 
 
@@ -90,9 +90,9 @@ def login_google():
 def login_callback():
     try:
         oauth = get_oauth()
-       
+
         token = oauth.google.authorize_access_token()
-        user_info = oauth.google.parse_id_token(token, nonce=None)  
+        user_info = oauth.google.parse_id_token(token, nonce=None)
         email = user_info["email"]
         name = user_info.get("given_name", "")
         last_name = user_info.get("family_name", "")
@@ -123,7 +123,7 @@ def login_callback():
         return response
 
     except Exception as e:
-        # Redirigir al frontend con el error en lugar de devolver JSON
+
         frontend_base = current_app.config.get("FRONTEND_BASE_URL", "")
         error_message = str(e)
         frontend_url = f"{frontend_base}/login-error?error={error_message}"

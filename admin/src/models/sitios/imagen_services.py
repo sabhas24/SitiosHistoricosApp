@@ -6,7 +6,6 @@ from werkzeug.utils import secure_filename
 from flask import current_app
 from sqlalchemy import func
 from minio import Minio
-from urllib.parse import urlparse
 from minio.error import S3Error
 from src.models.database import db
 from src.models.sitios.imagen_sitio import ImagenSitio
@@ -34,17 +33,8 @@ def init_minio():
     if not secret_key:
         raise Exception("MINIO_SECRET_KEY no está configurado")
     
-    # Normalize endpoint: Minio SDK expects host (without http scheme)
-    # Accepts endpoints like 'minio.example.com' or 'minio.example.com:9000'
-    parsed = urlparse(endpoint) if endpoint and (endpoint.startswith('http://') or endpoint.startswith('https://')) else None
-    if parsed and parsed.netloc:
-        endpoint_netloc = parsed.netloc
-    else:
-        endpoint_netloc = endpoint
-
-    current_app.logger.debug(f"[minio] Initializing Minio client; endpoint={endpoint_netloc}, secure={secure}")
     return Minio(
-        endpoint_netloc,
+        endpoint,
         access_key=access_key,
         secret_key=secret_key,
         secure=secure,
@@ -70,7 +60,6 @@ def upload_image_to_minio(file, filename):
         minio_client = init_minio()
         bucket_name = current_app.config.get('MINIO_BUCKET_NAME')
         endpoint = current_app.config.get('MINIO_ENDPOINT')
-        secure = current_app.config.get('MINIO_SECURE', False)
         
         if not bucket_name:
             raise Exception("MINIO_BUCKET_NAME no está configurado")
@@ -95,17 +84,10 @@ def upload_image_to_minio(file, filename):
             content_type=file.mimetype
         )
         
-        # Normalize endpoint for constructing public URL
-        # If user configured endpoint with scheme, parse it
-        parsed = urlparse(endpoint) if endpoint and (endpoint.startswith('http://') or endpoint.startswith('https://')) else None
-        endpoint_netloc = parsed.netloc if parsed and parsed.netloc else endpoint
-        scheme = 'https' if secure else 'http'
-        url_publica = f"{scheme}://{endpoint_netloc}/{bucket_name}/{filename}"
-        current_app.logger.debug(f"[minio] Uploaded file: bucket={bucket_name}, filename={filename}, url={url_publica}")
+        url_publica = f"https://{endpoint}/{bucket_name}/{filename}"
         return url_publica
         
     except S3Error as e:
-        current_app.logger.error(f"[minio] Error uploading to MinIO: {e}")
         raise Exception(f"Error al subir imagen a MinIO: {e}")
 
 
@@ -149,10 +131,6 @@ def agregar_imagen_sitio(sitio_id, file, titulo_alt, descripcion=None):
         filename = generate_unique_filename(file.filename)
     
         url_publica = upload_image_to_minio(file, filename)
-        # Debugging: log what we got back from MinIO
-        current_app.logger.debug(f"[imagenes] agregar_imagen_sitio -> url_publica returned: {url_publica}")
-        if not url_publica:
-            raise Exception('No se pudo generar url_publica desde MinIO')
         
         max_orden = db.session.query(func.max(ImagenSitio.orden)).filter(
             ImagenSitio.sitio_id == sitio_id
@@ -171,13 +149,11 @@ def agregar_imagen_sitio(sitio_id, file, titulo_alt, descripcion=None):
         
         db.session.add(imagen)
         db.session.commit()
-        current_app.logger.debug(f"[imagenes] Imagen creada en DB: id={imagen.id} nombre_archivo={imagen.nombre_archivo} url_publica={imagen.url_publica}")
         
         return True, "Imagen agregada exitosamente"
         
     except Exception as e:
         db.session.rollback()
-        current_app.logger.error(f"[imagenes] Error al agregar imagen: {e}")
         return False, f"Error al agregar imagen: {str(e)}"
 
 

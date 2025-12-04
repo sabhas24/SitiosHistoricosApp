@@ -114,6 +114,7 @@ class ProductionConfig(Config):
     PERMANENT_SESSION_LIFETIME = timedelta(hours=1)
 
     FRONTEND_BASE_URL = environ.get("FRONTEND_BASE_URL")
+    CORS_ORIGINS = [FRONTEND_BASE_URL]
 
 
 config = {
