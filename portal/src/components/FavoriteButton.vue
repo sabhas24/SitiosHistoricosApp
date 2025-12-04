@@ -38,6 +38,7 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import favoritesService from '../services/favoritesService'
 
@@ -85,9 +86,15 @@ const checkFavoriteStatus = async () => {
   }
 }
 
+const router = useRouter()
+const route = useRoute()
+
 const toggleFavorite = async () => {
   if (!isAuthenticated.value) {
-    // Opcional: mostrar modal de login o redirigir
+    router.push({ 
+      name: 'login', 
+      query: { redirect: route.fullPath } 
+    })
     return
   }
 

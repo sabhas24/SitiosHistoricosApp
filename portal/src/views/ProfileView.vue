@@ -84,7 +84,7 @@
 
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 import { profileService } from '../services/profileService'
 import ProfileHeader from '../components/profile/ProfileHeader.vue'
@@ -140,6 +140,18 @@ const tabs = [
   { id: 'reviews', label: 'Mis Reseñas' },
   { id: 'favorites', label: 'Sitios Favoritos' }
 ]
+
+const route = useRoute()
+watch(() => route.query.tab, (newTab) => {
+  if (newTab && tabs.some(t => t.id === newTab)) {
+    activeTab.value = newTab
+  }
+}, { immediate: true })
+
+
+watch(activeTab, (newTab) => {
+  router.replace({ query: { ...route.query, tab: newTab } })
+})
 
 if (!authStore.isAuthenticated) {
   router.push('/login')

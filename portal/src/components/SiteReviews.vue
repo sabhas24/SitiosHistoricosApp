@@ -125,7 +125,8 @@
 </template>
 <script setup>
 import { ref, onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
+
+import { useRoute, useRouter } from 'vue-router'
 import RatingInput from './RatingInput.vue'
 import reviewsService from '../services/reviewsService'
 import { useAuthStore } from '../stores/auth'
@@ -195,6 +196,7 @@ async function loadMyReview() {
 }
 
 const route = useRoute()
+const router = useRouter()
 
 onMounted(async () => {
   await loadReviews()
@@ -215,7 +217,10 @@ onMounted(async () => {
 
 function openForm() {
   if (!isAuthenticated.value) {
-    window.location.href = '/login'
+    router.push({ 
+      name: 'login', 
+      query: { redirect: route.fullPath } 
+    })
     return
   }
   showForm.value = true
