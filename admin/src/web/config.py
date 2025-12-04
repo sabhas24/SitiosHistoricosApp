@@ -88,8 +88,8 @@ class ProductionConfig(Config):
 
     MINIO_ENDPOINT = "minio.proyecto2025.linti.unlp.edu.ar"
     MINIO_BUCKET_NAME = "grupo44"
-    MINIO_ACCESS_KEY = "hajqpfzuadiMb4aIqDPz"
-    MINIO_SECRET_KEY = "YoTbnJTYnaVXovWm93GJpYLj9LsPs3tMluHzJe57"
+    MINIO_ACCESS_KEY = "2jLO3UxSs2LC1sw3bH6t"
+    MINIO_SECRET_KEY = "XvKKjeKRyfoqMRlIRB5OVCzlRGhbeYE6oryzcs2V"
     MINIO_SECURE = True
 
     JWT_SECRET_KEY = environ.get("JWT_SECRET_KEY")
