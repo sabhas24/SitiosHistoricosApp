@@ -86,11 +86,10 @@ class ProductionConfig(Config):
     BD_URL = environ.get("DATABASE_URL")
     BD_SCHEME = environ.get("DATABASE_SCHEME")
 
-    # MinIO Configuration
-    MINIO_ENDPOINT = environ.get("MINIO_ENDPOINT")
-    MINIO_BUCKET_NAME = environ.get("MINIO_BUCKET_NAME")
-    MINIO_ACCESS_KEY = environ.get("MINIO_ACCESS_KEY")
-    MINIO_SECRET_KEY = environ.get("MINIO_SECRET_KEY")
+    MINIO_ENDPOINT = "minio.proyecto2025.linti.unlp.edu.ar"
+    MINIO_BUCKET_NAME = "grupo44"
+    MINIO_ACCESS_KEY = "hajqpfzuadiMb4aIqDPz"
+    MINIO_SECRET_KEY = "YoTbnJTYnaVXovWm93GJpYLj9LsPs3tMluHzJe57"
     MINIO_SECURE = True
 
     JWT_SECRET_KEY = environ.get("JWT_SECRET_KEY")
