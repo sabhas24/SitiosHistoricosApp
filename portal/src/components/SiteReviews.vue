@@ -166,6 +166,7 @@ async function loadReviews() {
   try {
     const data = await reviewsService.getPublicReviews(props.siteId, 1, 20)
     reviews.value = data.data || []
+   
   } catch (err) {
     console.error('Error loading reviews', err)
   } finally {
@@ -176,7 +177,7 @@ async function loadReviews() {
 async function loadMyReview() {
   if (!isAuthenticated.value) { myReview.value = null; return }
   try {
-    // Use the new endpoint that returns the user's review for this site
+   
     const response = await reviewsService.getMyReview(props.siteId)
     
     myReview.value = response
@@ -287,6 +288,10 @@ async function confirmDelete() {
     statusMessage.value = err.response?.data?.error?.message || 'No se pudo eliminar la reseña.'
   }
 }
+
+watch(reviews, (val) => {
+  console.log('reviews actualizadas:', val)
+})
 </script>
 
 <style scoped>
