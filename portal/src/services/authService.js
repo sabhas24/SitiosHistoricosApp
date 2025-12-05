@@ -6,9 +6,8 @@ export const authService = {
         return response.data;
     },
     async loginGoogle() {
-        const response = await api.get('/user/login/google');
-        return response.data;
-    },
+        window.location.href = `${api.defaults.baseURL}/user/login/google`;
+      },
     //modificar
     async register(name, email, password) {
         const response = await api.post('/user/register', { name, email, password });

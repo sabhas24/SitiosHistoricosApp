@@ -28,12 +28,13 @@ async function handleLogin() {
   }
 }
 
-function handleGoogleLogin() {
-  const redirectPath = router.currentRoute.value.query.redirect || '/';
-  localStorage.setItem('redirectAfterLogin', redirectPath);
-  window.location.href = authService.googleLogin()
+async function handleGoogleLogin() {
+  try {
+    authService.loginGoogle();
+  } catch (err) {
+    error.value = err.message || 'Error al iniciar sesión con Google';
+  }
 }
-
 function handleCancel() {
   router.push('/')
 }
