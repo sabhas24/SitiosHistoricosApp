@@ -22,33 +22,29 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+import 'leaflet.markercluster/dist/MarkerCluster.css'
+import 'leaflet.markercluster/dist/MarkerCluster.Default.css'
+import 'leaflet.markercluster'
 import NavigationBar from '../components/NavigationBar.vue'
 import sitiosService from '../services/sitiosService'
 import { minioImg } from '../utils/minioImages'
 
 const sitesCount = ref(0)
 let map = null
-let markers = []
+let markers = null // MarkerClusterGroup
 
 // Coordenadas del centro de Argentina
 const DEFAULT_CENTER = [-38.4161, -63.6167]
 const DEFAULT_ZOOM = 5
 
-// Función para calcular el radio en metros basado en el nivel de zoom
-const calculateRadius = (zoom) => {
-  // Fórmula aproximada: a mayor zoom, menor radio
-  // Zoom 5 (país completo) = ~500km
-  // Zoom 10 (provincia) = ~50km
-  // Zoom 15 (ciudad) = ~5km
-  const baseRadius = 500000 // 500km en metros
-  const radiusMeters = baseRadius / Math.pow(2, zoom - 5)
-  return Math.max(radiusMeters, 1000) // Mínimo 1km
-}
-
-// Función para limpiar marcadores existentes
-const clearMarkers = () => {
-  markers.forEach(marker => map.removeLayer(marker))
-  markers = []
+// Función para calcular el radio basado en los límites del mapa
+const getMapRadius = () => {
+  if (!map) return 500000
+  const bounds = map.getBounds()
+  const center = map.getCenter()
+  const northEast = bounds.getNorthEast()
+  // Distancia del centro a la esquina en metros + 10% de margen
+  return center.distanceTo(northEast) * 1.1
 }
 
 // Función para cargar y mostrar sitios
@@ -56,18 +52,20 @@ const loadSites = async () => {
   if (!map) return
 
   const center = map.getCenter()
-  const zoom = map.getZoom()
-  const radius = calculateRadius(zoom)
+  const radius = getMapRadius()
 
   try {
     const response = await sitiosService.getSitios({
       lat: center.lat,
       long: center.lng,
       radius: radius,
-      per_page: 100
+      per_page: 500 // Traemos más sitios ya que ahora agrupamos
     })
 
-    clearMarkers()
+    // Limpiar marcadores existentes
+    if (markers) {
+      markers.clearLayers()
+    }
     
     const sites = response.sitios || []
     sitesCount.value = sites.length
@@ -103,16 +101,21 @@ const loadSites = async () => {
           className: 'custom-popup'
         })
 
-        marker.addTo(map)
-        markers.push(marker)
+        markers.addLayer(marker)
       }
     })
+    
+    // Agregar el grupo de clusters al mapa si no estaba
+    if (!map.hasLayer(markers)) {
+      map.addLayer(markers)
+    }
+
   } catch (error) {
     console.error('Error loading sites:', error)
   }
 }
 
-// Debounce para evitar demasiadas llamadas al mover el mapa
+// Debounce para evitar llamadas excesivas
 let loadTimeout = null
 const debouncedLoadSites = () => {
   if (loadTimeout) clearTimeout(loadTimeout)
@@ -120,20 +123,24 @@ const debouncedLoadSites = () => {
 }
 
 onMounted(() => {
-  // Inicializar el mapa
   map = L.map('interactive-map').setView(DEFAULT_CENTER, DEFAULT_ZOOM)
 
-  // Agregar capa de tiles
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors',
     maxZoom: 18,
     minZoom: 4
   }).addTo(map)
 
-  // Cargar sitios iniciales
+  // Inicializar grupo de clusters con opciones personalizadas si se desea
+  markers = L.markerClusterGroup({
+    showCoverageOnHover: false,
+    maxClusterRadius: 50
+  })
+  
+  map.addLayer(markers)
+
   loadSites()
 
-  // Escuchar eventos de movimiento y zoom
   map.on('moveend', debouncedLoadSites)
   map.on('zoomend', debouncedLoadSites)
 })
@@ -222,6 +229,7 @@ onUnmounted(() => {
 
 :deep(.marker-pin:hover) {
   transform: scale(1.1);
+  z-index: 1000;
 }
 
 
@@ -281,6 +289,21 @@ onUnmounted(() => {
 
 :deep(.popup-link:hover) {
   background: #704a3a;
+}
+
+/* Marker Cluster Styles */
+:deep(.marker-cluster-small),
+:deep(.marker-cluster-medium),
+:deep(.marker-cluster-large) {
+  background-color: rgba(139, 115, 85, 0.6);
+}
+
+:deep(.marker-cluster-small div),
+:deep(.marker-cluster-medium div),
+:deep(.marker-cluster-large div) {
+  background-color: rgba(139, 115, 85, 0.9);
+  color: white;
+  font-weight: bold;
 }
 
 @media (max-width: 768px) {

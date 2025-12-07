@@ -70,6 +70,26 @@
               </div>
             </div>
 
+            <!-- Filtrar por Tags -->
+            <div class="filter-group" v-if="availableTags.length > 0">
+              <h4 class="filter-subtitle">Etiquetas</h4>
+              <div class="checkbox-list" style="max-height: 200px; overflow-y: auto;">
+                <label 
+                  v-for="tag in availableTags" 
+                  :key="tag.id"
+                  class="checkbox-item"
+                >
+                  <input 
+                    type="checkbox" 
+                    :value="tag.nombre"
+                    @change="toggleTag(tag.nombre)"
+                    :checked="selectedTags.includes(tag.nombre)"
+                  />
+                  <span>{{ tag.nombre }}</span>
+                </label>
+              </div>
+            </div>
+
             <div class="filter-group">
               <h4 class="filter-subtitle">Estado de conservación</h4>
               <div class="pill-group">
@@ -108,8 +128,8 @@
                 class="sort-select"
               >
                 <option value="name">Nombre (A-Z)</option>
-                <option value="created_at">Más Recientes</option>
-                <option value="visits">Más Visitados</option>
+                <option value="latest">Más Recientes</option>
+                <option value="visits_desc">Más Visitados</option>
               </select>
             </div>
           </div>
@@ -163,9 +183,11 @@
                   <p class="card-description">{{ sitio.descripcion_breve || 'Sin descripción disponible' }}</p>
                   <div class="card-tags">
                     <span 
-                      v-for="(tag, index) in sitio.tags?.slice(0, 2)" 
+                      v-for="(tag, index) in sitio.tags" 
                       :key="index"
                       class="tag"
+                      @click.prevent="toggleTag(tag)"
+                      style="cursor: pointer;"
                     >
                       {{ tag }}
                     </span>
@@ -240,15 +262,18 @@ const filters = ref({
   order_by: 'name',
   page: 1,
   per_page: 12,
-  estado_conservacion: ''
+  estado_conservacion: '',
+  tags: []
 })
 
 const selectedProvinces = ref([])
 const selectedCategories = ref([])
+const selectedTags = ref([])
 const estadoOptions = ['Bueno', 'Regular', 'Malo']
 
 const availableProvinces = ref([])
 const availableCategories = ref([])
+const availableTags = ref([])
 
 const meta = ref({
   total: 0,
@@ -289,10 +314,15 @@ const loadSitios = async () => {
     if (selectedCategories.value.length > 0) {
       params.category = selectedCategories.value[0]
     }
+    if (selectedTags.value.length > 0) {
+      params.tags = selectedTags.value
+    }
+
+    console.log('LoadSitios Params:', JSON.parse(JSON.stringify(params)))
     
     const response = await sitiosService.getSitios(params)
     sitios.value = response.sitios || []
-    meta.value = response.meta || { total: 0, page: 1, per_page: 12, pages: 1 }
+    meta.value = response.meta || { total: 0, page: 1, per_page: 12, total_pages: 1 }
     
     // Scroll to top
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -318,6 +348,16 @@ const toggleProvince = (province) => {
     selectedProvinces.value.splice(index, 1)
   } else {
     selectedProvinces.value = [province]
+  }
+  applyFilters()
+}
+
+const toggleTag = (tag) => {
+  const index = selectedTags.value.indexOf(tag)
+  if (index > -1) {
+    selectedTags.value.splice(index, 1)
+  } else {
+    selectedTags.value.push(tag)
   }
   applyFilters()
 }
@@ -369,6 +409,7 @@ const clearFilters = () => {
   }
   selectedProvinces.value = []
   selectedCategories.value = []
+  selectedTags.value = []
   updateURL()
   loadSitios()
 }
@@ -384,7 +425,9 @@ const updateURL = () => {
   const query = {}
   if (filters.value.name) query.name = filters.value.name
   if (filters.value.city) query.city = filters.value.city
-  if (filters.value.province) query.province = filters.value.province
+  if (selectedProvinces.value.length > 0) query.province = selectedProvinces.value[0]
+  if (selectedCategories.value.length > 0) query.category = selectedCategories.value[0]
+  if (selectedTags.value.length > 0) query.tags = selectedTags.value.join(',')
   if (filters.value.estado_conservacion) {
     query.estado_conservacion = filters.value.estado_conservacion
   }
@@ -397,7 +440,9 @@ const updateURL = () => {
 const loadFiltersFromURL = () => {
   if (route.query.name) filters.value.name = route.query.name
   if (route.query.city) filters.value.city = route.query.city
-  if (route.query.province) filters.value.province = route.query.province
+  if (route.query.province) selectedProvinces.value = [route.query.province]
+  if (route.query.category) selectedCategories.value = [route.query.category]
+  if (route.query.tags) selectedTags.value = route.query.tags.split(',')
   if (route.query.estado_conservacion) {
     filters.value.estado_conservacion = route.query.estado_conservacion
   }
@@ -408,7 +453,7 @@ const loadFiltersFromURL = () => {
 // Calcular páginas visibles en la paginación
 const visiblePages = computed(() => {
   const current = meta.value.page
-  const total = meta.value.pages
+  const total = meta.value.total_pages
   const pages = []
   
   if (total <= 7) {
@@ -441,6 +486,7 @@ const loadFilterOptions = async () => {
     const options = await sitiosService.getFilterOptions()
     availableProvinces.value = options.provincias || []
     availableCategories.value = options.categorias || []
+    availableTags.value = options.tags || []
   } catch (err) {
     console.error('Error al cargar opciones de filtros:', err)
   }
@@ -842,6 +888,7 @@ onMounted(() => {
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }

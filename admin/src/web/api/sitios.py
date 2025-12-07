@@ -43,8 +43,8 @@ def list_sites():
     page = request.args.get("page", 1, type=int)
     per_page = request.args.get("per_page", 25, type=int)
 
-    if per_page < 1 or per_page > 100:
-        errors["per_page"] = ["Must be between 1 and 100"]
+    if per_page < 1 or per_page > 1000:
+        errors["per_page"] = ["Must be between 1 and 1000"]
 
     name = request.args.get("name", "", type=str)
     description = request.args.get("description", "", type=str)
@@ -52,6 +52,7 @@ def list_sites():
     province = request.args.get("province", "", type=str)
     category = request.args.get("category", "", type=str)
     tags = request.args.getlist("tags")
+    print(f"DEBUG: Tags received: {tags}")
     order_by = request.args.get("order_by", "latest", type=str)
     estado_conservacion = request.args.get("estado_conservacion", "", type=str)
     lat = request.args.get("lat", type=float)
@@ -63,8 +64,8 @@ def list_sites():
 
     if long is not None and (long < -180 or long > 180):
         errors["long"] = ["Must be a valid longitude"]
-    if per_page < 1 or per_page > 100:
-        errors["per_page"] = ["Must be between 1 and 100"]
+    if per_page < 1 or per_page > 1000:
+        errors["per_page"] = ["Must be between 1 and 1000"]
 
     if errors:
         return (

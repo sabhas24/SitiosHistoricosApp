@@ -431,9 +431,9 @@ def obtener_sitios(
             == EstadoConservacion(estado_conservacion)
         )
     if tag:
-        from src.models.tags.tag import Tags
+        from src.models.tags.tag import Tag
 
-        query = query.join(SitioHistorico.tags).filter(Tags.nombre.in_(tag))
+        query = query.join(SitioHistorico.tags).filter(Tag.nombre.in_(tag))
     if lat and long and radius:
         center = geoelements.WKTElement(f"POINT({long} {lat})", srid=4326)
         query = query.filter(
@@ -443,6 +443,10 @@ def obtener_sitios(
                 radius,
             )
         )
+    # Contar sitios únicos para evitar duplicados por joins (ej: tags)
+    # Calculamos el total ANTES de aplicar el ordenamiento para evitar errores de agregación (GroupingError)
+    total = query.with_entities(func.count(func.distinct(SitioHistorico.id))).scalar()
+
     match order_by:
         case "latest":
             query = query.order_by(SitioHistorico.fecha_registro.desc())
@@ -458,10 +462,27 @@ def obtener_sitios(
             query = query.order_by(SitioHistorico.visitas.desc())
         case _:
             query = query.order_by(SitioHistorico.fecha_registro.desc())
-
-    total = query.count()
+    
+    # 2. Simplificamos la query para evitar GroupingError con OrderBy
+    # En lugar de tratar de hacer todo en una query compleja con GROUP BY y ORDER BY que fallan en Postgres:
+    # Usamos DISTINCT ON (si fuera postgres directo) o simplemente .distinct() sobre el objeto completo.
+    
+    # SQLAlchemy .distinct() se traduce a DISTINCT en el SELECT.
+    # SELECT DISTINCT id, nombre, fecha... FROM sitios ... ORDER BY fecha DESC
+    # Esto es válido siempre que 'fecha' esté en el SELECT (lo cual es cierto porque seleccionamos todo el objeto)
+    
+    # Si ordenamos por algo que NO está en SitioHistorico (ej. promedio de calificaciones calculado), ahí falla.
+    # Pero en este caso ordenamos por columnas del modelo.
+    
+    # IMPORTANTE: Si hay JOINS (ej: tags), un sitio aparece 3 veces.
+    # .distinct() sobre SitioHistorico colapsará esas 3 filas a 1 sola fila ÚNICA si todos los campos de SitioHistorico son iguales.
+    # Y lo son, porque el join no cambia las columnas de SitioHistorico, solo multiplica las filas.
+    
     offset = (page - 1) * per_page
-    sitios = query.offset(offset).limit(per_page).all()
+    
+    # Seleccionamos las columnas de SitioHistorico explícitamente y aplicamos distinct()
+    sitios = query.with_entities(SitioHistorico).distinct().offset(offset).limit(per_page).all()
+    
     total_pages = (total + per_page - 1) // per_page if total > 0 else 1
     has_prev = page > 1
     has_next = page < total_pages
