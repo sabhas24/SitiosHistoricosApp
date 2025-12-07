@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+const apiBaseUrl = "https://admin-grupo44.proyecto2025.linti.unlp.edu.ar/api";
 
 
 
