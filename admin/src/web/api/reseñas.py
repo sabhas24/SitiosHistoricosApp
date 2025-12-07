@@ -17,7 +17,6 @@ bp_reviews = Blueprint("reviews_api", __name__)
 
 
 @bp_reviews.get("/sites/<int:site_id>/reviews")
-@jwt_required
 def list_site_reviews(site_id):
     try:
         sitio = get_sitio_by_id(site_id)
@@ -121,17 +120,18 @@ def get_my_site_review(site_id):
                 401,
             )
 
-       
         from src.models.reseñas.reseña_services import obtener_reseña_usuario_sitio
-        
+
         reseña = obtener_reseña_usuario_sitio(usuario.email, site_id)
-        
+
         if not reseña:
-             return (
-                jsonify({"error": {"code": "not_found", "message": "Review not found"}}),
+            return (
+                jsonify(
+                    {"error": {"code": "not_found", "message": "Review not found"}}
+                ),
                 404,
             )
-            
+
         return (
             jsonify(
                 {
@@ -139,7 +139,7 @@ def get_my_site_review(site_id):
                     "site_id": reseña.sitio_id,
                     "rating": reseña.calificacion,
                     "comment": reseña.comentario,
-                    "status": reseña.estado.value, # Importante para el frontend
+                    "status": reseña.estado.value,  # Importante para el frontend
                     "rejection_reason": reseña.motivo_rechazo,
                     "inserted_at": reseña.fecha_creacion.isoformat() + "Z",
                     "updated_at": reseña.fecha_creacion.isoformat() + "Z",
@@ -155,7 +155,7 @@ def get_my_site_review(site_id):
                     "error": {
                         "code": "server_error",
                         "message": "An unexpected error occurred",
-                        "details": str(e)
+                        "details": str(e),
                     }
                 }
             ),
@@ -165,11 +165,12 @@ def get_my_site_review(site_id):
 
 from src.models.feature_flag.feature_flag_services import are_reviews_enabled
 
+
 @bp_reviews.post("/sites/<int:site_id>/reviews")
 @jwt_required
 def create_site_review(site_id):
     try:
-       
+
         if not are_reviews_enabled():
             return (
                 jsonify(
@@ -247,7 +248,6 @@ def create_site_review(site_id):
                 401,
             )
 
- 
         existing_review = existe_reseña_usuario_sitio(usuario.email, site_id)
 
         if existing_review:
@@ -379,8 +379,6 @@ def get_site_review(site_id, review_id):
         )
 
 
-
-
 @bp_reviews.put("/sites/<int:site_id>/reviews/<int:review_id>")
 @jwt_required
 def update_site_review(site_id, review_id):
@@ -452,14 +450,14 @@ def update_site_review(site_id, review_id):
             )
 
         errors = {}
-        
+
         # Validar rating si se proporciona
         if "rating" in json_data:
             if not isinstance(json_data.get("rating"), (int, float)) or not (
                 1 <= json_data.get("rating") <= 5
             ):
                 errors["rating"] = ["Must be between 1 and 5"]
-        
+
         # Validar comment si se proporciona
         if "comment" in json_data:
             comment = json_data.get("comment", "")
@@ -483,12 +481,12 @@ def update_site_review(site_id, review_id):
             )
 
         from src.models.reseñas.reseña_services import actualizar_reseña
-        
+
         success, message = actualizar_reseña(
             reseña_id=review_id,
             usuario_email=usuario.email,
             comentario=json_data.get("comment"),
-            calificacion=json_data.get("rating")
+            calificacion=json_data.get("rating"),
         )
 
         if not success:
@@ -506,7 +504,7 @@ def update_site_review(site_id, review_id):
 
         # Obtener reseña actualizada
         reseña = obtener_reseña_por_id(review_id)
-        
+
         return (
             jsonify(
                 {
@@ -517,7 +515,7 @@ def update_site_review(site_id, review_id):
                     "status": reseña.estado.value,
                     "inserted_at": reseña.fecha_creacion.isoformat() + "Z",
                     "updated_at": reseña.fecha_creacion.isoformat() + "Z",
-                    "message": message
+                    "message": message,
                 }
             ),
             200,
