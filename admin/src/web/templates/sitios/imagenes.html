@@ -1,0 +1,334 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Gestión de Imágenes - {{ sitio.nombre }}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-3">
+        <div>
+            <h1 class="hero-title" style="font-size: 2rem; margin-bottom: 0.5rem;">
+                <i class="fas fa-images"></i>
+                Gestión de Imágenes
+            </h1>
+            <p class="hero-subtitle" style="margin: 0;">
+                {{ sitio.nombre }} - {{ sitio.ciudad }}, {{ sitio.provincia }}
+            </p>
+        </div>
+        <div class="flex gap-2">
+            <a href="{{ url_for('sitios.detalle', id=sitio.id) }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i>
+                Volver al Sitio
+            </a>
+        </div>
+    </div>
+
+    <!-- Información y límites -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-8">
+                    <p><strong>Imágenes actuales:</strong> {{ imagenes|length }}/10</p>
+                    <p><strong>Formatos permitidos:</strong> JPG, PNG, WEBP</p>
+                    <p><strong>Tamaño máximo:</strong> 5 MB por archivo</p>
+                </div>
+                <div class="col-md-4 text-right">
+                    {% if sitio.puede_agregar_imagen %}
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#agregarImagenModal">
+                            <i class="fas fa-plus"></i>
+                            Agregar Imagen
+                        </button>
+                    {% else %}
+                        <button type="button" class="btn btn-secondary" disabled>
+                            <i class="fas fa-ban"></i>
+                            Límite alcanzado (10)
+                        </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de imágenes -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="fas fa-list"></i>
+                Imágenes del Sitio
+            </h3>
+        </div>
+        <div class="card-body">
+            {% if imagenes %}
+                <div id="imagenes-container" class="row">
+                    {% for imagen in imagenes %}
+                        <div class="col-md-4 mb-4" data-imagen-id="{{ imagen.id }}">
+                            <div class="imagen-card">
+                                <div class="imagen-header">
+                                    <img src="{{ imagen.url_publica }}" alt="{{ imagen.titulo_alt }}" class="imagen-preview">
+                                    {% if imagen.es_portada %}
+                                        <div class="portada-badge">
+                                            <i class="fas fa-star"></i> PORTADA
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="imagen-body">
+                                    <h5 class="imagen-titulo">{{ imagen.titulo_alt }}</h5>
+                                    {% if imagen.descripcion %}
+                                        <p class="imagen-descripcion">{{ imagen.descripcion }}</p>
+                                    {% endif %}
+                                    <p class="imagen-orden">Orden: {{ imagen.orden }}</p>
+                                </div>
+                                <div class="imagen-actions">
+                                    {% if not imagen.es_portada %}
+                                        <form method="POST" action="{{ url_for('sitios.marcar_portada', imagen_id=imagen.id) }}" style="display: inline;">
+                                            <button type="submit" class="btn btn-sm btn-success" onclick="return confirm('¿Marcar como portada?')">
+                                                <i class="fas fa-star"></i> Portada
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                    
+                                    {% if imagen.es_eliminable %}
+                                        <form method="POST" action="{{ url_for('sitios.eliminar_imagen', imagen_id=imagen.id) }}" style="display: inline;">
+                                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Eliminar imagen?')">
+                                                <i class="fas fa-trash"></i> Eliminar
+                                            </button>
+                                        </form>
+                                    {% else %}
+                                        <button type="button" class="btn btn-sm btn-secondary" disabled title="No se puede eliminar la portada">
+                                            <i class="fas fa-lock"></i> Portada
+                                        </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Información sobre reordenamiento -->
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    Puede arrastrar y soltar las imágenes para reordenarlas.
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-images"></i>
+                    </div>
+                    <h3>No hay imágenes</h3>
+                    <p>Este sitio no tiene imágenes asociadas.</p>
+                    {% if sitio.puede_agregar_imagen %}
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#agregarImagenModal">
+                            <i class="fas fa-plus"></i>
+                            Agregar Primera Imagen
+                        </button>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal para agregar imagen -->
+<div class="modal fade" id="agregarImagenModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('sitios.agregar_imagen', sitio_id=sitio.id) }}" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title">Agregar Nueva Imagen</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="imagen" class="form-label">Archivo de imagen *</label>
+                        <input type="file" name="imagen" id="imagen" class="form-control" accept=".jpg,.jpeg,.png,.webp" required>
+                        <small class="form-text text-muted">Formatos: JPG, PNG, WEBP. Máximo 5 MB.</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="titulo_alt" class="form-label">Título/Alt *</label>
+                        <input type="text" name="titulo_alt" id="titulo_alt" class="form-control" maxlength="255" required>
+                        <small class="form-text text-muted">Texto alternativo para la imagen (obligatorio).</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea name="descripcion" id="descripcion" class="form-control" rows="3"></textarea>
+                        <small class="form-text text-muted">Descripción opcional de la imagen.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-upload"></i> Subir Imagen
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.imagen-card {
+    border: 1px solid #dee2e6;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: grab;
+}
+
+.imagen-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.imagen-card.dragging {
+    transform: rotate(5deg);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    cursor: grabbing;
+}
+
+.imagen-header {
+    position: relative;
+}
+
+.imagen-preview {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.portada-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #ffc107;
+    color: #000;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.imagen-body {
+    padding: 1rem;
+}
+
+.imagen-titulo {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.imagen-descripcion {
+    margin: 0 0 0.5rem 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.imagen-orden {
+    margin: 0;
+    color: #6c757d;
+    font-size: 0.8rem;
+}
+
+.imagen-actions {
+    padding: 0.5rem 1rem 1rem 1rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem 1rem;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+    color: #6c757d;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p {
+    color: #6c757d;
+    margin-bottom: 1.5rem;
+}
+
+#imagenes-container.sortable .imagen-card {
+    cursor: grab;
+}
+
+#imagenes-container.sortable .imagen-card:active {
+    cursor: grabbing;
+}
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Habilitar reordenamiento si hay imágenes
+    const container = document.getElementById('imagenes-container');
+    if (container && container.children.length > 1) {
+        const sortable = Sortable.create(container, {
+            animation: 150,
+            onEnd: function(evt) {
+                const ordenIds = [];
+                Array.from(container.children).forEach(function(item) {
+                    ordenIds.push(parseInt(item.dataset.imagenId));
+                });
+                
+                // Enviar nuevo orden al servidor
+                fetch(`{{ url_for('sitios.reordenar_imagenes', sitio_id=sitio.id) }}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({orden_ids: ordenIds})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        console.error('Error al reordenar:', data.message);
+                        // Recargar página si hay error
+                        window.location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    window.location.reload();
+                });
+            }
+        });
+    }
+    
+    // Validación de archivo
+    document.getElementById('imagen').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const maxSize = 5 * 1024 * 1024; // 5 MB
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+            
+            if (file.size > maxSize) {
+                alert('El archivo es muy grande. Máximo 5 MB.');
+                e.target.value = '';
+                return;
+            }
+            
+            if (!allowedTypes.includes(file.type)) {
+                alert('Formato no permitido. Use JPG, PNG o WEBP.');
+                e.target.value = '';
+                return;
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

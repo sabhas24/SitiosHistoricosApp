@@ -29,6 +29,12 @@ class Tag(Base):
         self.nombre = nombre
         self.slug = self.generate_slug(nombre)
 
+    def __str__(self):
+        return self.nombre
+    
+    def __repr__(self):
+        return f"<Tag {self.nombre}>"
+
     @staticmethod
     def generate_slug(nombre):
         import unicodedata

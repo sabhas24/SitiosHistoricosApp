@@ -31,56 +31,68 @@
     </div>
   </section>
 
-  {% if is_authenticated() %}
-  <!-- Estadísticas -->
-  <section class="stats-section">
-    <div class="stats-grid">
-      <div class="stat-item">
-        <span class="stat-number">3</span>
-        <span class="stat-label">Usuarios Activos</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-number">3</span>
-        <span class="stat-label">Roles Configurados</span>
-      </div>
-      <div class="stat-item">
-        <span class="stat-number">2</span>
-        <span class="stat-label">Permisos Definidos</span>
-      </div>
-    </div>
-  </section>
+            {% endif %}
+            <a href="#features" class="hero-btn hero-btn-secondary">
+                <i class="fas fa-info-circle"></i>
+                Más Información
+            </a>
+        </div>
+    </header>
 
-  <!-- Acciones Rápidas -->
-  <section class="quick-actions">
-    <h2 class="quick-actions-title">Acciones Rápidas</h2>
-    <div class="actions-grid">
-      <a href="javascript:void(0)" onclick="showComingSoon('Crear Usuario')" class="action-item">
-        <div class="action-icon">
-          <i class="fas fa-user-plus"></i>
+    {% if is_authenticated() %}
+    <!-- Estadísticas -->
+    <section class="stats-section">
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span class="stat-number">3</span>
+                <span class="stat-label">Usuarios Activos</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">3</span>
+                <span class="stat-label">Roles Configurados</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">2</span>
+                <span class="stat-label">Permisos Definidos</span>
+            </div>
         </div>
-        <div class="action-content">
-          <div class="action-title">Crear Usuario</div>
-          <div class="action-description">Agregar un nuevo usuario al sistema</div>
-        </div>
-      </a>
-      
-      <a href="javascript:void(0)" onclick="showComingSoon('Gestionar Roles')" class="action-item">
-        <div class="action-icon">
-          <i class="fas fa-shield-alt"></i>
-        </div>
-        <div class="action-content">
-          <div class="action-title">Gestionar Roles</div>
-          <div class="action-description">Configurar roles y permisos</div>
-        </div>
-      </a>
-    
-    </div>
-  </section>
-  {% endif %}
+    </section>
 
- 
-    
-    
-  </section>
+    <!-- Acciones Rápidas -->
+    <section class="quick-actions">
+        <h2 class="quick-actions-title">Acciones Rápidas</h2>
+        <div class="actions-grid">
+            {% if check_permission('user_new') %}
+            <a href="{{ url_for('admin_users.create_form') }}" class="action-item">
+                <div class="action-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <div class="action-content">
+                    <div class="action-title">Crear Usuario</div>
+                    <div class="action-description">Agregar un nuevo usuario al sistema</div>
+                </div>
+            </a>
+            {% endif %}
+
+            {% if check_permission('site_new') %}
+            <a href="{{ url_for('sitios.nuevo') }}" class="action-item">
+                <div class="action-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="action-content">
+                    <div class="action-title">Nuevo Sitio Histórico</div>
+                    <div class="action-description">Registrar un nuevo sitio histórico</div>
+                </div>
+            </a>
+            {% endif %}
+
+        </div>
+    </section>
+    {% endif %}
+
+
+
+
+    </section>
 </div>
 {% endblock %}

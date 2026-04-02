@@ -6,22 +6,29 @@ authors = [
     {name = "Your Name",email = "you@example.com"}
 ]
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<4"
 dependencies = [
     "flask (>=3.1.2,<4.0.0)",
     "flask-session",
     "flask-sqlalchemy-lite",
-    "psycopg2-binary",
+    "flask-cors",
+    "flask-jwt-extended (>=4.6.0)",
+    "authlib",
+    "python-dotenv",
+    "marshmallow",
+    "psycopg2-binary (==2.9.11)",
     "geoalchemy2 (>=0.18.0,<0.19.0)",
-    "shapely (>=2.1.2,<3.0.0)"
+    "shapely (>=2.1.2,<3.0.0)",
+    "minio"
 ]
 
 [tool.poetry]
 packages = [{include = "web", from = "src"}]
 
 
-[tool.poetry.group.test.dependencies]
+[tool.poetry.group.dev.dependencies]
 pytest = "^8.4.2"
+
 
 [tool.pyright]
 include = ["src"]
