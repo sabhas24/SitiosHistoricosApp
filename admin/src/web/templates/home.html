@@ -4,24 +4,32 @@
 
 {% block content %}
 <div class="container">
-    <header class="hero-section" role="banner">
-        <figure class="hero-logo">
-            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="Logotipo de PatrimonioBA"
-                class="hero-logo-image" onerror="this.style.display='none'">
-        </figure>
-        <h1 class="hero-title">
-            Bienvenido a PatrimonioBA
-        </h1>
-        <p class="hero-subtitle">
-            Sistema de gestion de sitios historicos
-        </p>
-        <div class="hero-actions">
-            {% if not is_authenticated() %}
-            <a href="{{ url_for('auth.login') }}" class="hero-btn hero-btn-primary">
-                <i class="fas fa-sign-in-alt"></i>
-                Iniciar Sesión
-            </a>
-            {% else %}
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-logo">
+      <img src="{{ url_for('static', filename='images/logo.png') }}" alt="PatrimonioBA Logo" class="hero-logo-image" onerror="this.style.display='none'">
+    </div>
+    <h1 class="hero-title">
+      Bienvenido a PatrimonioBA
+    </h1>
+    <p class="hero-subtitle">
+      Sistema moderno de gestión de sitios históricos y patrimonio cultural de Buenos Aires.
+    </p>
+    <div class="hero-actions">
+      {% if not is_authenticated() %}
+        <a href="{{ url_for('auth.login') }}" class="hero-btn hero-btn-primary">
+          <i class="fas fa-sign-in-alt"></i>
+          Iniciar Sesión
+        </a>
+      {% else %}
+        
+      {% endif %}
+      <a href="#features" class="hero-btn hero-btn-secondary">
+        <i class="fas fa-info-circle"></i>
+        Más Información
+      </a>
+    </div>
+  </section>
 
             {% endif %}
             <a href="#features" class="hero-btn hero-btn-secondary">

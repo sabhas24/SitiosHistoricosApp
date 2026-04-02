@@ -1,6 +1,6 @@
-<nav class="sidebar" id="sidebar" role="navigation" aria-label="Navegación principal">
+<nav class="sidebar" id="sidebar">
   <div class="sidebar-content">
-    <section class="sidebar-section">
+    <div class="sidebar-section">
       <h3 class="sidebar-section-title">Principal</h3>
       <ul class="sidebar-nav">
         <li class="sidebar-nav-item">
@@ -11,10 +11,9 @@
             <span class="sidebar-nav-text">Inicio</span>
           </a>
         </li>
-      </ul>
-    </section>
+        
 
-    <section class="sidebar-section">
+    <div class="sidebar-section">
       <h3 class="sidebar-section-title">Patrimonio</h3>
       <ul class="sidebar-nav">
         <li class="sidebar-nav-item">
@@ -34,9 +33,9 @@
           </a>
         </li>
       </ul>
-    </section>
+    </div>
     {% if check_permission('proposal_index') or check_permission('review_index') %}
-    <section class="sidebar-section">
+    <div class="sidebar-section">
       <h3 class="sidebar-section-title">Moderación</h3>
       <ul class="sidebar-nav">
         {% if check_permission('proposal_index') %}
@@ -60,10 +59,10 @@
         </li>
         {% endif %}
       </ul>
-    </section>
+    </div>
     {% endif %}
     {% if check_permission('user_index') or (get_current_user() and get_current_user().is_super_admin) %}
-    <section class="sidebar-section">
+    <div class="sidebar-section">
       <h3 class="sidebar-section-title">Gestión</h3>
       <ul class="sidebar-nav">
       {% if check_permission('user_index') %}
@@ -90,7 +89,9 @@
         </li>
         {% endif %}
       </ul>
-    </section>
+    </div>
     {% endif %}   
+
+  
   </div>
 </nav>
